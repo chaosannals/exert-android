@@ -1,80 +1,72 @@
 package com.example.jcmdemo.ui.page
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
-import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.example.jcmdemo.R
-import kotlin.math.floor
+import com.example.jcmdemo.ui.routeTo
 
-sealed class GistItem(var route: String, var icon: Int) {
-
+enum class GistItem(var route: String, var icon: Int) {
+    Home("home", R.drawable.ic_home),
+    Conf("conf", R.drawable.ic_conf),
+    Camera("camera", R.drawable.ic_camera),
+//    Conf1("conf", R.drawable.ic_conf),
+//    Conf2("conf", R.drawable.ic_conf),
+//    Conf3("conf", R.drawable.ic_conf),
 }
 
 @Composable
-fun GistPage () {
+fun GistPage (navController: NavController) {
+    var items = GistItem.values()
+    var columnCount = 3
 
     Layout(
-        modifier = Modifier.fillMaxSize(),
+        // 修改器会影响到子空间的测量，使得子修改器失效
+        // modifier = Modifier.fillMaxSize(),
         content = @Composable() {
-            IconButton(
-                onClick = { /*TODO*/ },
-                //modifier = Modifier.width(10.dp)//.size(10.dp, 10.dp)//.fillMaxWidth(0.3f)
-            ) {
-                Icon(
-                    painter = painterResource(id = R.drawable.ic_gist),
-                    contentDescription = "gist"
-                )
-            }
-            IconButton(
-                onClick = { /*TODO*/ },
-                //modifier = Modifier.width(10.dp)//.size(10.dp, 10.dp)//.fillMaxWidth(0.3f)
-            ) {
-                Icon(
-                    painter = painterResource(id = R.drawable.ic_gist),
-                    contentDescription = "gist"
-                )
-            }
-            IconButton(
-                onClick = { /*TODO*/ },
-                //modifier = Modifier.width(10.dp)//.size(10.dp, 10.dp)//.fillMaxWidth(0.3f)
-            ) {
-                Icon(
-                    painter = painterResource(id = R.drawable.ic_gist),
-                    contentDescription = "gist"
-                )
-            }
-            IconButton(
-                onClick = { /*TODO*/ },
-                //modifier = Modifier.width(10.dp)//.size(10.dp, 10.dp)//.fillMaxWidth(0.3f)
-            ) {
-                Icon(
-                    painter = painterResource(id = R.drawable.ic_gist),
-                    contentDescription = "gist"
-                )
+            items.forEach{ item ->
+                IconButton(
+                    onClick = {
+                        navController.routeTo(item.route)
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth(0.3f)
+                        .aspectRatio(1.0f)
+                        .border(BorderStroke(1.dp, colorResource(id = R.color.black)))
+                        .background(colorResource(id = R.color.light_sky_blue))
+                ) {
+                    Icon(
+                        painter = painterResource(id = item.icon),
+                        contentDescription = item.route
+                    )
+                }
             }
         },
     ) { measurables, constraints ->
-        var placeables = measurables.map { measurable -> 
+        var placeables = measurables.map { measurable ->
             measurable.measure(constraints)
         }
 
-        var ps = placeables.size
-        var iw = constraints.maxWidth / 3.0
-        var ph = (floor(ps / 3.0).toInt() * iw).toInt()
-
-        layout(constraints.maxWidth, ph) {
+        layout(constraints.maxWidth, constraints.maxHeight) {
             placeables.forEachIndexed{ index, placeable ->
-                var x = ((index % 3) * constraints.maxWidth / 3).toInt()
-                var y = floor(index / 3.0).toInt() * placeable.width
+                var i = index % columnCount
+                var j = index.floorDiv(columnCount)
+                var span = (constraints.maxWidth - placeable.width * columnCount).floorDiv(columnCount + 1)
+                var x = span + i * (placeable.width + span)
+                var y = span + j * (placeable.height + span)
                 placeable.placeRelative(x = x, y = y)
             }
         }
@@ -84,5 +76,6 @@ fun GistPage () {
 @Preview(showBackground = true)
 @Composable
 fun GistPagePreview () {
-    return GistPage()
+    val navController = rememberNavController()
+    return GistPage(navController)
 }

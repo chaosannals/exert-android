@@ -38,15 +38,7 @@ fun BottomBar (navController: NavController) {
 //                Modifier.background(colorResource(id = R.color.white))
 //            },
             onClick = {
-                navController.navigate(item.route) {
-                    navController.graph.startDestinationRoute?.let { route ->
-                        popUpTo(route) {
-                            saveState = true
-                        }
-                        launchSingleTop = true
-                        restoreState = true
-                    }
-                }
+                navController.routeTo(item.route)
             }
         ) {
             Icon(
