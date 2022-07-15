@@ -24,7 +24,7 @@ enum class PageItem(var route: String, var page: @Composable (NavController) -> 
     Home(BottomItem.Home.route, { HomePage() }),
     Gist(BottomItem.Gist.route, { n -> GistPage(n) }),
     Conf(BottomItem.Conf.route, { ConfPage() }),
-    Camera(GistItem.Camera.route, { CameraPage() }),
+    Camera(GistItem.Camera.route, { n -> CameraPage(n) }),
 }
 
 @Composable

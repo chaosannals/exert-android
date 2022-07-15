@@ -12,7 +12,6 @@ import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
@@ -30,13 +29,13 @@ enum class GistItem(var route: String, var icon: Int) {
 
 @Composable
 fun GistPage (navController: NavController) {
-    var items = GistItem.values()
-    var columnCount = 3
+    val items = GistItem.values()
+    val columnCount = 3
 
     Layout(
         // 修改器会影响到子空间的测量，使得子修改器失效
         // modifier = Modifier.fillMaxSize(),
-        content = @Composable() {
+        content = {
             items.forEach{ item ->
                 IconButton(
                     onClick = {
@@ -56,17 +55,17 @@ fun GistPage (navController: NavController) {
             }
         },
     ) { measurables, constraints ->
-        var placeables = measurables.map { measurable ->
+        val placeables = measurables.map { measurable ->
             measurable.measure(constraints)
         }
 
         layout(constraints.maxWidth, constraints.maxHeight) {
             placeables.forEachIndexed{ index, placeable ->
-                var i = index % columnCount
-                var j = index.floorDiv(columnCount)
-                var span = (constraints.maxWidth - placeable.width * columnCount).floorDiv(columnCount + 1)
-                var x = span + i * (placeable.width + span)
-                var y = span + j * (placeable.height + span)
+                val i = index % columnCount
+                val j = index.floorDiv(columnCount)
+                val span = (constraints.maxWidth - placeable.width * columnCount).floorDiv(columnCount + 1)
+                val x = span + i * (placeable.width + span)
+                val y = span + j * (placeable.height + span)
                 placeable.placeRelative(x = x, y = y)
             }
         }
