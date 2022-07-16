@@ -145,6 +145,45 @@ suspend fun Context.getCameraProvider(): ProcessCameraProvider = suspendCoroutin
     }
 }
 
+fun VideoCapture<Recorder>.startRecording(context: Context, listener: (VideoRecordEvent) -> Unit) : Recording {
+    // 以下 MediaStore 官网解决方案，实测 安卓 10 以下 不行。还是要使用文件。
+    // 媒体本身不需要权限，配置外接需要以下权限。   sdk 28 以下要配置 maxSdkVersion=28
+    //<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" android:maxSdkVersion="28" />
+//            val name = SimpleDateFormat(FILENAME, Locale.US)
+//                .format(System.currentTimeMillis()) + ".mp4"
+//            val contentValues = ContentValues().apply {
+//                put(MediaStore.MediaColumns.DISPLAY_NAME, name)
+//                put(MediaStore.MediaColumns.MIME_TYPE, "video/mp4")
+//                if (Build.VERSION.SDK_INT > Build.VERSION_CODES.P) {
+//                    put(MediaStore.Video.Media.RELATIVE_PATH, "Movies/CameraX-Video")
+//                }
+//            }
+//            val mediaStoreOutputOptions = MediaStoreOutputOptions
+//                .Builder(context.contentResolver, MediaStore.Video.Media.EXTERNAL_CONTENT_URI)
+//                .setContentValues(contentValues)
+//                .build()
+
+    val outputDirectory = context.getOutputDirectory()
+    val videoFile = createFile(outputDirectory, FILENAME, VIDEO_EXTENSION)
+    var fileOutputOptions = FileOutputOptions
+        .Builder(videoFile)
+        .build()
+
+    return this.output
+        .prepareRecording(context, fileOutputOptions)
+        //.prepareRecording(context, mediaStoreOutputOptions)
+        .apply {
+            if (PermissionChecker.checkSelfPermission(
+                    context,
+                    Manifest.permission.RECORD_AUDIO) ==
+                PermissionChecker.PERMISSION_GRANTED)
+            {
+                withAudioEnabled()
+            }
+        }
+        .start(ContextCompat.getMainExecutor(context), listener)
+}
+
 @Composable
 fun CameraControls(cameraUIAction: (CameraUIAction) -> Unit, isVideo: Boolean) {
     var iconSize = 50.dp
@@ -161,7 +200,13 @@ fun CameraControls(cameraUIAction: (CameraUIAction) -> Unit, isVideo: Boolean) {
             R.drawable.ic_flip_camera_android,
             R.string.icn_camera_view_switch_camera_content_description,
             modifier= Modifier.size(iconSize),
-            onClick = { cameraUIAction(CameraUIAction.OnSwitchCameraClick) }
+            enabled = !isVideo,
+            onClick = {
+                // 录像的时候不能切镜头。
+                if (!isVideo) {
+                    cameraUIAction(CameraUIAction.OnSwitchCameraClick)
+                }
+            }
         )
 
         CameraControl(
@@ -171,6 +216,7 @@ fun CameraControls(cameraUIAction: (CameraUIAction) -> Unit, isVideo: Boolean) {
                 .size(iconSize)
                 .padding(1.dp)
                 .border(1.dp, colorResource(id = R.color.white), CircleShape),
+            enabled = !isVideo, // 录像的时候不能按快门拍照
             onClick = { cameraUIAction(CameraUIAction.OnCameraClick) }
         )
 
@@ -211,11 +257,13 @@ fun CameraControl(
     icon: Int,
     contentDescId: Int,
     modifier: Modifier = Modifier,
+    enabled: Boolean = true,
     onClick: () -> Unit
 ) {
     IconButton(
         onClick = onClick,
-        modifier = modifier
+        modifier = modifier,
+        enabled = enabled,
     ) {
         Icon(
             painterResource(id = icon),
@@ -244,7 +292,6 @@ private fun CameraPreviewView(
     val cameraSelector = CameraSelector.Builder()
         .requireLensFacing(lensFacing)
         .build()
-    val cameraProviderFuture = ProcessCameraProvider.getInstance(context)
 
     // 检查权限，无则申请。
     var sp = ContextCompat.checkSelfPermission(
@@ -258,7 +305,7 @@ private fun CameraPreviewView(
                 Manifest.permission.CAMERA,
                 Manifest.permission.RECORD_AUDIO,
             ),
-            1
+            1 // 自定标识
         )
     }
 
@@ -266,17 +313,32 @@ private fun CameraPreviewView(
         mutableStateOf(null)
     }
     val previewView = remember { PreviewView(context) }
-
-    LaunchedEffect(lensFacing) {
+    val onVideoRecord = { recordEvent: VideoRecordEvent ->
+        when(recordEvent) {
+            // is VideoRecordEvent.Start -> {}
+            is VideoRecordEvent.Finalize -> {
+                if (recordEvent.hasError()) {
+                    recording?.close()
+                    recording = null
+                }
+            }
+        }
+    }
+    val switchLens = suspend {
         val cameraProvider = context.getCameraProvider()
+        val capture = if (isVideo) { videoCapture } else { imageCapture }
         cameraProvider.unbindAll()
         cameraProvider.bindToLifecycle(
             lifecycleOwner,
             cameraSelector,
             preview,
-            if (isVideo) { videoCapture } else { imageCapture }
+            capture
         )
         preview.setSurfaceProvider(previewView.surfaceProvider)
+    }
+
+    LaunchedEffect(lensFacing) {
+        switchLens()
     }
 
     LaunchedEffect(isVideo) {
@@ -285,76 +347,24 @@ private fun CameraPreviewView(
             recording = null
         }
 
-        val capture = if (isVideo) { videoCapture } else { imageCapture }
-        val cameraProvider = cameraProviderFuture.get()
-        cameraProvider.unbindAll()
-        cameraProvider.bindToLifecycle(
-            lifecycleOwner,
-            cameraSelector,
-            preview,
-            capture
-        )
-
-        preview.setSurfaceProvider(previewView.surfaceProvider)
+        switchLens()
 
         if (isVideo) {
-//            val name = SimpleDateFormat(FILENAME, Locale.US)
-//                .format(System.currentTimeMillis()) + ".mp4"
-//            val contentValues = ContentValues().apply {
-//                put(MediaStore.MediaColumns.DISPLAY_NAME, name)
-//                put(MediaStore.MediaColumns.MIME_TYPE, "video/mp4")
-//                if (Build.VERSION.SDK_INT > Build.VERSION_CODES.P) {
-//                    put(MediaStore.Video.Media.RELATIVE_PATH, "Movies/CameraX-Video")
-//                }
-//            }
-//            val mediaStoreOutputOptions = MediaStoreOutputOptions
-//                .Builder(context.contentResolver, MediaStore.Video.Media.EXTERNAL_CONTENT_URI)
-//                .setContentValues(contentValues)
-//                .build()
-
-            val outputDirectory = context.getOutputDirectory()
-            val videoFile = createFile(outputDirectory, FILENAME, VIDEO_EXTENSION)
-            var fileOutputOptions = FileOutputOptions
-                .Builder(videoFile)
-                .build()
-
-            recording = videoCapture.output
-                .prepareRecording(context, fileOutputOptions)
-                //.prepareRecording(context, mediaStoreOutputOptions)
-                .apply {
-                    if (PermissionChecker.checkSelfPermission(
-                            context,
-                            Manifest.permission.RECORD_AUDIO) ==
-                        PermissionChecker.PERMISSION_GRANTED)
-                    {
-                        withAudioEnabled()
-                    }
-                }
-                .start(ContextCompat.getMainExecutor(context)) { recordEvent ->
-                    when(recordEvent) {
-                        // is VideoRecordEvent.Start -> {}
-                        is VideoRecordEvent.Finalize -> {
-                            if (recordEvent.hasError()) {
-                                recording?.close()
-                                recording = null
-                            }
-                        }
-                    }
-                }
-        }
-        else {
-            recording?.stop()
-            recording = null
+            videoCapture.startRecording(context, onVideoRecord)
         }
     }
 
 
-    Box(modifier = Modifier.fillMaxSize()) {
-        AndroidView({ previewView }, modifier = Modifier.fillMaxSize()) {
+    Column(modifier = Modifier.fillMaxSize()) {
+        AndroidView(
+            { previewView },
+            modifier = Modifier.weight(1.0f)
+                .fillMaxWidth()
+        ) {
 
         }
         Column(
-            modifier = Modifier.align(Alignment.BottomCenter),
+            //modifier = Modifier.align(Alignment.BottomCenter),
             verticalArrangement = Arrangement.Bottom
         ) {
             CameraControls(cameraUIAction, isVideo)
