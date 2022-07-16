@@ -3,17 +3,22 @@ package com.example.jcmdemo.ui.page.tool
 import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.content.ContentValues
 import android.content.Context
 import android.content.pm.PackageManager
 import android.media.MediaScannerConnection
 import android.net.Uri
+import android.os.Build
+import android.provider.MediaStore
 import android.webkit.MimeTypeMap
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCaptureException
+// import androidx.camera.core.VideoCapture
 import androidx.camera.lifecycle.ProcessCameraProvider
+import androidx.camera.video.*
 import androidx.camera.core.Preview as CameraPreview
 import androidx.camera.view.PreviewView
 import androidx.compose.foundation.background
@@ -36,6 +41,7 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.content.PermissionChecker
 import androidx.core.net.toFile
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
@@ -52,11 +58,13 @@ sealed class CameraUIAction {
     object OnCameraClick : CameraUIAction()
     object OnGalleryViewClick : CameraUIAction()
     object OnSwitchCameraClick : CameraUIAction()
+    object OnVideocamOpen: CameraUIAction()
+    object OnVideocamClose: CameraUIAction()
 }
 
 private const val FILENAME = "yyyy-MM-dd-HH-mm-ss-SSS"
 private const val PHOTO_EXTENSION = ".jpg"
-
+private const val VIDEO_EXTENSION = ".mp4"
 
 fun ImageCapture.takePicture(
     context: Context,
@@ -138,8 +146,8 @@ suspend fun Context.getCameraProvider(): ProcessCameraProvider = suspendCoroutin
 }
 
 @Composable
-fun CameraControls(cameraUIAction: (CameraUIAction) -> Unit) {
-
+fun CameraControls(cameraUIAction: (CameraUIAction) -> Unit, isVideo: Boolean) {
+    var iconSize = 50.dp
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -152,7 +160,7 @@ fun CameraControls(cameraUIAction: (CameraUIAction) -> Unit) {
         CameraControl(
             R.drawable.ic_flip_camera_android,
             R.string.icn_camera_view_switch_camera_content_description,
-            modifier= Modifier.size(64.dp),
+            modifier= Modifier.size(iconSize),
             onClick = { cameraUIAction(CameraUIAction.OnSwitchCameraClick) }
         )
 
@@ -160,16 +168,38 @@ fun CameraControls(cameraUIAction: (CameraUIAction) -> Unit) {
             R.drawable.ic_lens,
             R.string.icn_camera_view_camera_shutter_content_description,
             modifier= Modifier
-                .size(64.dp)
+                .size(iconSize)
                 .padding(1.dp)
                 .border(1.dp, colorResource(id = R.color.white), CircleShape),
             onClick = { cameraUIAction(CameraUIAction.OnCameraClick) }
         )
 
+        if (isVideo) {
+            CameraControl(
+                R.drawable.ic_videocam_off,
+                R.string.icn_camera_view_camera_record_video_close_description,
+                modifier= Modifier
+                    .size(iconSize)
+                    .padding(1.dp)
+                    .border(1.dp, colorResource(id = R.color.white), CircleShape),
+                onClick = { cameraUIAction(CameraUIAction.OnVideocamClose) }
+            )
+        } else {
+            CameraControl(
+                R.drawable.ic_videocam,
+                R.string.icn_camera_view_camera_record_video_description,
+                modifier = Modifier
+                    .size(iconSize)
+                    .padding(1.dp)
+                    .border(1.dp, colorResource(id = R.color.white), CircleShape),
+                onClick = { cameraUIAction(CameraUIAction.OnVideocamOpen) }
+            )
+        }
+
         CameraControl(
             R.drawable.ic_photo_library,
             R.string.icn_camera_view_view_gallery_content_description,
-            modifier= Modifier.size(64.dp),
+            modifier= Modifier.size(iconSize),
             onClick = { cameraUIAction(CameraUIAction.OnGalleryViewClick) }
         )
     }
@@ -201,6 +231,8 @@ fun CameraControl(
 @Composable
 private fun CameraPreviewView(
     imageCapture: ImageCapture,
+    videoCapture: VideoCapture<Recorder>,
+    isVideo: Boolean,
     lensFacing: Int = CameraSelector.LENS_FACING_BACK,
     cameraUIAction: (CameraUIAction) -> Unit
 ) {
@@ -212,6 +244,7 @@ private fun CameraPreviewView(
     val cameraSelector = CameraSelector.Builder()
         .requireLensFacing(lensFacing)
         .build()
+    val cameraProviderFuture = ProcessCameraProvider.getInstance(context)
 
     // 检查权限，无则申请。
     var sp = ContextCompat.checkSelfPermission(
@@ -221,12 +254,19 @@ private fun CameraPreviewView(
     if (sp != PackageManager.PERMISSION_GRANTED) {
         ActivityCompat.requestPermissions(
             context as Activity,
-            arrayOf(Manifest.permission.CAMERA),
+            arrayOf(
+                Manifest.permission.CAMERA,
+                Manifest.permission.RECORD_AUDIO,
+            ),
             1
         )
     }
 
+    var recording : Recording? by remember {
+        mutableStateOf(null)
+    }
     val previewView = remember { PreviewView(context) }
+
     LaunchedEffect(lensFacing) {
         val cameraProvider = context.getCameraProvider()
         cameraProvider.unbindAll()
@@ -234,10 +274,80 @@ private fun CameraPreviewView(
             lifecycleOwner,
             cameraSelector,
             preview,
-            imageCapture
+            if (isVideo) { videoCapture } else { imageCapture }
         )
         preview.setSurfaceProvider(previewView.surfaceProvider)
     }
+
+    LaunchedEffect(isVideo) {
+        if (recording != null) {
+            recording?.stop()
+            recording = null
+        }
+
+        val capture = if (isVideo) { videoCapture } else { imageCapture }
+        val cameraProvider = cameraProviderFuture.get()
+        cameraProvider.unbindAll()
+        cameraProvider.bindToLifecycle(
+            lifecycleOwner,
+            cameraSelector,
+            preview,
+            capture
+        )
+
+        preview.setSurfaceProvider(previewView.surfaceProvider)
+
+        if (isVideo) {
+//            val name = SimpleDateFormat(FILENAME, Locale.US)
+//                .format(System.currentTimeMillis()) + ".mp4"
+//            val contentValues = ContentValues().apply {
+//                put(MediaStore.MediaColumns.DISPLAY_NAME, name)
+//                put(MediaStore.MediaColumns.MIME_TYPE, "video/mp4")
+//                if (Build.VERSION.SDK_INT > Build.VERSION_CODES.P) {
+//                    put(MediaStore.Video.Media.RELATIVE_PATH, "Movies/CameraX-Video")
+//                }
+//            }
+//            val mediaStoreOutputOptions = MediaStoreOutputOptions
+//                .Builder(context.contentResolver, MediaStore.Video.Media.EXTERNAL_CONTENT_URI)
+//                .setContentValues(contentValues)
+//                .build()
+
+            val outputDirectory = context.getOutputDirectory()
+            val videoFile = createFile(outputDirectory, FILENAME, VIDEO_EXTENSION)
+            var fileOutputOptions = FileOutputOptions
+                .Builder(videoFile)
+                .build()
+
+            recording = videoCapture.output
+                .prepareRecording(context, fileOutputOptions)
+                //.prepareRecording(context, mediaStoreOutputOptions)
+                .apply {
+                    if (PermissionChecker.checkSelfPermission(
+                            context,
+                            Manifest.permission.RECORD_AUDIO) ==
+                        PermissionChecker.PERMISSION_GRANTED)
+                    {
+                        withAudioEnabled()
+                    }
+                }
+                .start(ContextCompat.getMainExecutor(context)) { recordEvent ->
+                    when(recordEvent) {
+                        // is VideoRecordEvent.Start -> {}
+                        is VideoRecordEvent.Finalize -> {
+                            if (recordEvent.hasError()) {
+                                recording?.close()
+                                recording = null
+                            }
+                        }
+                    }
+                }
+        }
+        else {
+            recording?.stop()
+            recording = null
+        }
+    }
+
 
     Box(modifier = Modifier.fillMaxSize()) {
         AndroidView({ previewView }, modifier = Modifier.fillMaxSize()) {
@@ -247,7 +357,7 @@ private fun CameraPreviewView(
             modifier = Modifier.align(Alignment.BottomCenter),
             verticalArrangement = Arrangement.Bottom
         ) {
-            CameraControls(cameraUIAction)
+            CameraControls(cameraUIAction, isVideo)
         }
     }
 }
@@ -267,6 +377,16 @@ fun CameraPage (navController: NavController) {
     val imageCapture: ImageCapture = remember {
         ImageCapture.Builder().build()
     }
+
+    var isVideo by remember { mutableStateOf(false) }
+    var videoCapture: VideoCapture<Recorder> = remember {
+        val recorder = Recorder.Builder()
+            .setQualitySelector(QualitySelector.from(Quality.HIGHEST))
+            .build()
+        VideoCapture.withOutput(recorder)
+    }
+
+
     val galleryLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.GetContent()
     ) { uri: Uri? ->
@@ -274,6 +394,8 @@ fun CameraPage (navController: NavController) {
     }
     CameraPreviewView(
         imageCapture,
+        videoCapture,
+        isVideo,
         lensFacing
     ) { cameraUIAction ->
         when (cameraUIAction) {
@@ -290,6 +412,12 @@ fun CameraPage (navController: NavController) {
                 if (true == context.getOutputDirectory().listFiles()?.isNotEmpty()) {
                     galleryLauncher.launch("image/*")
                 }
+            }
+            is CameraUIAction.OnVideocamOpen -> {
+                isVideo = true
+            }
+            is CameraUIAction.OnVideocamClose -> {
+                isVideo = false
             }
         }
     }

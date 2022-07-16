@@ -2,5 +2,7 @@
     <string name="app_name">jcmdemo</string>
     <string name="icn_camera_view_switch_camera_content_description">切换相机</string>
     <string name="icn_camera_view_camera_shutter_content_description">快门</string>
+    <string name="icn_camera_view_camera_record_video_description">录像</string>
+    <string name="icn_camera_view_camera_record_video_close_description">录像关闭</string>
     <string name="icn_camera_view_view_gallery_content_description">相册</string>
 </resources>

@@ -12,4 +12,13 @@ class MainActivity : ComponentActivity() {
             MainBox()
         }
     }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int, // 自己的标识，用来区分申请权限的是哪个调用。
+        permissions: Array<out String>, // 申请的权限
+        grantResults: IntArray // 最后用户通过的权限
+    ) {
+        // 权限结果的回调
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+    }
 }
