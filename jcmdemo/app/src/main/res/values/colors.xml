@@ -9,4 +9,6 @@
     <color name="deep_sky_blue">#FF00BFFF</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="gray">#FFEFEFEF</color>
+    <color name="gray_2">#FFBBBBBB</color>
 </resources>

@@ -22,6 +22,9 @@ enum class GistItem(var route: String, var icon: Int) {
     Home("home", R.drawable.ic_home),
     Conf("conf", R.drawable.ic_conf),
     Camera("camera", R.drawable.ic_camera),
+    Listing("listing", R.drawable.ic_view_list),
+    Images("images", R.drawable.ic_photo_library),
+    Videos("videos", R.drawable.ic_video_library),
 //    Conf1("conf", R.drawable.ic_conf),
 //    Conf2("conf", R.drawable.ic_conf),
 //    Conf3("conf", R.drawable.ic_conf),
@@ -35,6 +38,7 @@ fun GistPage (navController: NavController) {
     Layout(
         // 修改器会影响到子空间的测量，使得子修改器失效
         // modifier = Modifier.fillMaxSize(),
+        //modifier = Modifier.background(colorResource(id = R.color.gray)),
         content = {
             items.forEach{ item ->
                 IconButton(

@@ -1,6 +1,8 @@
 package com.example.jcmdemo.ui
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -10,9 +12,11 @@ import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
@@ -54,13 +58,16 @@ fun BottomBar (navController: NavController) {
     }
 
     BottomAppBar (
-        modifier = Modifier.fillMaxWidth(1.0f),
+        modifier = Modifier
+            .fillMaxWidth(),
+            //.border(BorderStroke(2.dp, colorResource(id = R.color.gray))),
         backgroundColor = colorResource(id = R.color.white),
         //cutoutShape = RoundedCornerShape(50)
         cutoutShape = CircleShape
     ){
         Row (
-            modifier = Modifier.fillMaxWidth(1.0f),
+            modifier = Modifier.fillMaxWidth(),
+                //.shadow(1.dp),
             horizontalArrangement = Arrangement.SpaceAround,
         ){
             itemButton(item = BottomItem.Home)
