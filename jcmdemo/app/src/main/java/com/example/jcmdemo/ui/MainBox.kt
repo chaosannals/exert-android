@@ -22,6 +22,7 @@ import com.example.jcmdemo.ui.page.tool.CameraPage
 import com.example.jcmdemo.ui.page.tool.ListingPage
 import com.example.jcmdemo.ui.page.tool.ImagesPage
 import com.example.jcmdemo.ui.page.tool.VideosPage
+import com.example.jcmdemo.ui.page.tool.VideoPage
 import com.example.jcmdemo.ui.theme.JcmdemoTheme
 import com.example.jcmdemo.R
 import com.example.jcmdemo.ui.page.GistItem
@@ -33,7 +34,8 @@ enum class PageItem(var route: String, var page: @Composable (NavController) -> 
     Camera(GistItem.Camera.route, { n -> CameraPage(n) }),
     Listing(GistItem.Listing.route, @ExperimentalFoundationApi { ListingPage() }),
     Images(GistItem.Images.route, @ExperimentalFoundationApi { ImagesPage()}),
-    Videos(GistItem.Videos.route, @ExperimentalFoundationApi { VideosPage()})
+    Videos(GistItem.Videos.route, @ExperimentalFoundationApi { VideosPage()}),
+    Video(GistItem.Video.route, { VideoPage()}),
 }
 
 @ExperimentalFoundationApi
