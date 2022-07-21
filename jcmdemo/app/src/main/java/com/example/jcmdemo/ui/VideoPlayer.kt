@@ -1,5 +1,6 @@
 package com.example.jcmdemo.ui
 
+import android.content.Context
 import android.view.View.INVISIBLE
 import android.view.View.VISIBLE
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
@@ -21,8 +22,10 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import com.example.jcmdemo.R
+import com.example.jcmdemo.ui.page.tool.getOutputDirectory
 import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.MediaItem
+import com.google.android.exoplayer2.PlaybackException
 import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.source.DefaultMediaSourceFactory
 import com.google.android.exoplayer2.source.ProgressiveMediaSource
@@ -32,6 +35,17 @@ import com.google.android.exoplayer2.ui.SubtitleView
 import com.google.android.exoplayer2.upstream.DataSource
 //import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
 import com.google.android.exoplayer2.util.Util
+import java.io.File
+
+fun writeLog(context: Context, text: String) {
+    var f = File(context.getOutputDirectory(), "1a.log")
+    f.appendText(text)
+    f.appendText("\r\n")
+}
+
+fun newPlayer() {
+
+}
 
 @Composable
 fun VideoPlayer(path: String, modifier: Modifier=Modifier) {
@@ -42,8 +56,12 @@ fun VideoPlayer(path: String, modifier: Modifier=Modifier) {
 //        MediaItem.fromUri(path)
 //    }
 
+    writeLog(context, path)
+    //writeLog(context, "22222")
+
     var isPlaying by remember { mutableStateOf(false) }
     var state by remember { mutableStateOf(Player.STATE_IDLE) }
+    var vratio by remember { mutableStateOf(1.0f) }
     val listener = object : Player.Listener {
         override fun onIsPlayingChanged(isplaying: Boolean) {
             isPlaying = isplaying
@@ -51,6 +69,16 @@ fun VideoPlayer(path: String, modifier: Modifier=Modifier) {
 
         override fun onPlaybackStateChanged(playbackState: Int) {
             state = playbackState
+        }
+
+        override fun onPlayerError(error: PlaybackException) {
+            writeLog(context, "error ${error.errorCodeName}")
+        }
+    }
+
+    val buildPlayer = {
+        ExoPlayer.Builder(context).build().apply {
+            addListener(listener)
         }
     }
 
@@ -67,13 +95,14 @@ fun VideoPlayer(path: String, modifier: Modifier=Modifier) {
 //            val source = ProgressiveMediaSource.Factory(dataSourceFactory)
 //                .createMediaSource(MediaItem.fromUri(path))
 //            setMediaSource(source)
-            setMediaItem(MediaItem.fromUri(path))
+            addListener(listener)
 //            for (i in 1..10) {
 //                addMediaItem(MediaItem.fromUri(path))
 //            }
             //playWhenReady = true
-            addListener(listener)
-            prepare()
+            //vratio = (videoSize.width / videoSize.height) as Float
+            //setMediaItem(MediaItem.fromUri(path))
+            //prepare()
         }
     }
 
@@ -102,27 +131,37 @@ fun VideoPlayer(path: String, modifier: Modifier=Modifier) {
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
             when (event) {
-                Lifecycle.Event.ON_START -> Unit
-                Lifecycle.Event.ON_STOP -> Unit
-                Lifecycle.Event.ON_DESTROY -> exoPlayer.release()
+                Lifecycle.Event.ON_START -> {
+                    writeLog(context,"start $path")
+                }
+                Lifecycle.Event.ON_STOP -> {
+                    writeLog(context, "stop $path")
+                }
+                Lifecycle.Event.ON_DESTROY -> {
+                    writeLog(context, "destroy $path")
+                    exoPlayer.release()
+                }
             }
         }
         lifecycleOwner.lifecycle.addObserver(observer)
 
         // When the effect leaves the Composition, remove the observer
         onDispose {
+            writeLog(context, "on d $path")
             lifecycleOwner.lifecycle.removeObserver(observer)
         }
     }
 
     // Gateway to traditional Android Views
     if (path != null) {
-        // 仿真机模拟的摄像头，mp4 文件宽高信息颠倒，导致 exoplayer 自动计算的比例是颠倒的。
+        // 仿真机模拟的摄像头，mp4 文件宽高信息颠倒，导致 exoplayer 的 StyledPlayerView 自动计算的比例是颠倒的。
+        // StyledPlayerView 会自动设配视频去适应布局。
         //val ratio = 0.5625f
         // val ratio = 1.777f
+
         Column(
             modifier = modifier
-                .aspectRatio(1.0f)
+                .aspectRatio(vratio)
                 //.aspectRatio(1.777f)
                 //.aspectRatio(ratio)
                 //.heightIn(100.dp)
@@ -151,7 +190,7 @@ fun VideoPlayer(path: String, modifier: Modifier=Modifier) {
                     }
                 } else {
                     IconButton(onClick = {
-                        if (state == Player.STATE_ENDED) {
+                        if (state == Player.STATE_ENDED || state == Player.STATE_IDLE) {
                             exoPlayer.setMediaItem(MediaItem.fromUri(path))
                             exoPlayer.prepare()
                         }
