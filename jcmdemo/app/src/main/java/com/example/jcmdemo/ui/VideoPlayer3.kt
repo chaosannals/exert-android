@@ -38,25 +38,21 @@ import com.google.android.exoplayer2.util.MimeTypes
 import com.google.android.exoplayer2.util.Util
 import java.io.File
 
-fun writeLog(context: Context, text: String) {
-    var f = File(context.getOutputDirectory(), "1a.log")
+fun writeLog3(context: Context, text: String) {
+    var f = File(context.getOutputDirectory(), "13a.log")
     f.appendText(text)
     f.appendText("\r\n")
 }
 
 @Composable
-fun VideoPlayer(path: String, modifier: Modifier=Modifier) {
+fun VideoPlayer3(path: String, modifier: Modifier=Modifier) {
     val context = LocalContext.current
-
-    writeLog(context, path)
+    writeLog3(context, path)
 
     var isPlaying by remember { mutableStateOf(false) }
     var state by remember { mutableStateOf(Player.STATE_IDLE) }
     var vratio by remember { mutableStateOf(1.0f) }
     val listener = object : Player.Listener {
-        override fun onRenderedFirstFrame() {
-            writeLog(context, "render first $path")
-        }
         override fun onIsPlayingChanged(isplaying: Boolean) {
             isPlaying = isplaying
         }
@@ -72,107 +68,55 @@ fun VideoPlayer(path: String, modifier: Modifier=Modifier) {
 
     val exoPlayer = remember {
         ExoPlayer.Builder(context).build().apply {
-//            val dataSourceFactory: DataSource.Factory = DefaultDataSourceFactory(context,
-//                Util.getUserAgent(context, context.packageName))
-//
-//            val mediaSourceFactory = DefaultMediaSourceFactory(context)
-//                .setDataSourceFactory(cacheDataSourceFactory)
-//                .setLocalAdInsertionComponents(
-//                    adsLoaderProvider, /* adViewProvider= */ playerView);
-//
-//            val source = ProgressiveMediaSource.Factory(dataSourceFactory)
-//                .createMediaSource(MediaItem.fromUri(path))
-//            setMediaSource(source)
             addListener(listener)
-//            for (i in 1..10) {
-//                addMediaItem(MediaItem.fromUri(path))
-//            }
-            playWhenReady = false
-            //playWhenReady = true
-            //vratio = (videoSize.width / videoSize.height) as Float
-            //setMediaItem(MediaItem.fromUri(path))
-            //prepare()
+            setMediaItem(MediaItem.fromUri(path))
+            prepare()
         }
     }
 
-    val pv = remember {
-        StyledPlayerView(context).apply {
-            player = exoPlayer
-            useController = false
-            //layoutParams = LinearLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT)
-            layoutParams = LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT)
-            // minimumHeight = 100
-//            visibility = VISIBLE
-//            visibility = INVISIBLE
-//            setShowShuffleButton(false)
-//            setShowRewindButton(false)
-//            setShowNextButton(false)
-//            setShowPreviousButton(false)
-        }
-    }
-
-//    val pv = remember {
-//        StyledPlayerControlView(context).apply {
-//            player = exoPlayer
-//        }
-//    }
     val lifecycleOwner = LocalLifecycleOwner.current
 
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
             when (event) {
-                Lifecycle.Event.ON_CREATE -> {
-                    writeLog(context,"create $path")
-                }
                 Lifecycle.Event.ON_START -> {
-                    writeLog(context,"start $path")
+                    writeLog3(context,"start $path")
                 }
                 Lifecycle.Event.ON_STOP -> {
-                    writeLog(context, "stop $path")
+                    writeLog3(context, "stop $path")
                 }
                 Lifecycle.Event.ON_DESTROY -> {
-                    writeLog(context, "destroy $path")
-                    //exoPlayer.stop()
-                    //exoPlayer.removeListener(listener)
+                    writeLog3(context, "destroy $path")
                     exoPlayer.release()
                 }
             }
         }
         lifecycleOwner.lifecycle.addObserver(observer)
 
-
         onDispose {
-            writeLog(context, "on d $path")
+            writeLog3(context, "on d $path")
             lifecycleOwner.lifecycle.removeObserver(observer)
         }
     }
-
-    // Gateway to traditional Android Views
     if (path != null) {
-        // 仿真机模拟的摄像头，mp4 文件宽高信息颠倒，导致 exoplayer 的 StyledPlayerView 自动计算的比例是颠倒的。
-        // StyledPlayerView 会自动设配视频去适应布局。
-        //val ratio = 0.5625f
-        // val ratio = 1.777f
-
         Column(
             modifier = modifier
                 .aspectRatio(vratio)
-                //.aspectRatio(1.777f)
-                //.aspectRatio(ratio)
-                //.heightIn(100.dp)
                 .fillMaxWidth(),
-            //contentAlignment = Alignment.Center,
         ) {
             AndroidView(
-                { pv },
+                {
+                    StyledPlayerView(context).apply {
+                        player = exoPlayer
+                        useController = false
+                        layoutParams = LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT)
+                    }
+                },
                 modifier = Modifier
-                    //.aspectRatio(1.777f)
-                    //.aspectRatio(ratio)
-                    //.fillMaxSize()
                     .weight(1.0f)
             )
             Row(
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
             ) {
                 if (isPlaying) {
                     IconButton(onClick = {
@@ -186,11 +130,6 @@ fun VideoPlayer(path: String, modifier: Modifier=Modifier) {
                 } else {
                     IconButton(onClick = {
                         if (state == Player.STATE_ENDED || state == Player.STATE_IDLE) {
-//                            val mi = MediaItem
-//                                .Builder()
-//                                .setUri(path)
-//                                .setMimeType(MimeTypes.VIDEO_MP4)
-//                                .build()
                             val mi = MediaItem.fromUri(path)
                             exoPlayer.clearMediaItems()
                             exoPlayer.setMediaItem(mi)
@@ -213,6 +152,6 @@ fun VideoPlayer(path: String, modifier: Modifier=Modifier) {
 
 @Preview(showBackground = true)
 @Composable
-fun VideoPlayerPreview() {
-    VideoPlayer("")
+fun VideoPlayer3Preview() {
+    VideoPlayer3("")
 }

@@ -12,12 +12,14 @@ import androidx.compose.ui.viewinterop.AndroidView
 import kotlinx.coroutines.launch
 
 @Composable
-fun CustomWebView(modifier: Modifier = Modifier,
-                  url:String,
-                  onBack: (webView: WebView?) -> Unit,
-                  onProgressChange: (progress:Int)->Unit = {},
-                  initSettings: (webSettings: WebSettings?) -> Unit = {},
-                  onReceivedError: (error: WebResourceError?) -> Unit = {}){
+fun CustomWebView(
+    modifier: Modifier = Modifier,
+    url:String,
+    onBack: (webView: WebView?) -> Unit,
+    onProgressChange: (progress:Int)->Unit = {},
+    initSettings: (webSettings: WebSettings?) -> Unit = {},
+    onReceivedError: (error: WebResourceError?) -> Unit = {}
+){
     val webViewChromeClient = object: WebChromeClient(){
         override fun onProgressChanged(view: WebView?, newProgress: Int) {
             //回调网页内容加载进度
@@ -26,8 +28,7 @@ fun CustomWebView(modifier: Modifier = Modifier,
         }
     }
     val webViewClient = object: WebViewClient(){
-        override fun onPageStarted(view: WebView?, url: String?,
-                                   favicon: Bitmap?) {
+        override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
             super.onPageStarted(view, url, favicon)
             onProgressChange(-1)
         }

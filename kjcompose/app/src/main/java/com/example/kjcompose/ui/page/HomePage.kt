@@ -31,7 +31,7 @@ fun HomeScreen() {
             .wrapContentSize(Alignment.Center)
     ) {
         CustomWebView(
-            url = "https://www.bilibili.com/",
+            url = "https://bilibili.com/",
             onProgressChange = { progress ->
                 rememberWebViewProgress = progress
             },

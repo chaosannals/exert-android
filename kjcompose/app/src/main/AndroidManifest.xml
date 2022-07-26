@@ -3,6 +3,11 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.example.kjcompose">
 
+
+    <meta-data android:name="android.webkit.WebView.EnableSafeBrowsing" android:value="false" />
+    <!-- 停用 google 匿名收集信息 -->
+    <meta-data android:name="android.webkit.WebView.MetricsOptOut" android:value="true" />
+
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
