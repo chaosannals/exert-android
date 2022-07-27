@@ -26,6 +26,7 @@ enum class GistItem(var route: String, var icon: Int) {
     Images("images", R.drawable.ic_photo_library),
     Videos("videos", R.drawable.ic_video_library),
     Video("video", R.drawable.ic_ondemand_video),
+    VideoRecycler("video_recycler", R.drawable.ic_featured_video),
 //    Conf1("conf", R.drawable.ic_conf),
 //    Conf2("conf", R.drawable.ic_conf),
 //    Conf3("conf", R.drawable.ic_conf),

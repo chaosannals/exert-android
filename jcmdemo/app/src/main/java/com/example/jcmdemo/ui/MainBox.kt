@@ -23,6 +23,7 @@ import com.example.jcmdemo.ui.page.tool.ListingPage
 import com.example.jcmdemo.ui.page.tool.ImagesPage
 import com.example.jcmdemo.ui.page.tool.VideosPage
 import com.example.jcmdemo.ui.page.tool.VideoPage
+import com.example.jcmdemo.ui.page.tool.VideoRecyclerPage
 import com.example.jcmdemo.ui.theme.JcmdemoTheme
 import com.example.jcmdemo.R
 import com.example.jcmdemo.ui.page.GistItem
@@ -36,6 +37,7 @@ enum class PageItem(var route: String, var page: @Composable (NavController) -> 
     Images(GistItem.Images.route, @ExperimentalFoundationApi { ImagesPage()}),
     Videos(GistItem.Videos.route, @ExperimentalFoundationApi { VideosPage()}),
     Video(GistItem.Video.route, { VideoPage()}),
+    VideoRecycler(GistItem.VideoRecycler.route, { VideoRecyclerPage()}),
 }
 
 @ExperimentalFoundationApi

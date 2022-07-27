@@ -37,6 +37,11 @@ import com.google.android.exoplayer2.util.MimeTypes
 //import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
 import com.google.android.exoplayer2.util.Util
 import java.io.File
+import android.media.MediaMetadataRetriever
+import android.os.Build
+import androidx.annotation.RequiresApi
+import androidx.compose.foundation.Image
+import androidx.compose.ui.graphics.asImageBitmap
 
 fun writeLog(context: Context, text: String) {
     var f = File(context.getOutputDirectory(), "1a.log")
@@ -44,6 +49,7 @@ fun writeLog(context: Context, text: String) {
     f.appendText("\r\n")
 }
 
+//@RequiresApi(Build.VERSION_CODES.P)
 @Composable
 fun VideoPlayer(path: String, modifier: Modifier=Modifier) {
     val context = LocalContext.current
@@ -70,8 +76,17 @@ fun VideoPlayer(path: String, modifier: Modifier=Modifier) {
         }
     }
 
+    var thumb = remember {
+        var mmr = MediaMetadataRetriever()
+        mmr.setDataSource(path)
+        mmr.getFrameAtTime(1)?.asImageBitmap()
+    }
+
     val exoPlayer = remember {
         ExoPlayer.Builder(context).build().apply {
+            addListener(listener)
+            playWhenReady = false
+//            playWhenReady = true
 //            val dataSourceFactory: DataSource.Factory = DefaultDataSourceFactory(context,
 //                Util.getUserAgent(context, context.packageName))
 //
@@ -83,15 +98,14 @@ fun VideoPlayer(path: String, modifier: Modifier=Modifier) {
 //            val source = ProgressiveMediaSource.Factory(dataSourceFactory)
 //                .createMediaSource(MediaItem.fromUri(path))
 //            setMediaSource(source)
-            addListener(listener)
+
 //            for (i in 1..10) {
 //                addMediaItem(MediaItem.fromUri(path))
 //            }
-            playWhenReady = false
-            //playWhenReady = true
+
             //vratio = (videoSize.width / videoSize.height) as Float
-            //setMediaItem(MediaItem.fromUri(path))
-            //prepare()
+//            setMediaItem(MediaItem.fromUri(path))
+//            prepare()
         }
     }
 
@@ -101,6 +115,7 @@ fun VideoPlayer(path: String, modifier: Modifier=Modifier) {
             useController = false
             //layoutParams = LinearLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT)
             layoutParams = LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT)
+
             // minimumHeight = 100
 //            visibility = VISIBLE
 //            visibility = INVISIBLE
@@ -153,24 +168,47 @@ fun VideoPlayer(path: String, modifier: Modifier=Modifier) {
         // StyledPlayerView 会自动设配视频去适应布局。
         //val ratio = 0.5625f
         // val ratio = 1.777f
-
         Column(
             modifier = modifier
-                .aspectRatio(vratio)
+//                .aspectRatio(vratio)
                 //.aspectRatio(1.777f)
                 //.aspectRatio(ratio)
                 //.heightIn(100.dp)
                 .fillMaxWidth(),
             //contentAlignment = Alignment.Center,
         ) {
-            AndroidView(
-                { pv },
-                modifier = Modifier
-                    //.aspectRatio(1.777f)
-                    //.aspectRatio(ratio)
-                    //.fillMaxSize()
-                    .weight(1.0f)
-            )
+            if (isPlaying) {
+                val ratio = if (thumb != null) {
+                    thumb.width.toFloat() / thumb.height.toFloat()
+                } else {
+                    1.0f
+                }
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .aspectRatio(ratio),
+                ) {
+                    AndroidView(
+                        { pv },
+                        modifier = Modifier.fillMaxSize()
+                            //.aspectRatio(1.777f)
+//                            .aspectRatio(vratio)
+//                        .aspectRatio(ratio)
+                            //.fillMaxSize()
+//                            .weight(1.0f)
+                    )
+                }
+            }
+            else {
+                if (thumb != null) {
+                    Image(
+                        bitmap = thumb,
+                        contentDescription = "图片",
+                        modifier = Modifier.fillMaxSize()
+                    )
+                }
+            }
+
             Row(
                 modifier = Modifier.fillMaxWidth()
             ) {
@@ -196,6 +234,7 @@ fun VideoPlayer(path: String, modifier: Modifier=Modifier) {
                             exoPlayer.setMediaItem(mi)
                             exoPlayer.prepare()
                         }
+
                         exoPlayer.play()
                     }) {
                         Icon(
