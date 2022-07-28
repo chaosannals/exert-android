@@ -1,0 +1,29 @@
+package com.example.jcm3demo.ui
+
+import androidx.compose.runtime.Composable
+import androidx.navigation.NavController
+import com.example.jcm3demo.ui.page.*
+import com.example.jcm3demo.ui.page.tool.*
+
+// 路由配置
+enum class RouteItem(var route: String, var page: @Composable (NavController) -> Unit) {
+    Conf("conf", { ConfPage() }),
+    Home("home", { HomePage() }),
+    Tool("tool", { nc -> ToolPage(nc) }),
+    ToolCamera("tool-camera", { CameraPage() }),
+    ToolImages("tool-images", { ImagesPage() }),
+    ToolVideos("tool-videos", { VideosPage() }),
+}
+
+// 路由到
+fun NavController.routeTo(route: RouteItem) {
+    navigate(route.route) {
+        graph.startDestinationRoute?.let {
+            popUpTo(route.route) {
+                saveState = true
+            }
+            launchSingleTop = true
+            restoreState = true
+        }
+    }
+}
