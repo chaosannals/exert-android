@@ -62,16 +62,18 @@ NDK_PATH="/mnt/d/Wsl/android-ndk-r21e"
 # E-AC-3	eac3
 # DTS, DTS-HD	dca
 # TrueHD	mlp truehd
-ENABLED_DECODERS=(vorbis opus flac)
+
+# ENABLED_DECODERS=(vorbis opus flac)
+ENABLED_DECODERS=(vorbis opus flac alac pcm_mulaw pcm_alaw mp3 amrnb amrwb aac ac3 eac3 truehd)
 
 HOST_PLATFORM="linux-x86_64"
 # HOST_PLATFORM="darwin-x86_64"
 
 ln -s "$FFMPEG_PATH" ffmpeg
 
-# 生成 二进制
+# 生成 二进制 在 extensions/ffmpeg/src/main/jni 目录下执行
 ./build_ffmpeg.sh "${FFMPEG_MODULE_PATH}" "${NDK_PATH}" "${HOST_PLATFORM}" "${ENABLED_DECODERS[@]}"
 
-# 打包 aar
+# ExoPlayer 项目下执行 打包 aar
 ./gradlew extension-ffmpeg:assembleRelease
 ```

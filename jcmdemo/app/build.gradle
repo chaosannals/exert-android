@@ -62,6 +62,7 @@ dependencies {
 //    implementation 'tv.danmaku.ijk.media:ijkplayer-x86_64:0.8.8'
 
     implementation 'com.google.android.exoplayer:exoplayer:2.18.1'
+    implementation files('libs/extension-ffmpeg-release.aar')
 
     implementation "androidx.recyclerview:recyclerview:${recycler_view_version}"
 

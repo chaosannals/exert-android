@@ -23,10 +23,6 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import com.example.jcmdemo.R
 import com.example.jcmdemo.ui.page.tool.getOutputDirectory
-import com.google.android.exoplayer2.ExoPlayer
-import com.google.android.exoplayer2.MediaItem
-import com.google.android.exoplayer2.PlaybackException
-import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.source.DefaultMediaSourceFactory
 import com.google.android.exoplayer2.source.ProgressiveMediaSource
 import com.google.android.exoplayer2.ui.StyledPlayerControlView
@@ -42,6 +38,9 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.ui.graphics.asImageBitmap
+import com.google.android.exoplayer2.*
+import com.google.android.exoplayer2.DefaultRenderersFactory.EXTENSION_RENDERER_MODE_ON
+import com.google.android.exoplayer2.DefaultRenderersFactory.EXTENSION_RENDERER_MODE_PREFER
 
 fun writeLog(context: Context, text: String) {
     var f = File(context.getOutputDirectory(), "1a.log")
@@ -54,7 +53,7 @@ fun writeLog(context: Context, text: String) {
 fun VideoPlayer(path: String, modifier: Modifier=Modifier) {
     val context = LocalContext.current
 
-    writeLog(context, path)
+    writeLog(context, "compose $path")
 
     var isPlaying by remember { mutableStateOf(false) }
     var state by remember { mutableStateOf(Player.STATE_IDLE) }
@@ -64,26 +63,32 @@ fun VideoPlayer(path: String, modifier: Modifier=Modifier) {
             writeLog(context, "render first $path")
         }
         override fun onIsPlayingChanged(isplaying: Boolean) {
+            writeLog(context, "isplayc: ($isplaying) $path")
             isPlaying = isplaying
         }
 
         override fun onPlaybackStateChanged(playbackState: Int) {
+            writeLog(context, "statec: ($playbackState) $path")
             state = playbackState
         }
 
         override fun onPlayerError(error: PlaybackException) {
-            writeLog3(context, "error $path  ${error.errorCodeName} => ${error.stackTrace}")
+            writeLog(context, "error $path  ${error.errorCodeName} => ${error.stackTraceToString()}")
         }
     }
 
     var thumb = remember {
+        writeLog(context, "thumb: $path")
         var mmr = MediaMetadataRetriever()
         mmr.setDataSource(path)
         mmr.getFrameAtTime(1)?.asImageBitmap()
     }
 
     val exoPlayer = remember {
-        ExoPlayer.Builder(context).build().apply {
+        var drf = DefaultRenderersFactory(context)
+            .setExtensionRendererMode(EXTENSION_RENDERER_MODE_ON)
+            //.setExtensionRendererMode(EXTENSION_RENDERER_MODE_PREFER)
+        ExoPlayer.Builder(context, drf).build().apply {
             addListener(listener)
             playWhenReady = false
 //            playWhenReady = true
@@ -147,8 +152,8 @@ fun VideoPlayer(path: String, modifier: Modifier=Modifier) {
                 }
                 Lifecycle.Event.ON_DESTROY -> {
                     writeLog(context, "destroy $path")
-                    //exoPlayer.stop()
-                    //exoPlayer.removeListener(listener)
+                    exoPlayer.stop()
+                    exoPlayer.removeListener(listener)
                     exoPlayer.release()
                 }
             }

@@ -23,10 +23,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import com.example.jcmdemo.R
 import com.example.jcmdemo.ui.page.tool.getOutputDirectory
-import com.google.android.exoplayer2.ExoPlayer
-import com.google.android.exoplayer2.MediaItem
-import com.google.android.exoplayer2.PlaybackException
-import com.google.android.exoplayer2.Player
+import com.google.android.exoplayer2.*
 import com.google.android.exoplayer2.source.DefaultMediaSourceFactory
 import com.google.android.exoplayer2.source.ProgressiveMediaSource
 import com.google.android.exoplayer2.ui.StyledPlayerControlView
@@ -67,7 +64,9 @@ fun VideoPlayer3(path: String, modifier: Modifier=Modifier) {
     }
 
     val exoPlayer = remember {
-        ExoPlayer.Builder(context).build().apply {
+        var drf = DefaultRenderersFactory(context)
+            .setExtensionRendererMode(DefaultRenderersFactory.EXTENSION_RENDERER_MODE_PREFER)
+        ExoPlayer.Builder(context, drf).build().apply {
             addListener(listener)
             setMediaItem(MediaItem.fromUri(path))
             prepare()
