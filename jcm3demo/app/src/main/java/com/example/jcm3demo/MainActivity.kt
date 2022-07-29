@@ -12,12 +12,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.jcm3demo.ui.MainLayout
+import com.example.jcm3demo.ui.page.tool.VideoPlayer
 import com.example.jcm3demo.ui.theme.Jcm3demoTheme
 
 @ExperimentalMaterial3Api
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         setContent {
             Jcm3demoTheme {
                 Surface(

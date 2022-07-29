@@ -65,33 +65,26 @@ fun ImageItem(path: String) {
 @ExperimentalFoundationApi
 @Composable
 fun ImagesPage() {
-    var fs : MutableList<String> by remember { mutableStateOf(mutableListOf()) }
-//    var fs : MutableList<String>  = mutableListOf()
-    var ft = LocalContext.current.getOutputDirectory().walk()
-    ft.maxDepth(1)
-        .filter { it.isFile }
-        .filter { it.extension in listOf("png", "jpg") }
-        .forEach { fs.add(it.path) }
-
-    //val fs = LocalContext.current.getOutputDirectory().listFiles().map { it.path }
+    val context = LocalContext.current
+    var fs : MutableList<String> by remember {
+        var ml = mutableListOf<String>()
+        var ft = context.getOutputDirectory().walk()
+        ft.maxDepth(1)
+            .filter { it.isFile }
+            .filter { it.extension in listOf("png", "jpg") }
+            .forEach { ml.add(it.path) }
+        mutableStateOf(ml)
+    }
 
     Text("fs: ${fs.size}", fontSize = 10.sp)
     LazyVerticalGrid(
         cells = GridCells.Fixed(2),
         modifier = Modifier.padding(0.dp, 0.dp, 0.dp, 60.dp)
     ) {
-//        item {
-//            ImageItem("fs: ${fs.size}")
-//        }
         items(fs.size) { i ->
             val p = fs[i]
             ImageItem(path = p)
         }
-//        fs.forEach { p ->
-//            item {
-//                ImageItem(path = p)
-//            }
-//        }
     }
 }
 
