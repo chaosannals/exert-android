@@ -9,6 +9,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.jcm3demo.ui.MainLayout
 import com.example.jcm3demo.ui.theme.Jcm3demoTheme
@@ -21,7 +22,8 @@ class MainActivity : ComponentActivity() {
             Jcm3demoTheme {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.background
+//                    color = MaterialTheme.colorScheme.background,
+                color= colorResource(id = R.color.gray),
                 ) {
                     MainLayout()
                 }
@@ -37,7 +39,7 @@ fun DefaultPreview() {
     Jcm3demoTheme {
         Surface(
             modifier = Modifier.fillMaxSize(),
-            color = MaterialTheme.colorScheme.background
+            color = colorResource(id = R.color.gray),
         ) {
             MainLayout()
         }

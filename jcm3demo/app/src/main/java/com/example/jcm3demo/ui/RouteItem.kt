@@ -19,7 +19,7 @@ enum class RouteItem(var route: String, var page: @Composable (NavController) ->
 fun NavController.routeTo(route: RouteItem) {
     navigate(route.route) {
         graph.startDestinationRoute?.let {
-            popUpTo(route.route) {
+            popUpTo(it) {
                 saveState = true
             }
             launchSingleTop = true
