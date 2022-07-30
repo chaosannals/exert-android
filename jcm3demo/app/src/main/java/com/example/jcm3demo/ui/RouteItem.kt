@@ -11,6 +11,7 @@ enum class RouteItem(var route: String, var page: @Composable (NavController) ->
     Home("home", { HomePage() }),
     Tool("tool", { nc -> ToolPage(nc) }),
     ToolCamera("tool-camera", { CameraPage() }),
+    ToolChart("tool-chart", { ChartPage() }),
     ToolImages("tool-images", { ImagesPage() }),
     ToolVideos("tool-videos", { VideosPage() }),
 }

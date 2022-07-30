@@ -64,7 +64,7 @@ fun getOutputFileOptions(
     photoFile: File
 ): ImageCapture.OutputFileOptions {
     val metadata = ImageCapture.Metadata().apply {
-        isReversedHorizontal = lensFacing == CameraSelector.LENS_FACING_FRONT
+//        isReversedHorizontal = lensFacing == CameraSelector.LENS_FACING_FRONT
     }
     val outputOptions = ImageCapture
         .OutputFileOptions

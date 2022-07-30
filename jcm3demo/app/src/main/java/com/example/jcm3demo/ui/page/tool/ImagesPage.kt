@@ -20,7 +20,7 @@ fun ImagesPage() {
                 .walk()
                 .maxDepth(1)
                 .filter { it.isFile }
-                .filter { it.extension in listOf("mp4") }
+                .filter { it.extension in listOf("jpg", "png") }
                 .map { it.path }
                 .toMutableList()
         )
