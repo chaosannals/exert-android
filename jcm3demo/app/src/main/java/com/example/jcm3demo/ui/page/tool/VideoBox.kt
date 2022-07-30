@@ -47,14 +47,17 @@ fun VideoBox(videoPath: String) {
     val context = LocalContext.current
     val shape = RoundedCornerShape(10.dp)
     var isPlaying by remember { mutableStateOf(false) }
-    var isPause by remember { mutableStateOf(false) }
+    var isPause = false
     val thumb = remember {
         val mmr = MediaMetadataRetriever()
         mmr.setDataSource(videoPath)
         mmr.getFrameAtTime(1)?.asImageBitmap()
     }
 
-    val listener = object : Player.Listener {
+    val listener = object : VideoPlayerListener {
+        override fun getId(): String {
+            return videoPath
+        }
         override fun onRenderedFirstFrame() {
             writeLog(context, "render first $videoPath")
         }
@@ -65,12 +68,10 @@ fun VideoBox(videoPath: String) {
             }
         }
 
-        override fun onPlaybackStateChanged(playbackState: Int) {
-            writeLog(context, "statec: ($playbackState) $videoPath")
-            if (playbackState == Player.STATE_ENDED) {
-                isPause = false
-                isPlaying = false
-            }
+        override fun onBeReplaced() {
+            writeLog(context, "be replace: $videoPath")
+            isPause = false
+            isPlaying = false
         }
 
         override fun onPlayerError(error: PlaybackException) {
@@ -107,11 +108,6 @@ fun VideoBox(videoPath: String) {
                     },
                     modifier = Modifier
                         .zIndex(1.0f)
-                        .clickable {
-                            isPause = true
-                            VideoPlayer.pause()
-                            writeLog(context, "click pause: $isPause   isplaying: $isPlaying")
-                        }
                         .fillMaxSize(),
                 ) {
                     var ep = VideoPlayer.ensure(context, listener)
@@ -124,22 +120,16 @@ fun VideoBox(videoPath: String) {
                     ep.playFromUri(videoPath)
                 }
 
-                if (isPause) {
-                    IconButton(
-                        modifier = Modifier.zIndex(2.0f),
-                        onClick = {
-                            isPause = false
+                VideoPauseBox(
+                    onClick = { ispause ->
+                        isPause = ispause
+                        if (ispause) {
+                            VideoPlayer.pause()
+                        } else {
                             VideoPlayer.play()
-                        },
-                    ) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.ic_play_circle_outline),
-                            contentDescription = "播放（暂停）",
-                            tint = colorResource(id = R.color.light_sky_blue),
-                            modifier = Modifier.fillMaxSize(0.6f),
-                        )
+                        }
                     }
-                }
+                )
             } else if (thumb != null) {
                 Image(
                     bitmap = thumb,

@@ -7,11 +7,17 @@ import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.MediaItem
 import com.google.android.exoplayer2.Player
 
+interface VideoPlayerListener : Player.Listener {
+    fun getId() : String
+    fun onBeReplaced()
+    fun onEnsured() {}
+}
+
 object VideoPlayer {
     private var exoPlayer: ExoPlayer? = null
-    private var exoListener: Player.Listener? = null
+    private var exoListener: VideoPlayerListener? = null
 
-    fun ensure(context: Context, listener: Player.Listener): ExoPlayer {
+    fun ensure(context: Context, listener: VideoPlayerListener): ExoPlayer {
         writeLog(context, "player ensure start")
         if (exoPlayer == null) {
             writeLog(context, "player ensure: null start")
@@ -29,12 +35,16 @@ object VideoPlayer {
             exoPlayer!!.clearMediaItems()
             exoListener?.let {
                 exoPlayer!!.removeListener(it)
+                if (listener.getId() != it.getId()) {
+                    it.onBeReplaced()
+                }
             }
             exoPlayer!!.addListener(listener)
             exoListener = listener
             writeLog(context, "player ensure: else end")
         }
 
+        listener.onEnsured()
         writeLog(context, "player ensure end")
         return exoPlayer!!
     }
