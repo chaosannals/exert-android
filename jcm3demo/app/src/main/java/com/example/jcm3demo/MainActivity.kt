@@ -17,7 +17,6 @@ import com.baidu.mapapi.SDKInitializer
 import com.baidu.mapapi.common.BaiduMapSDKException
 import com.example.jcm3demo.ui.MainLayout
 import com.example.jcm3demo.ui.U
-import com.example.jcm3demo.ui.page.tool.VideoPlayer
 import com.example.jcm3demo.ui.page.tool.writeLog
 import com.example.jcm3demo.ui.sdp
 import com.example.jcm3demo.ui.theme.Jcm3demoTheme
@@ -26,10 +25,14 @@ import com.example.jcm3demo.ui.theme.Jcm3demoTheme
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        //SDKInitializer.setAgreePrivacy(application, false)
+        // 7.4.0 没有这些接口，7.5.0 有并需要同意才能使用。
+        // SDKInitializer.setAgreePrivacy(application, true)
+        //  v9.2.9版本起加入
+        // LocationClient.setAgreePrivacy(true)
         try {
             SDKInitializer.initialize(application)
             SDKInitializer.setCoordType(CoordType.BD09LL)
+            BDL.init(application)
         } catch (e : BaiduMapSDKException) {
             writeLog(this,"bdm error : ${e.message} ${e.stackTraceToString()}")
         }

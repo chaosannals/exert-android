@@ -83,4 +83,20 @@ ln -s "$FFMPEG_PATH" ffmpeg
 ```bash
 # 通过安卓自带工具查看证书信息，需要输入证书 key
 keytool -list -v -keystore jcm3demo.jks
+
+# 调试证书在用户目录  .android 下 debug.keystore 通过下面命令查看 SHA1
+keytool -list -v -keystore debug.keystore -storepass android -keypass android
 ```
+
+## 百度地图
+
+百度地图 官方文档使用 v7.4.0 没有
+SDKInitializer.setAgreePrivacy(application, true)
+LocationClient.setAgreePrivacy(true)
+等这些方法，可能没有权限问题的限制，但是可能涉及窃取隐私。
+
+仓库 v7.5.0 之后有该方法，需要同意出卖隐私，否则有部分功能不可用。
+（其实就是让你选择要不要出卖隐私，老版本默认出卖。）
+
+
+开发调试时鉴权失败，直接复制 SHA1 去填开发 SHA1。或者 debug.keystore 的。

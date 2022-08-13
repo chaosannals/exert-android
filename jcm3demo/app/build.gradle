@@ -90,10 +90,13 @@ dependencies {
     implementation 'com.google.android.exoplayer:exoplayer:2.18.1'
 
     // 百度地图
-    implementation 'com.baidu.lbsyun:BaiduMapSDK_Location_All:9.1.8'
-    implementation 'com.baidu.lbsyun:BaiduMapSDK_Map-AllNavi:7.4.0'
-    implementation 'com.baidu.lbsyun:BaiduMapSDK_Search:7.4.0'
-    implementation 'com.baidu.lbsyun:BaiduMapSDK_Util:7.4.0'
+    implementation "com.baidu.lbsyun:BaiduMapSDK_Location_All:$baidu_location_version"
+    implementation "com.baidu.lbsyun:BaiduMapSDK_Map-AllNavi:$baidu_map_version"
+    implementation "com.baidu.lbsyun:BaiduMapSDK_Search:$baidu_map_version"
+    implementation "com.baidu.lbsyun:BaiduMapSDK_Util:$baidu_map_version"
+
+    // http client
+    implementation "io.ktor:ktor-client-core:$ktor_client_version"
 
     // 测试
     testImplementation 'junit:junit:4.13.2'

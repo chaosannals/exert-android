@@ -16,6 +16,8 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <!--用于访问WIFI网络状态，用于判断网络状态 -->
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <!-- 这个权限用于获取wifi的获取权限，wifi信息会用来进行网络定位 BaiduLocation-->
+    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE"/>
     <!--写入扩展存储，向扩展卡写入数据，用于离线数据的写入 -->
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" android:maxSdkVersion="28"/>
     <!-- 用于ugc事件上报拍照录像 -->
@@ -53,7 +55,6 @@
         <activity
             android:name=".MainActivity"
             android:exported="true"
-            android:label="@string/app_name"
             android:theme="@style/Theme.Jcm3demo">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

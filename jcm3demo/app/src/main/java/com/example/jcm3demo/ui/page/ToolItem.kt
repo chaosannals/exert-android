@@ -12,4 +12,5 @@ enum class ToolItem(var route: RouteItem, var iconRid: Int, var title: String) {
     Chart(RouteItem.ToolChart, R.drawable.ic_bar_chart, "图表"),
     TextToSpeech(RouteItem.ToolTextToSpeech, R.drawable.ic_speaker_phone, "TTS"),
     BaiduMap(RouteItem.ToolBaiduMap, R.drawable.ic_map, "百度地图"),
+    BaiduLocation(RouteItem.ToolBaiduLocation, R.drawable.ic_map, "百度定位"),
 }
