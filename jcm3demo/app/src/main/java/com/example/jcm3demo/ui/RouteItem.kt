@@ -14,6 +14,8 @@ enum class RouteItem(var route: String, var page: @Composable (NavController) ->
     ToolChart("tool-chart", { ChartPage() }),
     ToolImages("tool-images", { ImagesPage() }),
     ToolVideos("tool-videos", { VideosPage() }),
+    ToolTextToSpeech("tool-text-to-speech", { TextToSpeechPage() }),
+    ToolBaiduMap("tool-baidu-map", { BaiduMapPage() })
 }
 
 // 路由到

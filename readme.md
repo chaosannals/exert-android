@@ -77,3 +77,10 @@ ln -s "$FFMPEG_PATH" ffmpeg
 # ExoPlayer 项目下执行 打包 aar
 ./gradlew extension-ffmpeg:assembleRelease
 ```
+
+## 证书
+
+```bash
+# 通过安卓自带工具查看证书信息，需要输入证书 key
+keytool -list -v -keystore jcm3demo.jks
+```
