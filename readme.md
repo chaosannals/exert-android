@@ -4,7 +4,20 @@
 
 现在官网下载 Android Studio 后 Windows 下通过管理界面下载 命令行工具 ndk 等，新版本下很多原有工具默认不安装。
 
+## 迁移 avd 仿真
 
+~/.android/avd/Nexus_4_API_29.avd 移动到 /path/to/.android/avd/Nexus_4_API_29.avd
+注：.android/avd 这个目录结构是必须的可能因为 path.rel 配置。
+
+修改 ~/.android/avd/Nexus_4_API_29.ini 的 path 到新位置
+```ini
+avd.ini.encoding=UTF-8
+path=\path\to\.android\avd\Nexus_4_API_29.avd
+path.rel=avd\Nexus_4_API_29.avd
+target=android-29
+```
+
+注：修改后要重启 Android Studio 的管理器，不然会识别不到状态。
 
 ## ExoPlayer
 

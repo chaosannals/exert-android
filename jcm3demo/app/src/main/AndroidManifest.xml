@@ -50,7 +50,14 @@
         android:theme="@style/Theme.Jcm3demo"
         tools:targetApi="31">
 
-        <meta-data android:name="com.baidu.lbsapi.API_KEY" android:value="MhE1AvoVrMyokm97NtOvGl3io8QRSVo7" />
+        <meta-data
+            android:name="com.baidu.lbsapi.API_KEY"
+            android:value="MhE1AvoVrMyokm97NtOvGl3io8QRSVo7" />
+        <service
+            android:name="com.baidu.location.f"
+            android:enabled="true"
+            android:process=":remote">
+        </service>
 
         <activity
             android:name=".MainActivity"
