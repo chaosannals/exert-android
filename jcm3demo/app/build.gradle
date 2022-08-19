@@ -33,6 +33,13 @@ android {
     }
 
     buildTypes {
+        // 配置
+//        debug {
+//            manifestPlaceholders = [
+//                    'BAIDU_MAP_KEY': ""
+//            ]
+//        }
+
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'

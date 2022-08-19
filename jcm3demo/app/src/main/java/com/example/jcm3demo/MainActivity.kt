@@ -1,6 +1,7 @@
 package com.example.jcm3demo
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.fillMaxSize
@@ -9,6 +10,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.boundsInRoot
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.baidu.location.LocationClient
@@ -41,7 +44,12 @@ class MainActivity : ComponentActivity() {
         setContent {
             Jcm3demoTheme {
                 Surface(
-                    modifier = Modifier.fillMaxSize(),
+                    modifier = Modifier
+                        .onGloballyPositioned {
+                            var r = it.boundsInRoot()
+                            Log.i("mainactivity", "(${r.left}, ${r.top}) (${r.right}, ${r.bottom}) ${r.width} ${r.height}")
+                        }
+                        .fillMaxSize(),
 //                    color = MaterialTheme.colorScheme.background,
                 color= colorResource(id = R.color.gray),
                 ) {

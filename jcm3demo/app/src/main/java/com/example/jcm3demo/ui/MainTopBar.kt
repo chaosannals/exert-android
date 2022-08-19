@@ -1,5 +1,6 @@
 package com.example.jcm3demo.ui
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -8,6 +9,8 @@ import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.boundsInRoot
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -19,6 +22,10 @@ import com.example.jcm3demo.R
 fun MainTopBar() {
 
     MediumTopAppBar(
+        modifier = Modifier.onGloballyPositioned {
+            var r = it.boundsInRoot()
+            Log.i("maintopbar", "(${r.left}, ${r.top}) (${r.right}, ${r.bottom}) ${r.width} ${r.height}")
+        },
         title = { Text(text = stringResource(R.string.app_name), fontSize = 18.sp) },
         navigationIcon = {
             IconButton(onClick = { }) {

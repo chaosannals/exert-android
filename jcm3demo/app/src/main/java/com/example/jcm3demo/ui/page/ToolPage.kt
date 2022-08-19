@@ -27,7 +27,8 @@ fun ToolPage(navController: NavController) {
         columns = GridCells.Fixed(3),
         modifier = Modifier
             .fillMaxSize()
-            .padding(0.dp, 0.dp, 0.dp, 60.dp),
+            //.padding(0.dp, 0.dp, 0.dp, 60.dp)
+            .navigationBarsPadding(),
     ) {
         items(ToolItem.values()) {
             val shape = RoundedCornerShape(8)

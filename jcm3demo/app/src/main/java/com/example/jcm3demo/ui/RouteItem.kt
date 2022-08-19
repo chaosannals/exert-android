@@ -17,7 +17,8 @@ enum class RouteItem(var route: String, var page: @Composable (NavController) ->
     ToolVideos("tool-videos", { VideosPage() }),
     ToolTextToSpeech("tool-text-to-speech", { TextToSpeechPage() }),
     ToolBaiduMap("tool-baidu-map", { BaiduMapPage() }),
-    ToolBaiduLocation("tool-baidu-location", @ExperimentalMaterial3Api { BaiduLocationPage() })
+    ToolBaiduLocation("tool-baidu-location", @ExperimentalMaterial3Api { BaiduLocationPage() }),
+    ToolOffset("tool-offset", { OffsetPage() }),
 }
 
 // 路由到
