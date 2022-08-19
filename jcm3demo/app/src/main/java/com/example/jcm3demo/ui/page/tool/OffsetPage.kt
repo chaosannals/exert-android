@@ -31,9 +31,9 @@ fun logOffset(it: LayoutCoordinates, label: String) {
 }
 
 fun debounceSuspend(
-    delayMs: Long = 1000L,
     coroutineScope: CoroutineScope,
     job: Job?,
+    delayMs: Long = 2000L,
     f: suspend CoroutineScope.() -> Unit
 ) : Job {
     job?.cancel()
@@ -82,8 +82,9 @@ fun OffsetPage() {
             modifier = Modifier
                 .height(500.dp)
                 .onGloballyPositioned {
-                    pj1 = debounceSuspend(1000L, pcs1, pj1) {
+                    pj1 = debounceSuspend(pcs1, pj1) {
                         logOffset(it, "1 500.dp")
+                        // 设置 remember 变量 导致重刷会再次触发一次，这样看着会感觉防抖失效，其实 2次 的间隔时间 大于 防抖动间隔
                         p1 = it.positionInRoot()
                         // pj1 = null
                     }
@@ -115,8 +116,9 @@ fun OffsetPage() {
             modifier = Modifier
                 .height(1000.dp)
                 .onGloballyPositioned {
-                    pj2 = debounceSuspend(1000L, pcs1, pj2) {
+                    pj2 = debounceSuspend(pcs1, pj2) {
                         logOffset(it, "2 1000.dp")
+                        // 设置 remember 变量 导致重刷会再次触发一次，这样看着会感觉防抖失效，其实 2次 的间隔时间 大于 防抖动间隔
                         p2 = it.positionInRoot()
                     }
                 }
@@ -147,8 +149,9 @@ fun OffsetPage() {
             modifier = Modifier
                 .height(1500.dp)
                 .onGloballyPositioned {
-                    pj3 = debounceSuspend(1000L, pcs1, pj3) {
+                    pj3 = debounceSuspend(pcs1, pj3) {
                         logOffset(it, "3 1500.dp")
+                        // 设置 remember 变量 导致重刷会再次触发一次，这样看着会感觉防抖失效，其实 2次 的间隔时间 大于 防抖动间隔
                         p3 = it.positionInRoot()
                     }
                 }
