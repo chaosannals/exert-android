@@ -106,6 +106,9 @@ dependencies {
     // http client
     implementation "io.ktor:ktor-client-core:$ktor_client_version"
 
+    // 二维码
+    implementation "com.google.zxing:core:$zxing_version"
+
     // 测试
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.3'

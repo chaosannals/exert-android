@@ -14,4 +14,6 @@ enum class ToolItem(var route: RouteItem, var iconRid: Int, var title: String) {
     BaiduMap(RouteItem.ToolBaiduMap, R.drawable.ic_map, "百度地图"),
     BaiduLocation(RouteItem.ToolBaiduLocation, R.drawable.ic_map, "百度定位"),
     Offset(RouteItem.ToolOffset, R.drawable.ic_ad_units, "位移"),
+    Zxing(RouteItem.ToolZxing, R.drawable.ic_qr_code, "二维码"),
+    ZxingScan(RouteItem.ToolZxingScan, R.drawable.ic_qr_code_scanner, "二维码扫描"),
 }

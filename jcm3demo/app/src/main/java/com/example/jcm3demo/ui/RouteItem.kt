@@ -19,6 +19,8 @@ enum class RouteItem(var route: String, var page: @Composable (NavController) ->
     ToolBaiduMap("tool-baidu-map", { BaiduMapPage() }),
     ToolBaiduLocation("tool-baidu-location", @ExperimentalMaterial3Api { BaiduLocationPage() }),
     ToolOffset("tool-offset", { OffsetPage() }),
+    ToolZxing("tool-zxing", { ZxingPage() }),
+    ToolZxingScan("tool-zxing-scan", { ZxingScanPage() }),
 }
 
 // 路由到
