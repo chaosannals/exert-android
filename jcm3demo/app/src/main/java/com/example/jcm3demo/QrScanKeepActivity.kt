@@ -2,35 +2,42 @@ package com.example.jcm3demo
 
 import android.os.Bundle
 import android.view.KeyEvent
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.material3.Button
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.viewinterop.AndroidView
 import com.example.jcm3demo.ui.theme.Jcm3demoTheme
 import com.journeyapps.barcodescanner.CaptureManager
 import com.journeyapps.barcodescanner.DecoratedBarcodeView
-import com.journeyapps.barcodescanner.ViewfinderView
 
-
-class QrScanActivity : ComponentActivity(), DecoratedBarcodeView.TorchListener  {
+class QrScanKeepActivity : ComponentActivity(), DecoratedBarcodeView.TorchListener  {
     lateinit var capture: CaptureManager
     lateinit var barcodeScannerView: DecoratedBarcodeView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        val self = this
         barcodeScannerView = DecoratedBarcodeView(this)
         barcodeScannerView.setTorchListener(this)
         capture = CaptureManager(this, barcodeScannerView)
 
         setContent {
             Jcm3demoTheme {
+                var text : String? by remember {
+                    mutableStateOf(null)
+                }
+
                 Surface(
                     modifier = Modifier
                         .fillMaxSize(),
@@ -47,7 +54,22 @@ class QrScanActivity : ComponentActivity(), DecoratedBarcodeView.TorchListener  
                         ) {
                             capture.initializeFromIntent(intent, savedInstanceState)
                             capture.setShowMissingCameraPermissionDialog(false)
-                            capture.decode()
+                            it.decodeSingle {
+                                Toast.makeText(self, "Scanned:" + it.text, Toast.LENGTH_LONG).show()
+                                text = it.text
+                            }
+                        }
+                        Text(text = text ?: "")
+                        Button(
+                            enabled = text != null,
+                            onClick = {
+                                barcodeScannerView.decodeSingle {
+                                    Toast.makeText(self, "Scanned:" + it.text, Toast.LENGTH_LONG).show()
+                                    text = it.text
+                                }
+                            },
+                        ) {
+                            Text(text = "重新扫描")
                         }
                     }
                 }

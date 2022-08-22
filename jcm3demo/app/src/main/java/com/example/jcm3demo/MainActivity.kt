@@ -27,6 +27,8 @@ import com.journeyapps.barcodescanner.ScanOptions
 
 @ExperimentalMaterial3Api
 class MainActivity : ComponentActivity() {
+
+
     val barcodeLauncher = registerForActivityResult(ScanContract()) {
         if (it.contents == null) {
             Toast.makeText(this, "Cancelled", Toast.LENGTH_LONG).show()
@@ -46,6 +48,13 @@ class MainActivity : ComponentActivity() {
         val options = ScanOptions()
             .setOrientationLocked(false)
             .setCaptureActivity(QrScanActivity::class.java)
+        barcodeLauncher.launch(options)
+    }
+
+    fun launchQrScanKeep() {
+        val options = ScanOptions()
+            .setOrientationLocked(false)
+            .setCaptureActivity(QrScanKeepActivity::class.java)
         barcodeLauncher.launch(options)
     }
 

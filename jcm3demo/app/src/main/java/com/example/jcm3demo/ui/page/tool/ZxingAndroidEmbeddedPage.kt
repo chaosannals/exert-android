@@ -65,6 +65,12 @@ fun ZxingAndroidEmbeddedPage() {
         ) {
             Text("扫码（自定义Activity)")
         }
+
+        Button(
+            onClick = { context.launchQrScanKeep() },
+        ) {
+            Text("扫码（自定义Activity 保留)")
+        }
 //        AndroidView(
 //            factory = {
 //                val dbv = DecoratedBarcodeView(it)
