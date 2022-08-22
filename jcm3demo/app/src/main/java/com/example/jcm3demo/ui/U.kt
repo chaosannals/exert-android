@@ -5,6 +5,8 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import java.text.SimpleDateFormat
+import java.util.*
 import kotlin.math.floor
 
 object U {
@@ -15,6 +17,10 @@ object U {
     }
     val designDp: Dp = 375.dp
     val ratio: Float = displayDp / designDp
+
+    val datetimeFormator: SimpleDateFormat by lazy {
+        SimpleDateFormat("yyyyMMddHHmmss")
+    }
 }
 
 inline val Int.sdp : Dp get() = run {
@@ -42,4 +48,12 @@ inline val Float.ssp : TextUnit
 inline val Double.ssp : TextUnit
     get() = run {
     return (this * U.ratio).sp
+}
+
+inline val String.dt : Date? get() = run {
+    U.datetimeFormator.parse(this)
+}
+
+inline val Date.d2dt : String get() = run {
+    U.datetimeFormator.format(this)
 }

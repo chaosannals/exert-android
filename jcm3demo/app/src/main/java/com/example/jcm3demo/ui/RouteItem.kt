@@ -21,6 +21,7 @@ enum class RouteItem(var route: String, var page: @Composable (NavController) ->
     ToolOffset("tool-offset", { OffsetPage() }),
     ToolZxing("tool-zxing", { ZxingPage() }),
     ToolZxingScan("tool-zxing-scan", { ZxingScanPage() }),
+    ToolZxingAndroidEmbedded("tool-zxing-android-embedded", @ExperimentalMaterial3Api { ZxingAndroidEmbeddedPage() }),
 }
 
 // 路由到

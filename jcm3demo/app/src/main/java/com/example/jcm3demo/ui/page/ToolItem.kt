@@ -16,4 +16,5 @@ enum class ToolItem(var route: RouteItem, var iconRid: Int, var title: String) {
     Offset(RouteItem.ToolOffset, R.drawable.ic_ad_units, "位移"),
     Zxing(RouteItem.ToolZxing, R.drawable.ic_qr_code, "二维码"),
     ZxingScan(RouteItem.ToolZxingScan, R.drawable.ic_qr_code_scanner, "二维码扫描"),
+    ZxingAndroidEmbedded(RouteItem.ToolZxingAndroidEmbedded, R.drawable.ic_qr_code_scanner, "二维码扫描(嵌入)"),
 }
