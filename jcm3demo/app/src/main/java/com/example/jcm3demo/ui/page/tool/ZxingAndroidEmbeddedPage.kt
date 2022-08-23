@@ -1,6 +1,8 @@
 package com.example.jcm3demo.ui.page.tool
 
+import android.Manifest
 import android.app.Activity
+import android.content.pm.PackageManager
 import android.widget.Toast
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -16,6 +18,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import com.example.jcm3demo.MainActivity
@@ -29,6 +33,21 @@ fun ZxingAndroidEmbeddedPage() {
     val context = LocalContext.current as MainActivity
     val barcodeView = DecoratedBarcodeView(context)
     val beepManager = BeepManager(context)
+
+    // 检查权限，无则申请。
+    var sp = ContextCompat.checkSelfPermission(
+        context,
+        Manifest.permission.CAMERA
+    )
+    if (sp != PackageManager.PERMISSION_GRANTED) {
+        ActivityCompat.requestPermissions(
+            context as Activity,
+            arrayOf(
+                Manifest.permission.CAMERA,
+            ),
+            1 // 自定标识
+        )
+    }
 
     val lifecycleOwner by rememberUpdatedState(LocalLifecycleOwner.current)
 
