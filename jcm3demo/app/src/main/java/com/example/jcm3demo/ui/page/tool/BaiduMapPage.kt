@@ -28,13 +28,13 @@ fun BaiduMapPage() {
         val observer = LifecycleEventObserver { owner, event ->
             when (event) {
                 Lifecycle.Event.ON_RESUME -> {
-                    bdm?.let { it.onResume() }
+                    bdm?.onResume()
                 }
                 Lifecycle.Event.ON_PAUSE -> {
-                    bdm?.let { it.onPause() }
+                    bdm?.onPause()
                 }
                 Lifecycle.Event.ON_DESTROY -> {
-                    bdm?.let { it.onDestroy() }
+                    bdm?.onDestroy()
                 }
                 else -> {}
             }

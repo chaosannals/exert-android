@@ -51,24 +51,24 @@ object BDL {
                 listeners.forEach { it.value.invoke(location!!) }
 
                 // 地址信息 --------------------------------
-                val addr = location!!.addrStr //获取详细地址信息
-
-                val country = location!!.country //获取国家
-
-                val province = location!!.province //获取省份
-
-                val city = location!!.city //获取城市
-
-                val district = location!!.district //获取区县
-
-                val street = location!!.street //获取街道信息
-
-                val adcode = location!!.adCode //获取adcode
-
-                val town = location!!.town //获取乡镇信息
+//                val addr = location!!.addrStr //获取详细地址信息
+//
+//                val country = location!!.country //获取国家
+//
+//                val province = location!!.province //获取省份
+//
+//                val city = location!!.city //获取城市
+//
+//                val district = location!!.district //获取区县
+//
+//                val street = location!!.street //获取街道信息
+//
+//                val adcode = location!!.adCode //获取adcode
+//
+//                val town = location!!.town //获取乡镇信息
 
                 // 位置描述 -----------------------
-                val locationDescribe = location.locationDescribe //获取位置描述信息
+//                val locationDescribe = location.locationDescribe //获取位置描述信息
 
                 // 周边信息
                 //此处的BDLocation为定位结果信息类，通过它的各种get方法可获取定位相关的全部结果
@@ -78,35 +78,35 @@ object BDL {
                 //此处的BDLocation为定位结果信息类，通过它的各种get方法可获取定位相关的全部结果
                 //以下只列举部分获取周边POI信息相关的结果
                 //更多结果信息获取说明，请参照类参考中BDLocation类中的说明
-                if (location.poiList != null && location.poiList.isNotEmpty()) {
-                    val poi = location.poiList[0]
-                    val poiName = poi.name //获取POI名称
-
-                    // val poiTags: String = poi.getTag() //获取POI类型
-
-                    val poiAddr = poi.addr //获取POI地址 //获取周边POI信息
-
-                    if (location.poiRegion != null) {
-                        val poiRegion = location.poiRegion
-                        val poiDerectionDesc = poiRegion.derectionDesc //获取PoiRegion位置关系
-
-                        val poiRegionName = poiRegion.name //获取PoiRegion名称
-
-                        val poiTags = poiRegion.tags //获取PoiRegion类型
-                    }
-                }
+//                if (location.poiList != null && location.poiList.isNotEmpty()) {
+//                    val poi = location.poiList[0]
+//                    val poiName = poi.name //获取POI名称
+//
+//                    // val poiTags: String = poi.getTag() //获取POI类型
+//
+//                    val poiAddr = poi.addr //获取POI地址 //获取周边POI信息
+//
+//                    if (location.poiRegion != null) {
+//                        val poiRegion = location.poiRegion
+//                        val poiDerectionDesc = poiRegion.derectionDesc //获取PoiRegion位置关系
+//
+//                        val poiRegionName = poiRegion.name //获取PoiRegion名称
+//
+//                        val poiTags = poiRegion.tags //获取PoiRegion类型
+//                    }
+//                }
 
 
                 // 室内定位 --------------------------------------------
                 //这种只有特定地点有。有这个信息才能被使用。
                 //此处的BDLocation为定位结果信息类，通过它的各种get方法可获取定位相关的全部结果
-                if (location.floor != null) {
-                    // 当前支持高精度室内定位
-                    val buildingID = location.buildingID // 百度内部建筑物ID
-                    val buildingName = location.buildingName // 百度内部建筑物缩写
-                    val floor = location.floor // 室内定位的楼层信息，如 f1,f2,b1,b2
-                    client!!.startIndoorMode() // 开启室内定位模式（重复调用也没问题），开启后，定位SDK会融合各种定位信息（GPS,WI-FI，蓝牙，传感器等）连续平滑的输出定位结果；
-                }
+//                if (location.floor != null) {
+//                    // 当前支持高精度室内定位
+//                    val buildingID = location.buildingID // 百度内部建筑物ID
+//                    val buildingName = location.buildingName // 百度内部建筑物缩写
+//                    val floor = location.floor // 室内定位的楼层信息，如 f1,f2,b1,b2
+//                    client!!.startIndoorMode() // 开启室内定位模式（重复调用也没问题），开启后，定位SDK会融合各种定位信息（GPS,WI-FI，蓝牙，传感器等）连续平滑的输出定位结果；
+//                }
             }
         })
         var option = LocationClientOption()

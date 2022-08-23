@@ -63,6 +63,7 @@ class QrScanKeepActivity : ComponentActivity(), DecoratedBarcodeView.TorchListen
                         Button(
                             enabled = text != null,
                             onClick = {
+                                text = null
                                 barcodeScannerView.decodeSingle {
                                     Toast.makeText(self, "Scanned:" + it.text, Toast.LENGTH_LONG).show()
                                     text = it.text
