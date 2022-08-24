@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="ImageInfo">
+        <attr name="jumpy" format="boolean"/>
+        <attr name="interval" format="integer"/>
+    </declare-styleable>
+</resources>
