@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<set xmlns:android="http://schemas.android.com/apk/res/android">
+    <scale
+        android:repeatMode="reverse"
+        android:repeatCount="4"
+        android:fromXScale="100%"
+        android:fromYScale="100%"
+        android:toXScale="200%"
+        android:toYScale="200%"
+        android:duration="512"/>
+    <alpha
+        android:repeatMode="reverse"
+        android:repeatCount="4"
+        android:fromAlpha="0.8"
+        android:toAlpha="0.5"
+        android:duration="512"/>
+    <rotate
+        android:repeatMode="reverse"
+        android:repeatCount="4"
+        android:pivotX="50%"
+        android:pivotY="50%"
+        android:fromDegrees="-15"
+        android:toDegrees="15"
+        android:duration="512"/>
+</set>

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<cn.chaosdawn.chaosannals.AnimationFrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="match_parent"
+    android:background="@drawable/bkg04">
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/v04_butterfly"
+        android:src="@drawable/butterfly"
+        android:layout_gravity="center" />
+
+    <TextView
+        android:id="@+id/v04_text00"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:ems="1"
+        android:textColor="#5533ffff"
+        android:textSize="30dp"
+        android:text="帧动画的蝴蝶"
+        android:layout_marginRight="30dp"
+        android:layout_gravity="right|center" />
+</cn.chaosdawn.chaosannals.AnimationFrameLayout>

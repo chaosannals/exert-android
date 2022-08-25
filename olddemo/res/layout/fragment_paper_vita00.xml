@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<cn.chaosdawn.chaosannals.AnimationFrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/bkg00">
+    <ImageView
+        android:id="@+id/v00_image00"
+        android:src="@drawable/sunshine256"
+        android:tint="#ff3377ff"
+        android:alpha="0.5"
+        android:layout_marginLeft="100dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="left|bottom"/>
+    <ImageView
+        android:id="@+id/v00_image01"
+        android:src="@drawable/sunshine128"
+        android:tint="#ff33ffff"
+        android:alpha="0.5"
+        android:layout_marginLeft="100dp"
+        android:layout_marginBottom="200dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="left|bottom"/>
+    <ImageView
+        android:id="@+id/v00_image02"
+        android:src="@drawable/sunshine64"
+        android:tint="#ffff7733"
+        android:alpha="0.5"
+        android:layout_marginLeft="100dp"
+        android:layout_marginBottom="300dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="left|bottom"/>
+    <TextView
+        android:id="@+id/v00_text00"
+        android:text="模仿太阳光晕"
+        android:ems="1"
+        android:textColor="#7733ffcc"
+        android:textSize="24dp"
+        android:layout_marginTop="80dp"
+        android:layout_marginRight="80dp"
+        android:layout_gravity="right|top"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+</cn.chaosdawn.chaosannals.AnimationFrameLayout>

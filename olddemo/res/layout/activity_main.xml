@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <cn.chaosdawn.chaosannals.ScrollGroup
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/paper_group">
+        <fragment
+            android:id="@+id/vita00"
+            android:name="cn.chaosdawn.chaosannals.paper.Vita00Fragment"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            tools:layout="@layout/fragment_paper_vita00" />
+        <fragment
+            android:name="cn.chaosdawn.chaosannals.paper.Vita01Fragment"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            tools:layout="@layout/fragment_paper_vita01" />
+        <fragment
+            android:name="cn.chaosdawn.chaosannals.paper.Vita02Fragment"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            tools:layout="@layout/fragment_paper_vita02" />
+        <fragment
+            android:name="cn.chaosdawn.chaosannals.paper.Vita03Fragment"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            tools:layout="@layout/fragment_paper_vita02" />
+        <fragment
+            android:name="cn.chaosdawn.chaosannals.paper.Vita04Fragment"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            tools:layout="@layout/fragment_paper_vita02" />
+    </cn.chaosdawn.chaosannals.ScrollGroup>
+
+    <cn.chaosdawn.chaosannals.MusicButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/music_button"
+        android:background="@android:color/transparent"
+        android:layout_gravity="right|top"
+        android:layout_marginTop="32dp"
+        android:layout_marginRight="32dp"
+        android:id="@+id/music_button" />
+
+    <cn.chaosdawn.chaosannals.JumpyImage
+        xmlns:chaosannals="http://schemas.android.com/apk/res/cn.chaosdawn.chaosannals"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/arrow"
+        android:id="@+id/view"
+        android:layout_gravity="center_horizontal|bottom"
+        android:layout_marginBottom="32dp"
+        chaosannals:jumpy="true"/>
+</FrameLayout>
