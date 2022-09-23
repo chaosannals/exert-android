@@ -4,6 +4,12 @@
 
 现在官网下载 Android Studio 后 Windows 下通过管理界面下载 命令行工具 ndk 等，新版本下很多原有工具默认不安装。
 
+## Kotlin Jetpack Compose
+
+### 预览（@Preview）与 自定义的 CompositionLocal
+
+自定义提供的 staticCompositionLocalOf 和 compositionLocalOf 在预览里面必须通过 CompositionLocalProvider 提供，不然会毫无报错且不可预览（之后不知道会不会改进报错）。
+
 ## 迁移 avd 仿真
 
 ~/.android/avd/Nexus_4_API_29.avd 移动到 /path/to/.android/avd/Nexus_4_API_29.avd
