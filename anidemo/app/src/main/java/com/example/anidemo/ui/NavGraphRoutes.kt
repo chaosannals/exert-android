@@ -2,6 +2,7 @@ package com.example.anidemo.ui
 
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
@@ -12,6 +13,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
 import androidx.navigation.navArgument
+import com.example.anidemo.LocalMainScroller
 import com.example.anidemo.LocalNavController
 import com.example.anidemo.ui.page.HomePage
 import com.example.anidemo.ui.page.employee.EmployeeArgsType
@@ -59,17 +61,17 @@ fun NavGraphBuilder.employeeGraph() {
 
 @Composable
 fun NavGraphRoutes(
-    scroller: ScrollState,
     paddingValues: PaddingValues,
 ) {
     val pTop = paddingValues.calculateTopPadding()
     val pBottom = paddingValues.calculateBottomPadding()
 
+
     NavHost(
         LocalNavController.current,
         modifier = Modifier
             .padding(top = pTop, bottom = pBottom)
-            .verticalScroll(scroller),
+            .fillMaxSize(),
         startDestination = "home", // 默认路由
     )
     {

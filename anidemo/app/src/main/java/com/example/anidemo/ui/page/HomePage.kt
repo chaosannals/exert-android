@@ -1,11 +1,17 @@
 package com.example.anidemo.ui.page
 
 import android.net.Uri
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import com.example.anidemo.LocalMainScroller
 import com.example.anidemo.LocalNavController
 import com.example.anidemo.ui.page.employee.EmployeeBean
 import com.google.gson.Gson
@@ -13,8 +19,15 @@ import com.google.gson.Gson
 @Composable
 fun HomePage() {
     val nc = LocalNavController.current
+    val scroller = LocalMainScroller.current
 
-    Column () {
+    Column (
+        verticalArrangement = Arrangement.Top,
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(scroller),
+    ) {
         Button(onClick = {
             nc.navigate("employee")
         }) {
