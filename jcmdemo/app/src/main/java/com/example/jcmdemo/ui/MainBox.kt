@@ -38,6 +38,8 @@ enum class PageItem(var route: String, var page: @Composable (NavController) -> 
     Videos(GistItem.Videos.route, @ExperimentalFoundationApi { VideosPage()}),
     Video(GistItem.Video.route, { VideoPage()}),
     VideoRecycler(GistItem.VideoRecycler.route, { VideoRecyclerPage()}),
+    SinSpary(GistItem.SinSpray.route, { com.example.jcmdemo.ui.page.SinSpray() }),
+    SinSpary2(GistItem.SinSpray2.route, { com.example.jcmdemo.ui.page.SinSpray2() })
 }
 
 @ExperimentalFoundationApi
@@ -77,7 +79,7 @@ fun MainBox() {
                 NavHost(
                     navController,
                     modifier = Modifier.background(colorResource(id = R.color.gray)),
-                    startDestination = BottomItem.Home.route
+                    startDestination = BottomItem.Gist.route
                 )
                 {
                     PageItem.values().forEach{ page ->
