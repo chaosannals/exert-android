@@ -9,6 +9,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.colorResource
@@ -18,11 +19,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import com.example.jcm3demo.LocalNavController
 import com.example.jcm3demo.R
 import com.example.jcm3demo.ui.routeTo
 
 @Composable
-fun ToolPage(navController: NavController) {
+fun ToolPage() {
+    val navController = LocalNavController.current
     LazyVerticalGrid(
         columns = GridCells.Fixed(3),
         modifier = Modifier
@@ -53,6 +56,9 @@ fun ToolPage(navController: NavController) {
 @Preview(showBackground = true)
 @Composable
 fun ToolPagePreview() {
-    val navController = rememberNavController()
-    ToolPage(navController)
+    CompositionLocalProvider(
+        LocalNavController provides rememberNavController(),
+    ) {
+        ToolPage()
+    }
 }

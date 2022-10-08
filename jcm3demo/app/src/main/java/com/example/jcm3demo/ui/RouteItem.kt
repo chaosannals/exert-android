@@ -7,10 +7,10 @@ import com.example.jcm3demo.ui.page.*
 import com.example.jcm3demo.ui.page.tool.*
 
 // 路由配置
-enum class RouteItem(var route: String, var page: @Composable (NavController) -> Unit) {
+enum class RouteItem(var route: String, var page: @Composable () -> Unit) {
     Conf("conf", { ConfPage() }),
     Home("home", { HomePage() }),
-    Tool("tool", { nc -> ToolPage(nc) }),
+    Tool("tool", { ToolPage() }),
     ToolCamera("tool-camera", { CameraPage() }),
     ToolChart("tool-chart", { ChartPage() }),
     ToolImages("tool-images", { ImagesPage() }),
@@ -36,3 +36,4 @@ fun NavController.routeTo(route: RouteItem) {
         }
     }
 }
+

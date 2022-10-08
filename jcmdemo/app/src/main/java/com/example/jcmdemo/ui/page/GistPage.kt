@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.res.colorResource
@@ -15,6 +16,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import com.example.jcmdemo.LocalNavController
 import com.example.jcmdemo.R
 import com.example.jcmdemo.ui.routeTo
 
@@ -35,9 +37,11 @@ enum class GistItem(var route: String, var icon: Int) {
 }
 
 @Composable
-fun GistPage (navController: NavController) {
+fun GistPage () {
     val items = GistItem.values()
     val columnCount = 3
+
+    val navController = LocalNavController.current
 
     Layout(
         // 修改器会影响到子空间的测量，使得子修改器失效
@@ -83,6 +87,9 @@ fun GistPage (navController: NavController) {
 @Preview(showBackground = true)
 @Composable
 fun GistPagePreview () {
-    val navController = rememberNavController()
-    return GistPage(navController)
+    CompositionLocalProvider(
+        LocalNavController provides rememberNavController(),
+    ) {
+        GistPage()
+    }
 }

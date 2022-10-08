@@ -9,11 +9,15 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.boundsInRoot
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 import com.baidu.mapapi.CoordType
 import com.baidu.mapapi.SDKInitializer
 import com.baidu.mapapi.common.BaiduMapSDKException
@@ -24,6 +28,10 @@ import com.example.jcm3demo.ui.sdp
 import com.example.jcm3demo.ui.theme.Jcm3demoTheme
 import com.journeyapps.barcodescanner.ScanContract
 import com.journeyapps.barcodescanner.ScanOptions
+
+val LocalNavController = staticCompositionLocalOf<NavHostController> {
+    error("No NavController  provided!")
+}
 
 @ExperimentalMaterial3Api
 class MainActivity : ComponentActivity() {
@@ -75,20 +83,25 @@ class MainActivity : ComponentActivity() {
         writeLog(this,"displayDp : ${U.displayDp}  375 -> ${375.sdp}")
         setContent {
             Jcm3demoTheme {
-                Surface(
-                    modifier = Modifier
-                        .onGloballyPositioned {
-                            var r = it.boundsInRoot()
-                            Log.i(
-                                "mainactivity",
-                                "(${r.left}, ${r.top}) (${r.right}, ${r.bottom}) ${r.width} ${r.height}"
-                            )
-                        }
-                        .fillMaxSize(),
-//                    color = MaterialTheme.colorScheme.background,
-                color= colorResource(id = R.color.gray),
+                val navController = rememberNavController()
+                CompositionLocalProvider(
+                    LocalNavController provides navController,
                 ) {
-                    MainLayout()
+                    Surface(
+                        modifier = Modifier
+                            .onGloballyPositioned {
+                                val r = it.boundsInRoot()
+                                Log.i(
+                                    "mainactivity",
+                                    "(${r.left}, ${r.top}) (${r.right}, ${r.bottom}) ${r.width} ${r.height}"
+                                )
+                            }
+                            .fillMaxSize(),
+//                    color = MaterialTheme.colorScheme.background,
+                        color = colorResource(id = R.color.gray),
+                    ) {
+                        MainLayout()
+                    }
                 }
             }
         }

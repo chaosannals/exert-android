@@ -45,6 +45,7 @@ import androidx.core.content.PermissionChecker
 import androidx.core.net.toFile
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import com.example.jcmdemo.LocalNavController
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 import com.example.jcmdemo.R
@@ -373,12 +374,12 @@ private fun CameraPreviewView(
 }
 
 @Composable
-fun CameraPage (navController: NavController) {
-    var onImageCaptured =  { uri: Uri,a: Boolean ->
+fun CameraPage () {
+    val onImageCaptured =  { uri: Uri,a: Boolean ->
         print(uri)
         //navController.routeTo("gist")
     }
-    var onError = { imge: ImageCaptureException ->
+    val onError = { imge: ImageCaptureException ->
         print(imge)
     }
 
@@ -389,7 +390,7 @@ fun CameraPage (navController: NavController) {
     }
 
     var isVideo by remember { mutableStateOf(false) }
-    var videoCapture: VideoCapture<Recorder> = remember {
+    val videoCapture: VideoCapture<Recorder> = remember {
         val recorder = Recorder.Builder()
             .setQualitySelector(QualitySelector.from(Quality.HIGHEST))
             .build()
@@ -436,6 +437,9 @@ fun CameraPage (navController: NavController) {
 @Preview(showBackground = true)
 @Composable
 fun CameraPagePreview() {
-    val navController = rememberNavController()
-    CameraPage(navController)
+    CompositionLocalProvider(
+        LocalNavController provides rememberNavController(),
+    ) {
+        CameraPage()
+    }
 }

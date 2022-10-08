@@ -7,6 +7,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.*
 import androidx.compose.material.Icon
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
@@ -15,6 +16,7 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.jcmdemo.LocalNavController
 import com.example.jcmdemo.ui.page.ConfPage
 import com.example.jcmdemo.ui.page.GistPage
 import com.example.jcmdemo.ui.page.HomePage
@@ -28,24 +30,11 @@ import com.example.jcmdemo.ui.theme.JcmdemoTheme
 import com.example.jcmdemo.R
 import com.example.jcmdemo.ui.page.GistItem
 
-enum class PageItem(var route: String, var page: @Composable (NavController) -> Unit) {
-    Home(BottomItem.Home.route, { HomePage() }),
-    Gist(BottomItem.Gist.route, { n -> GistPage(n) }),
-    Conf(BottomItem.Conf.route, { ConfPage() }),
-    Camera(GistItem.Camera.route, { n -> CameraPage(n) }),
-    Listing(GistItem.Listing.route, @ExperimentalFoundationApi { ListingPage() }),
-    Images(GistItem.Images.route, @ExperimentalFoundationApi { ImagesPage()}),
-    Videos(GistItem.Videos.route, @ExperimentalFoundationApi { VideosPage()}),
-    Video(GistItem.Video.route, { VideoPage()}),
-    VideoRecycler(GistItem.VideoRecycler.route, { VideoRecyclerPage()}),
-    SinSpary(GistItem.SinSpray.route, { com.example.jcmdemo.ui.page.SinSpray() }),
-    SinSpary2(GistItem.SinSpray2.route, { com.example.jcmdemo.ui.page.SinSpray2() })
-}
 
 @ExperimentalFoundationApi
 @Composable
 fun MainBox() {
-    val navController = rememberNavController()
+    val navController = LocalNavController.current
 
     JcmdemoTheme {
         // A surface container using the 'background' color from the theme
@@ -56,7 +45,7 @@ fun MainBox() {
         ) {
             Scaffold (
                 topBar = { TopBar() },
-                bottomBar = { BottomBar(navController) },
+                bottomBar = { BottomBar() },
                 floatingActionButton = {
                     FloatingActionButton(
                         onClick = {
@@ -82,11 +71,8 @@ fun MainBox() {
                     startDestination = BottomItem.Gist.route
                 )
                 {
-                    PageItem.values().forEach{ page ->
-                        composable(page.route) {
-                            page.page(navController)
-                        }
-                    }
+                    routeRoot()
+                    routeGist()
                 }
             }
         }
@@ -97,5 +83,9 @@ fun MainBox() {
 @Preview(showBackground = true)
 @Composable
 fun MainBoxPreview() {
-    MainBox()
+    CompositionLocalProvider(
+        LocalNavController provides rememberNavController(),
+    ) {
+        MainBox()
+    }
 }

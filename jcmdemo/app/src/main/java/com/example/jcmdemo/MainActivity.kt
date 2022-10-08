@@ -4,13 +4,27 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.staticCompositionLocalOf
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 import com.example.jcmdemo.ui.MainBox
+
+val LocalNavController = staticCompositionLocalOf<NavHostController> {
+    error("No NavController  provided!")
+}
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent @ExperimentalFoundationApi {
-            MainBox()
+            val navController = rememberNavController()
+
+            CompositionLocalProvider(
+                LocalNavController provides navController,
+            ) {
+                MainBox()
+            }
         }
     }
 

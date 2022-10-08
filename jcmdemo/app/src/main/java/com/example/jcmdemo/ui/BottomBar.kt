@@ -20,6 +20,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.example.jcmdemo.LocalNavController
 import com.example.jcmdemo.R
 
 sealed class BottomItem(var route: String, var icon: Int, var title: String) {
@@ -29,7 +30,8 @@ sealed class BottomItem(var route: String, var icon: Int, var title: String) {
 }
 
 @Composable
-fun BottomBar (navController: NavController) {
+fun BottomBar () {
+    val navController = LocalNavController.current
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
 
@@ -80,6 +82,5 @@ fun BottomBar (navController: NavController) {
 @Preview(showBackground = true)
 @Composable
 fun BottomBarPreView() {
-    val navController = rememberNavController()
-    BottomBar(navController)
+    BottomBar()
 }

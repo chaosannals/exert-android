@@ -13,6 +13,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.jcm3demo.LocalNavController
 import com.example.jcm3demo.R
 //import androidx.compose.material3.rememberTopAppBarState
 //import androidx.compose.animation.rememberSplineBasedDecay
@@ -20,7 +21,7 @@ import com.example.jcm3demo.R
 @ExperimentalMaterial3Api
 @Composable
 fun MainLayout() {
-    val navController = rememberNavController()
+    val navController = LocalNavController.current
     val floatItem = MainBottomBarItem.Tool
 //    val decayAnimationSpec = rememberSplineBasedDecay<Float>()
 //    val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(
@@ -30,7 +31,7 @@ fun MainLayout() {
 
     Scaffold (
         topBar = { MainTopBar() },
-        bottomBar = { MainBottomBar(navController) },
+        bottomBar = { MainBottomBar() },
         floatingActionButton = {
             FloatingActionButton(
                 onClick = {
@@ -60,7 +61,7 @@ fun MainLayout() {
         {
             RouteItem.values().forEach{ item ->
                 composable(item.route) {
-                    item.page(navController)
+                    item.page()
                 }
             }
         }

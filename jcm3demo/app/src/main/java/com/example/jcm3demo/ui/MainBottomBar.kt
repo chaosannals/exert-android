@@ -8,6 +8,7 @@ import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.colorResource
@@ -16,10 +17,12 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.example.jcm3demo.LocalNavController
 import com.example.jcm3demo.R
 
 @Composable
-fun MainBottomBar(navController: NavController) {
+fun MainBottomBar() {
+    val navController = LocalNavController.current
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
 
@@ -57,6 +60,9 @@ fun MainBottomBar(navController: NavController) {
 @Preview(showBackground = true)
 @Composable
 fun MainBottomBarPreview() {
-    val navController = rememberNavController()
-    MainBottomBar(navController)
+    CompositionLocalProvider(
+        LocalNavController provides rememberNavController(),
+    ) {
+        MainBottomBar()
+    }
 }
