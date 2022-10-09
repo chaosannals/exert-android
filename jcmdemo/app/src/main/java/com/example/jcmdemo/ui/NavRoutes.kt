@@ -43,4 +43,10 @@ fun NavGraphBuilder.routeGist() {
     composable(GistItem.SinSpray2.route) {
         SinSpray2()
     }
+    composable(GistItem.ScrollDragBox.route) {
+        ScrollDragBox()
+    }
+    composable(GistItem.PathDataParser.route) {
+        PathDataParser()
+    }
 }

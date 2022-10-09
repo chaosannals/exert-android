@@ -1,9 +1,8 @@
 package com.example.jcmdemo.ui.page
 
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
+import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.runtime.Composable
@@ -31,6 +30,8 @@ enum class GistItem(var route: String, var icon: Int) {
     VideoRecycler("video_recycler", R.drawable.ic_featured_video),
     SinSpray("sin_spray", R.drawable.ic_gist),
     SinSpray2("sin_spray2", R.drawable.ic_gist),
+    ScrollDragBox("scroll_drag_box", R.drawable.ic_gist),
+    PathDataParser("path_data_parser", R.drawable.ic_gist),
 //    Conf1("conf", R.drawable.ic_conf),
 //    Conf2("conf", R.drawable.ic_conf),
 //    Conf3("conf", R.drawable.ic_conf),
@@ -43,10 +44,12 @@ fun GistPage () {
 
     val navController = LocalNavController.current
 
+
     Layout(
         // 修改器会影响到子空间的测量，使得子修改器失效
         // modifier = Modifier.fillMaxSize(),
         //modifier = Modifier.background(colorResource(id = R.color.gray)),
+        modifier = Modifier.verticalScroll(rememberScrollState()),
         content = {
             items.forEach{ item ->
                 IconButton(

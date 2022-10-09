@@ -54,8 +54,9 @@ fun ListingItem() {
 //            var d = imageLoader.execute(a).drawable
 //
 //        }
+
         Text(text = "标题")
-        var infos = listOf(
+        val infos = listOf(
             InfoItem("信息1：", "123213"),
             InfoItem("信息2：", "1"),
             InfoItem("信息3：", "3"),
@@ -74,7 +75,7 @@ fun ListingItem() {
         }
 
 
-        var painter = rememberAsyncImagePainter(
+        val painter = rememberAsyncImagePainter(
             model = ImageRequest.Builder(LocalContext.current)
                 .data("https://pic2.zhimg.com/80/v2-f6b1f64a098b891b4ea1e3104b5b71f6_720w.png")
                 .size(Size.ORIGINAL) // Set the target size to load the image at.
