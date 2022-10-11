@@ -49,4 +49,10 @@ fun NavGraphBuilder.routeGist() {
     composable(GistItem.PathDataParser.route) {
         PathDataParser()
     }
+    composable(GistItem.WebViewBox.route) {
+        WebViewBox()
+    }
+    composable(GistItem.WebViewX5Box.route) {
+        WebViewX5Box()
+    }
 }

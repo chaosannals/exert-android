@@ -32,6 +32,8 @@ enum class GistItem(var route: String, var icon: Int) {
     SinSpray2("sin_spray2", R.drawable.ic_gist),
     ScrollDragBox("scroll_drag_box", R.drawable.ic_gist),
     PathDataParser("path_data_parser", R.drawable.ic_gist),
+    WebViewBox("web_view_box", R.drawable.ic_gist),
+    WebViewX5Box("web_view_x5_box", R.drawable.ic_gist),
 //    Conf1("conf", R.drawable.ic_conf),
 //    Conf2("conf", R.drawable.ic_conf),
 //    Conf3("conf", R.drawable.ic_conf),

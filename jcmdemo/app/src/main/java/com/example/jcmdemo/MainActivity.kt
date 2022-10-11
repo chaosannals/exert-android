@@ -9,6 +9,7 @@ import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.jcmdemo.ui.MainBox
+import com.tencent.smtt.sdk.QbSdk
 
 val LocalNavController = staticCompositionLocalOf<NavHostController> {
     error("No NavController  provided!")
@@ -17,6 +18,17 @@ val LocalNavController = staticCompositionLocalOf<NavHostController> {
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        QbSdk.initX5Environment(application, object: QbSdk.PreInitCallback {
+            override fun onCoreInitFinished() {
+
+            }
+
+            override fun onViewInitFinished(p0: Boolean) {
+
+            }
+        })
+        QbSdk.setDownloadWithoutWifi(true)
+
         setContent @ExperimentalFoundationApi {
             val navController = rememberNavController()
 
