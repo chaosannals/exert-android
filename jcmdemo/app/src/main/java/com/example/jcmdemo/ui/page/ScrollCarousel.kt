@@ -43,7 +43,7 @@ fun ScrollCarousel(
     val aniOffset by animateFloatAsState(
         targetValue = offset,
         animationSpec = tween(
-            durationMillis = 400,
+            durationMillis = 444,
             easing = FastOutLinearInEasing,
         ),
         finishedListener = {
@@ -119,16 +119,19 @@ fun ScrollCarousel(
                 measurable.measure(constraints)
             }
 
+            val ofs = if (state.isScrollInProgress) offset else aniOffset
             val w = constraints.maxWidth
             val c = placeables.size
             val aw = w * c
 //            val ox = offset.toInt() % aw
-            val ox = aniOffset.toInt() % aw
+//            val ox = aniOffset.toInt() % aw
+            val ox = ofs.toInt() % aw
             val oi = ox.toFloat() / w
             val ci = ceil(oi).toInt()
 
 //            val iox = (offset - w * 0.5f) % aw
-            val iox = (aniOffset - w * 0.5f) % aw
+//            val iox = (aniOffset - w * 0.5f) % aw
+            val iox = (ofs - w * 0.5f) % aw
             val ici = ceil(iox / w).toInt()
 
             count = c
