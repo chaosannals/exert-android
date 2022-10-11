@@ -14,6 +14,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import kotlin.math.ceil
 import kotlin.math.floor
+import kotlin.math.round
 
 @Composable
 fun ScrollDragBoxItem(
@@ -61,18 +62,23 @@ fun ScrollDragBox() {
                     measurable.measure(constraints)
                 }
 
-                val allw = constraints.maxWidth * (placeables.size - 1)
+                val w = constraints.maxWidth
+                val c = placeables.size
+                val allw = w * c
 
                 layout(constraints.maxWidth, constraints.maxHeight) {
-                    placeables.forEachIndexed { index, placeable ->
-                        val ox = offset.toInt()
-                        val oox = ox % allw
-                        val sx = floor(oox.toFloat() / constraints.maxWidth).toInt()
-
-                        val i = (index + sx) % placeables.size
-                        val rx = (constraints.maxWidth * i + oox) % allw
-
-                        placeable.placeRelative(x = rx , y = 0)
+                    if (c == 1) {
+                        placeables[0].placeRelative(0, 0)
+                    } else {
+                        placeables.forEachIndexed { index, placeable ->
+                            val ox = offset.toInt() % allw
+                            val oi = ox.toFloat() / w
+                            val ci = ceil(oi).toInt()
+                            val pi = (index + ci + c) % c
+                            val sx = ox - ci * w
+                            val rx = (w * pi + sx)
+                            placeable.placeRelative(x = rx, y = 0)
+                        }
                     }
                 }
             }
