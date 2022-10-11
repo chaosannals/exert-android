@@ -67,6 +67,26 @@ fun NavGraphBuilder.routeGist() {
             }
         }
     }
+    composable(GistItem.ScrollCarousel2.route) {
+        ScrollCarousel2(
+            height = 400.sdp,
+        ) {
+            for (i in 0..8) {
+                val color = when(i % 3) {
+                    0 -> Color.Red
+                    1 -> Color.Green
+                    2 -> Color.Blue
+                    else -> Color.White
+                }
+                ScrollDragItem(
+                    color = color,
+                    title = i.toString(),
+                    titleColor = Color.White,
+                    titleSize = 44.ssp,
+                )
+            }
+        }
+    }
     composable(GistItem.PathDataParser.route) {
         PathDataParser()
     }
