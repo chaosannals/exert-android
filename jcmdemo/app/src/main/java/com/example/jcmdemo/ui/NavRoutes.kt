@@ -1,6 +1,7 @@
 package com.example.jcmdemo.ui
 
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.ui.graphics.Color
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import com.example.jcmdemo.ui.page.*
@@ -45,6 +46,26 @@ fun NavGraphBuilder.routeGist() {
     }
     composable(GistItem.ScrollDragBox.route) {
         ScrollDragBox()
+    }
+    composable(GistItem.ScrollCarousel.route) {
+        ScrollCarousel(
+            height = 400.sdp,
+        ) {
+            for (i in 0..8) {
+                val color = when(i % 3) {
+                    0 -> Color.Red
+                    1 -> Color.Green
+                    2 -> Color.Blue
+                    else -> Color.White
+                }
+                ScrollDragItem(
+                    color = color,
+                    title = i.toString(),
+                    titleColor = Color.White,
+                    titleSize = 44.ssp,
+                )
+            }
+        }
     }
     composable(GistItem.PathDataParser.route) {
         PathDataParser()

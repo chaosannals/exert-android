@@ -13,21 +13,6 @@ import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import kotlin.math.ceil
-import kotlin.math.floor
-import kotlin.math.round
-
-@Composable
-fun ScrollDragBoxItem(
-    color: Color,
-) {
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(color),
-    ) {
-
-    }
-}
 
 @Composable
 fun ScrollDragBox() {
@@ -51,11 +36,11 @@ fun ScrollDragBox() {
         ) {
             Layout(
                 content = {
-                    ScrollDragBoxItem(Color.Red)
-                    ScrollDragBoxItem(Color.Green)
-                    ScrollDragBoxItem(Color.Blue)
-                    ScrollDragBoxItem(Color.Cyan)
-                    ScrollDragBoxItem(Color.Yellow)
+                    ScrollDragItem(Color.Red)
+                    ScrollDragItem(Color.Green)
+                    ScrollDragItem(Color.Blue)
+                    ScrollDragItem(Color.Cyan)
+                    ScrollDragItem(Color.Yellow)
                 }
             ) { measurables, constraints ->
                 val placeables = measurables.map { measurable ->
@@ -65,15 +50,15 @@ fun ScrollDragBox() {
                 val w = constraints.maxWidth
                 val c = placeables.size
                 val allw = w * c
+                val ox = offset.toInt() % allw
+                val oi = ox.toFloat() / w
+                val ci = ceil(oi).toInt()
 
                 layout(constraints.maxWidth, constraints.maxHeight) {
                     if (c == 1) {
                         placeables[0].placeRelative(0, 0)
                     } else {
                         placeables.forEachIndexed { index, placeable ->
-                            val ox = offset.toInt() % allw
-                            val oi = ox.toFloat() / w
-                            val ci = ceil(oi).toInt()
                             val pi = (index + ci + c) % c
                             val sx = ox - ci * w
                             val rx = (w * pi + sx)
