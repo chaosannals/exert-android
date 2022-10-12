@@ -4,6 +4,7 @@ import android.content.Intent
 import android.graphics.Bitmap
 import android.net.Uri
 import android.net.http.SslError
+import android.os.Build
 import android.util.Log
 import android.webkit.*
 import androidx.compose.foundation.background
@@ -17,21 +18,28 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
 import com.example.jcmdemo.ui.sdp
+import com.example.jcmdemo.ui.writeLog
 
 @Composable
 fun WebViewBox() {
+    val context = LocalContext.current
+    val lifecycleOwner = LocalLifecycleOwner.current
+
     var text by remember {
         mutableStateOf("https://m.bilibili.com")
     }
     var progress by remember {
         mutableStateOf(0)
     }
-    var webview: WebView? by remember {
-        mutableStateOf(null)
-    }
+
     val webviewClient = object: WebViewClient() {
         override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
             Log.d("webview","url: ${url}")
@@ -79,7 +87,8 @@ fun WebViewBox() {
             request: WebResourceRequest?,
             error: WebResourceError?
         ) {
-            super.onReceivedError(view, request, error)
+            Log.d("webview", "${error}")
+            // super.onReceivedError(view, request, error)
         }
 
         override fun shouldInterceptRequest(
@@ -120,13 +129,38 @@ fun WebViewBox() {
         }
     }
 
+    val webview by remember {
+        val it = WebView(context)
+        mutableStateOf(it)
+    }
 
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            when (event) {
+                Lifecycle.Event.ON_RESUME -> {
+                    webview.onResume()
+                }
+                Lifecycle.Event.ON_PAUSE -> {
+                    webview.onPause()
+                }
+                Lifecycle.Event.ON_DESTROY -> {
+                    webview.destroy()
+                }
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+        }
+    }
 
     Column(
         verticalArrangement = Arrangement.Top,
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
             .fillMaxSize()
+            .padding(bottom = 56.dp)
     ) {
         Row(
             modifier = Modifier
@@ -144,10 +178,8 @@ fun WebViewBox() {
                             .size(30.sdp)
                             .aspectRatio(1.0f)
                             .clickable {
-                                webview?.let {
-                                    if (text.isNotEmpty()) {
-                                        it.loadUrl(text)
-                                    }
+                                if (text.isNotEmpty()) {
+                                    webview.loadUrl(text)
                                 }
                             },
                     )
@@ -170,8 +202,10 @@ fun WebViewBox() {
             )
         }
 
+
+
         AndroidView(
-            factory = { WebView(it) },
+            factory = { webview },
             modifier = Modifier
                 .fillMaxSize()
         ) {
@@ -193,10 +227,20 @@ fun WebViewBox() {
                 //不加载缓存内容
                 cacheMode = WebSettings.LOAD_NO_CACHE
 
-                mixedContentMode = WebSettings.MIXED_CONTENT_ALWAYS_ALLOW
+                // 页面报错继续
+                domStorageEnabled = true
+
+                // 关闭同步加载
+                blockNetworkImage = false
+                blockNetworkLoads = false
+
+                // http https 混合内容开启
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                    mixedContentMode = WebSettings.MIXED_CONTENT_ALWAYS_ALLOW
+                }
+
                 Log.d("webview", userAgentString)
             }
-            webview = it
         }
     }
 }

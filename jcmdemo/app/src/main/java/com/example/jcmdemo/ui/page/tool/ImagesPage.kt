@@ -43,7 +43,7 @@ fun ImageItem(path: String) {
             .padding(10.dp),
     ) {
         Text(path, fontSize = 10.sp)
-        var painter = rememberAsyncImagePainter(
+        val painter = rememberAsyncImagePainter(
             model = ImageRequest.Builder(LocalContext.current)
                 .data(path)
                 .size(Size.ORIGINAL) // Set the target size to load the image at.
@@ -66,9 +66,9 @@ fun ImageItem(path: String) {
 @Composable
 fun ImagesPage() {
     val context = LocalContext.current
-    var fs : MutableList<String> by remember {
-        var ml = mutableListOf<String>()
-        var ft = context.getOutputDirectory().walk()
+    val fs : MutableList<String> by remember {
+        val ml = mutableListOf<String>()
+        val ft = context.getOutputDirectory().walk()
         ft.maxDepth(1)
             .filter { it.isFile }
             .filter { it.extension in listOf("png", "jpg") }

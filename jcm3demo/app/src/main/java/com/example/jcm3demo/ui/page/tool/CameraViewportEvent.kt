@@ -117,7 +117,7 @@ fun ImageCapture.takePicture(
 fun VideoCapture<Recorder>.startRecording(context: Context, listener: (VideoRecordEvent) -> Unit) : Recording {
     val outputDirectory = context.getOutputDirectory()
     val videoFile = createFile(outputDirectory, FILENAME, VIDEO_EXTENSION)
-    var fileOutputOptions = FileOutputOptions
+    val fileOutputOptions = FileOutputOptions
         .Builder(videoFile)
         .build()
 

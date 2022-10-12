@@ -35,7 +35,7 @@ fun ImageBox(imgPath: String) {
             .padding(10.dp),
     ) {
         Text(imgPath, fontSize = 10.sp)
-        var painter = rememberAsyncImagePainter(
+        val painter = rememberAsyncImagePainter(
             model = ImageRequest.Builder(LocalContext.current)
                 .data(imgPath)
                 .size(Size.ORIGINAL) // Set the target size to load the image at.

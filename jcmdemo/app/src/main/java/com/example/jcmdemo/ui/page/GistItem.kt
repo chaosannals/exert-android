@@ -20,6 +20,8 @@ enum class GistItem(var route: String, var icon: Int) {
     PathDataParser("path_data_parser", R.drawable.ic_image),
     WebViewBox("web_view_box", R.drawable.ic_web),
     WebViewX5Box("web_view_x5_box", R.drawable.ic_web),
+    ImageCropperPage("image_cropper", R.drawable.ic_crop),
+    ImageCropper2Page("image_cropper2", R.drawable.ic_crop),
 //    Conf1("conf", R.drawable.ic_conf),
 //    Conf2("conf", R.drawable.ic_conf),
 //    Conf3("conf", R.drawable.ic_conf),

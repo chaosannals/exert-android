@@ -36,7 +36,7 @@ fun CameraViewport(
     val imageCapture: ImageCapture = remember {
         ImageCapture.Builder().build()
     }
-    var videoCapture: VideoCapture<Recorder> = remember {
+    val videoCapture: VideoCapture<Recorder> = remember {
         val recorder = Recorder.Builder()
             .setQualitySelector(QualitySelector.from(Quality.HIGHEST))
             .build()
