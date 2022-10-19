@@ -17,11 +17,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.Layout
-import androidx.compose.ui.layout.layout
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
-import com.example.anidemo.ui.px2dp
 
 // 第2版内部原件不使用滚动，一律由该组件支持滚动。
 @Composable
@@ -38,7 +35,8 @@ fun PullDownBox2(
     var contentHeight by remember {
         mutableStateOf(0)
     }
-    var contentBottom by remember {
+
+    var contentSurplusHeight by remember {
         mutableStateOf(0)
     }
 
@@ -63,10 +61,10 @@ fun PullDownBox2(
         }
         contentTop = when {
             scrollAll > 0f -> 0
-            scrollAll < contentBottom -> {
-                if (contentBottom < 0f) {
-                    scrollAll = contentBottom.toFloat()
-                    contentBottom
+            scrollAll < contentSurplusHeight -> {
+                if (contentSurplusHeight < 0f) {
+                    scrollAll = contentSurplusHeight.toFloat()
+                    contentSurplusHeight
                 } else {
                     scrollAll = 0f
                     0
@@ -137,7 +135,7 @@ fun PullDownBox2(
                     p.place(x, y)
                 }
                 contentHeight = allHeight
-                contentBottom = constraints.maxHeight - contentHeight
+                contentSurplusHeight = constraints.maxHeight - contentHeight
             }
         }
 
@@ -155,43 +153,38 @@ fun PullDownBox2(
 @Preview(widthDp = 375, heightDp = 668)
 @Composable
 fun PullDownBox2Preview() {
-    Column(
+    PullDownBox2(
         modifier = Modifier
             .fillMaxSize(),
-    ) {
-        PullDownBox2(
-            modifier = Modifier
-                .fillMaxSize(),
-            topContent = {
-                Box(
-                    modifier = Modifier
-                        .background(Color.Red)
-                        .fillMaxSize(),
-                ) {
+        topContent = {
+            Box(
+                modifier = Modifier
+                    .background(Color.Red)
+                    .fillMaxSize(),
+            ) {
 
-                }
             }
-        ) {
-            Text(
-                text = "一些内容",
-                modifier = Modifier
-                    .border(1.dp, Color.Cyan)
-            )
-            for (i in 1..10) {
-                Box(
-                    modifier = Modifier
-                        .background(Color.Green)
-                        .border(1.dp, Color.Cyan)
-                        .size((i * 10).dp, (i * 100).dp),
-                ) {
-                    Text(text = i.toString())
-                }
-            }
-            Text(
-                text = "底下一些内容",
-                modifier = Modifier
-                    .border(1.dp, Color.Cyan)
-            )
         }
+    ) {
+        Text(
+            text = "一些内容",
+            modifier = Modifier
+                .border(1.dp, Color.Cyan)
+        )
+        for (i in 1..10) {
+            Box(
+                modifier = Modifier
+                    .background(Color.Green)
+                    .border(1.dp, Color.Cyan)
+                    .size((i * 10).dp, (i * 100).dp),
+            ) {
+                Text(text = i.toString())
+            }
+        }
+        Text(
+            text = "底下一些内容",
+            modifier = Modifier
+                .border(1.dp, Color.Cyan)
+        )
     }
 }
