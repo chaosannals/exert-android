@@ -4,7 +4,6 @@ import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavGraphBuilder
@@ -13,13 +12,15 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
 import androidx.navigation.navArgument
-import com.example.anidemo.LocalMainScroller
 import com.example.anidemo.LocalNavController
+import com.example.anidemo.ui.page.GistPage
 import com.example.anidemo.ui.page.HomePage
 import com.example.anidemo.ui.page.employee.EmployeeArgsType
 import com.example.anidemo.ui.page.employee.EmployeeBean
 import com.example.anidemo.ui.page.employee.EmployeeInfoPage
 import com.example.anidemo.ui.page.employee.EmployeeListPage
+import com.example.anidemo.ui.page.pulldown.PullDown2Page
+import com.example.anidemo.ui.page.pulldown.PullDownPage
 
 fun NavGraphBuilder.employeeGraph() {
     // 路由 route 会直接导航到 startDestination ，确保 startDestination 确实存在。
@@ -59,6 +60,15 @@ fun NavGraphBuilder.employeeGraph() {
     }
 }
 
+fun NavGraphBuilder.pulldownGraph() {
+    composable("pulldown") {
+        PullDownPage()
+    }
+    composable("pulldown2") {
+        PullDown2Page()
+    }
+}
+
 @Composable
 fun NavGraphRoutes(
     paddingValues: PaddingValues,
@@ -72,13 +82,17 @@ fun NavGraphRoutes(
         modifier = Modifier
             .padding(top = pTop, bottom = pBottom)
             .fillMaxSize(),
-        startDestination = "home", // 默认路由
+        startDestination = "gist", // 默认路由
     )
     {
         composable("home") {
             HomePage()
         }
+        composable("gist") {
+            GistPage()
+        }
 
         employeeGraph()
+        pulldownGraph()
     }
 }
