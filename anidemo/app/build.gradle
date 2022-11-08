@@ -6,6 +6,9 @@ plugins {
 }
 
 android {
+    // AndroidManifest.xml 里 manifest 元素的 package="com.example.anidemo" 改到这里
+    namespace 'com.example.anidemo'
+
     compileSdk 33
 
     defaultConfig {
@@ -36,6 +39,7 @@ android {
     }
     buildFeatures {
         compose true
+        viewBinding true
     }
     composeOptions {
         kotlinCompilerExtensionVersion compose_version

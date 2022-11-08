@@ -43,6 +43,13 @@ fun GistPage() {
                     nc.navigate("pulldown2")
                 }
         )
+        Text(
+            text = "PullDownPushUp",
+            modifier = Modifier
+                .clickable {
+                    nc.navigate("pulldownpushup")
+                }
+        )
     }
 }
 

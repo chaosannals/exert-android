@@ -3,7 +3,8 @@ package com.example.anidemo.ui
 import android.content.res.Resources
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import java.text.SimpleDateFormat
+import java.time.LocalDate
+import java.time.LocalDateTime
 import kotlin.math.floor
 
 object U {
@@ -30,31 +31,12 @@ object U {
     val designInt : Int = 375
     val designDp: Dp = designInt.dp
     val ratio: Float = displayDp / designDp
-
-    val datetimeFormator: SimpleDateFormat by lazy {
-        SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
-    }
-
-    val datetimeMonthDayFormator: SimpleDateFormat by lazy {
-        SimpleDateFormat("MM-dd")
-    }
-
-    val datetimeYearMonthFormator: SimpleDateFormat by lazy {
-        SimpleDateFormat("yyyy年MM月")
-    }
-
-    val datetimeYearMonthDateFormator: SimpleDateFormat by lazy {
-        SimpleDateFormat("yyyy-MM-dd")
-    }
-
-    val datetimeYearFormator: SimpleDateFormat by lazy {
-        SimpleDateFormat("yyyy年")
-    }
-    val datetimeMonthFormator: SimpleDateFormat by lazy {
-        SimpleDateFormat("M月")
-    }
 }
 
 inline val Int.px2dp: Dp get() = run {
     return (this / U.density).dp
+}
+
+inline val LocalDateTime.date : LocalDate get() = run {
+    return toLocalDate()
 }
