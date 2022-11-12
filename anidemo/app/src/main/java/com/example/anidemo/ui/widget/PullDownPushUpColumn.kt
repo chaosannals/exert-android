@@ -26,7 +26,7 @@ fun hinderScroll(it: Float, sa: Float, mv: Float, lv: Float) : Float {
 }
 
 val animationSpec = tween<Float>(
-    durationMillis = 144,
+    durationMillis = 444,
     easing = FastOutLinearInEasing,
 )
 
@@ -61,8 +61,10 @@ fun PullDownPushUpColumn(
     }
 
     val scrollState = rememberScrollableState {
+        Log.d("pulldownpushup", "scrolling: ${it}")
+
         val sv = when {
-            scrollAll > 0f -> {
+            !pullPushAnimating && scrollAll > 0f -> {
                 if (pullPushLastAt == 0L) {
                     pullPushLastAt = Calendar.getInstance().timeInMillis
                 }
@@ -73,7 +75,7 @@ fun PullDownPushUpColumn(
                 }
                 hinderScroll(it, scrollAll, maxHeight, 0f)
             }
-            scrollAll < contentSurplusHeight -> {
+            !pullPushAnimating && scrollAll < contentSurplusHeight -> {
                 if (pullPushLastAt == 0L) {
                     pullPushLastAt = Calendar.getInstance().timeInMillis
                 }
@@ -91,7 +93,7 @@ fun PullDownPushUpColumn(
     }
 
     LaunchedEffect(scrollState.isScrollInProgress) {
-        if (!scrollState.isScrollInProgress) {
+        if (!scrollState.isScrollInProgress && !pullPushAnimating) {
             val now = Calendar.getInstance().timeInMillis
             val duration = now - pullPushLastAt
             Log.d("pulldownpushup", "now: ${now} duration: ${duration}")
@@ -105,15 +107,7 @@ fun PullDownPushUpColumn(
                             it()
                         }
                     }
-                    scrollAll = 0f
-
-//                    val sy = 0f - scrollAll
-//                    if (abs(sy) > 0.001f) {
-//                        Log.d("pulldownpushup", "start animation")
-//                        // 这个相当于多次滚动，会触发多次滚动状态切换。
-//                        val r = scrollState.animateScrollBy(sy, animationSpec)
-//                        Log.d("pulldownpushup", "end animation: ${r}")
-//                    }
+                    pullPushAnimating = true
                 }
                 scrollAll < contentSurplusHeight -> {
                     Log.d("pulldownpushup", "sa < csh: ${scrollAll} | ${contentSurplusHeight}")
@@ -123,16 +117,27 @@ fun PullDownPushUpColumn(
                             it()
                         }
                     }
-                    scrollAll = contentSurplusHeight.toFloat()
-
-//                    val sy = contentSurplusHeight.toFloat() - scrollAll
-//                    if (abs(sy) > 0.001f) {
-//                        scrollState.animateScrollBy(sy, animationSpec)
-//                    }
+                    pullPushAnimating = true
                 }
             }
         }
         pullPushLastAt = 0L
+    }
+
+    LaunchedEffect(pullPushAnimating) {
+        if (pullPushAnimating) {
+            val sy = when {
+                scrollAll > 0f -> 0f - scrollAll
+                scrollAll < contentSurplusHeight -> contentSurplusHeight.toFloat() - scrollAll
+                else -> 0f
+            }
+            if (abs(sy) > 0.1f) {
+                Log.d("pulldownpushup", "start animation ${sy}")
+                val r = scrollState.animateScrollBy(sy, animationSpec)
+                Log.d("pulldownpushup", "end animation: ${r}")
+            }
+            pullPushAnimating = false
+        }
     }
 
     Column(
@@ -141,6 +146,7 @@ fun PullDownPushUpColumn(
         modifier = modifier
             .scrollable(
                 state = scrollState,
+                enabled = !pullPushAnimating,
                 orientation = Orientation.Vertical,
             ),
     ) {
