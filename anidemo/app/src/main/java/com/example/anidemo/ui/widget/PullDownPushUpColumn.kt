@@ -6,18 +6,19 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.*
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.Layout
+import androidx.compose.ui.layout.Placeable
+import androidx.compose.ui.layout.layoutId
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.example.anidemo.ui.px2dp
+import java.util.Calendar
 import kotlin.math.abs
 
 fun hinderScroll(it: Float, sa: Float, mv: Float, lv: Float) : Float {
@@ -33,6 +34,10 @@ val animationSpec = tween<Float>(
 fun PullDownPushUpColumn(
     modifier: Modifier = Modifier,
     maxHeight: Float = 200f,
+    onPullDownFinal: (() -> Unit)? = null,
+    onPullDown:((Float) -> Unit)? = null,
+    onPushUpFinal: (() -> Unit)? = null,
+    onPushUp:((Float) -> Unit)? = null,
     topContent: (@Composable (Float) -> Unit)? = null,
     bottomContent: (@Composable (Float) -> Unit)? = null,
     content: (@Composable (Float) -> Unit)? = null,
@@ -48,10 +53,37 @@ fun PullDownPushUpColumn(
         mutableStateOf(0f)
     }
 
+    var pullPushLastAt: Long by remember {
+        mutableStateOf(0L)
+    }
+    var pullPushAnimating by remember {
+        mutableStateOf(false)
+    }
+
     val scrollState = rememberScrollableState {
         val sv = when {
-            scrollAll > 0f -> hinderScroll(it , scrollAll, maxHeight, 0f)
-            scrollAll < contentSurplusHeight -> hinderScroll(it , scrollAll, maxHeight, contentSurplusHeight.toFloat())
+            scrollAll > 0f -> {
+                if (pullPushLastAt == 0L) {
+                    pullPushLastAt = Calendar.getInstance().timeInMillis
+                }
+                onPullDown?.let {
+                    if (pullPushLastAt > 0L) {
+                        it(scrollAll)
+                    }
+                }
+                hinderScroll(it, scrollAll, maxHeight, 0f)
+            }
+            scrollAll < contentSurplusHeight -> {
+                if (pullPushLastAt == 0L) {
+                    pullPushLastAt = Calendar.getInstance().timeInMillis
+                }
+                onPushUp?.let {
+                    if (pullPushLastAt > 0L) {
+                        it(scrollAll)
+                    }
+                }
+                hinderScroll(it, scrollAll, maxHeight, contentSurplusHeight.toFloat())
+            }
             else -> it
         }
         scrollAll += sv
@@ -60,19 +92,47 @@ fun PullDownPushUpColumn(
 
     LaunchedEffect(scrollState.isScrollInProgress) {
         if (!scrollState.isScrollInProgress) {
+            val now = Calendar.getInstance().timeInMillis
+            val duration = now - pullPushLastAt
+            Log.d("pulldownpushup", "now: ${now} duration: ${duration}")
+
             when {
                 scrollAll > 0f -> {
                     Log.d("pulldownpushup", "sa > 0f: ${scrollAll}")
+                    onPullDownFinal?.let {
+                        Log.d("pulldownpushup", "pullDown: ${pullPushLastAt} duration: ${duration}")
+                        if (duration > 1000L && pullPushLastAt > 0L) {
+                            it()
+                        }
+                    }
                     scrollAll = 0f
-                    scrollState.animateScrollBy(0f, animationSpec)
+
+//                    val sy = 0f - scrollAll
+//                    if (abs(sy) > 0.001f) {
+//                        Log.d("pulldownpushup", "start animation")
+//                        // 这个相当于多次滚动，会触发多次滚动状态切换。
+//                        val r = scrollState.animateScrollBy(sy, animationSpec)
+//                        Log.d("pulldownpushup", "end animation: ${r}")
+//                    }
                 }
                 scrollAll < contentSurplusHeight -> {
                     Log.d("pulldownpushup", "sa < csh: ${scrollAll} | ${contentSurplusHeight}")
+                    onPushUpFinal?.let {
+                        Log.d("pulldownpushup", "pushUp: ${pullPushLastAt} duration: ${duration}")
+                        if (duration > 1000L && pullPushLastAt > 0L) {
+                            it()
+                        }
+                    }
                     scrollAll = contentSurplusHeight.toFloat()
-                    scrollState.animateScrollBy(scrollAll, animationSpec)
+
+//                    val sy = contentSurplusHeight.toFloat() - scrollAll
+//                    if (abs(sy) > 0.001f) {
+//                        scrollState.animateScrollBy(sy, animationSpec)
+//                    }
                 }
             }
         }
+        pullPushLastAt = 0L
     }
 
     Column(
@@ -86,24 +146,54 @@ fun PullDownPushUpColumn(
     ) {
         Layout(
             modifier = Modifier.border(1.dp, Color.Cyan),
-            content = { content?.invoke(scrollAll) },
+            content = {
+                Box(
+                    modifier = Modifier
+                        .layoutId("top")
+                        .background(Color.Blue)
+                        .fillMaxWidth()
+                        .height(maxHeight.px2dp),
+                ) {
+                    topContent?.invoke(scrollAll)
+                }
+                content?.invoke(scrollAll)
+                Box(
+                    modifier = Modifier
+                        .layoutId("bottom")
+                        .background(Color.Red)
+                        .fillMaxWidth()
+                        .height(maxHeight.px2dp),
+                ) {
+                    bottomContent?.invoke(scrollAll)
+                } },
         ) { ms, cs ->
-            val ps = ms.map {
-                it.measure(cs)
-            }
-
             val sai = scrollAll.toInt()
             layout(cs.maxWidth, cs.maxHeight) {
                 var heightSum = 0
-                for (p in ps) {
+                var tp :  Placeable? = null
+                var bp :  Placeable? = null
+                for (m in ms) {
+                    val p = m.measure(cs)
                     val x = 0
-                    val y = heightSum + sai
-                    heightSum += p.height
-                    p.place(x, y)
+                    when (m.layoutId) {
+                        "top" -> tp = p
+                        "bottom" -> bp = p
+                        else -> {
+                            val y = heightSum + sai
+                            heightSum += p.height
+                            p.place(x, y)
+                        }
+                    }
                 }
                 contentHeight = heightSum
                 contentSurplusHeight = if (cs.maxHeight > contentHeight) 0 else cs.maxHeight - contentHeight
                 Log.d("pulldownpushup", "cmh: ${cs.maxHeight} | ch: ${contentHeight} | csh: ${contentSurplusHeight}")
+                tp?.run {
+                    place(0, sai - maxHeight.toInt())
+                }
+                bp?.run {
+                    place(0, sai + contentHeight)
+                }
             }
         }
     }

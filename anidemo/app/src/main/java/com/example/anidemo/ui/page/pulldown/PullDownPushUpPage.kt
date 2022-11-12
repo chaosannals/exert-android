@@ -5,11 +5,14 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
@@ -22,9 +25,37 @@ fun PullDownPushUpPage() {
     var boxCount by remember {
         mutableStateOf(0)
     }
+    var pullDownPx by remember {
+        mutableStateOf(0f)
+    }
 
     PullDownPushUpColumn(
         modifier = Modifier,
+        onPullDownFinal = {
+            Toast.makeText(context, "下拉", Toast.LENGTH_SHORT).show()
+        },
+        onPullDown = { pullDownPx = it },
+        topContent = {
+             Box(
+                 contentAlignment = Alignment.Center,
+                 modifier = Modifier
+                    .fillMaxSize(),
+             ){
+                 Box(
+                     modifier = Modifier
+                         .size(10.dp)
+                         .rotate(it)
+//                         .rotate(pullDownPx)
+                         .background(Color.White)
+                 )
+             }
+        },
+        onPushUpFinal = {
+            Toast.makeText(context, "上推", Toast.LENGTH_SHORT).show()
+        },
+        bottomContent = {
+
+        },
     ) {
         Text(
             text ="添加一些内容",
@@ -33,19 +64,22 @@ fun PullDownPushUpPage() {
                 .padding(10.dp)
                 .clickable {
                     if (boxCount < 10) {
-                        Toast.makeText(
-                            context,
-                            "添加了",
-                            Toast.LENGTH_SHORT
-                        ).show()
+                        Toast
+                            .makeText(
+                                context,
+                                "添加了",
+                                Toast.LENGTH_SHORT
+                            )
+                            .show()
                         ++boxCount
-                    }
-                    else  {
-                        Toast.makeText(
-                            context,
-                            "不能再添加了",
-                            Toast.LENGTH_SHORT
-                        ).show()
+                    } else {
+                        Toast
+                            .makeText(
+                                context,
+                                "不能再添加了",
+                                Toast.LENGTH_SHORT
+                            )
+                            .show()
                     }
                 }
         )
@@ -66,19 +100,22 @@ fun PullDownPushUpPage() {
                 .padding(10.dp)
                 .clickable {
                     if (boxCount > 0) {
-                        Toast.makeText(
-                            context,
-                            "减少了",
-                            Toast.LENGTH_SHORT
-                        ).show()
+                        Toast
+                            .makeText(
+                                context,
+                                "减少了",
+                                Toast.LENGTH_SHORT
+                            )
+                            .show()
                         --boxCount
-                    }
-                    else  {
-                        Toast.makeText(
-                            context,
-                            "不能再减少了",
-                            Toast.LENGTH_SHORT
-                        ).show()
+                    } else {
+                        Toast
+                            .makeText(
+                                context,
+                                "不能再减少了",
+                                Toast.LENGTH_SHORT
+                            )
+                            .show()
                     }
                 }
         )

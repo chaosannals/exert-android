@@ -36,7 +36,10 @@ object U {
 inline val Int.px2dp: Dp get() = run {
     return (this / U.density).dp
 }
-
-inline val LocalDateTime.date : LocalDate get() = run {
-    return toLocalDate()
+inline val Float.px2dp: Dp get() = run {
+    return (this / U.density).dp
 }
+
+//inline val LocalDateTime.date : LocalDate get() = run {
+//    return toLocalDate()
+//}
