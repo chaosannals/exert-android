@@ -105,6 +105,11 @@ keytool -list -v -keystore jcm3demo.jks
 
 # 调试证书在用户目录  .android 下 debug.keystore 通过下面命令查看 SHA1
 keytool -list -v -keystore debug.keystore -storepass android -keypass android
+
+# 需要 Java JDK
+# [alias] 为别名
+# [test] 为文件名
+keytool -genkey -alias [alias] -keyalg RSA -keysize 2048 -validity 36500 -keystore [test].keystore
 ```
 
 ## 百度地图
