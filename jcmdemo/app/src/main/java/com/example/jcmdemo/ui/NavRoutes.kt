@@ -96,6 +96,9 @@ fun NavGraphBuilder.routeGist() {
     composable(GistItem.WebViewX5Box.route) {
         WebViewX5Box()
     }
+    composable(GistItem.WebViewX5Map.route) {
+        WebViewX5Map()
+    }
     composable(GistItem.ImageCropperPage.route) {
         ImageCropperPage()
     }

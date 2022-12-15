@@ -5,17 +5,13 @@ import android.net.Uri
 import android.os.Build
 import android.os.Message
 import android.util.Log
-import androidx.compose.foundation.background
+import android.webkit.JavascriptInterface
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.Icon
-import androidx.compose.material.TextField
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.tooling.preview.Preview
@@ -31,21 +27,28 @@ import com.tencent.smtt.sdk.WebChromeClient
 import com.tencent.smtt.sdk.WebSettings
 import com.tencent.smtt.sdk.WebView
 import com.tencent.smtt.sdk.WebViewClient
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.Serializable
+
+@Serializable
+data class WebViewX5MapPosition (
+    val text: String = "tttttt",
+    val latitude: Float = 23.4502343750f,
+    val longitude: Float = 116.7753624132f,
+)
 
 @Composable
-fun WebViewX5Box() {
+fun WebViewX5Map() {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
-
-    var text by remember {
-        mutableStateOf("https://m.bilibili.com")
-    }
-    var progress by remember {
-        mutableStateOf(0)
+    
+    var tip by remember {
+        mutableStateOf("1111")
     }
 
     var webview by remember {
         val it = WebView(context)
+
         mutableStateOf(it)
     }
     val webviewClient = object: WebViewClient() {
@@ -55,7 +58,6 @@ fun WebViewX5Box() {
             error: SslError?
         ) {
             handler?.proceed()
-//            super.onReceivedSslError(p0, p1, p2)
         }
 
         override fun shouldOverrideUrlLoading(wv: WebView?, url: String?): Boolean {
@@ -94,8 +96,12 @@ fun WebViewX5Box() {
     }
     val webchromeClient = object: WebChromeClient() {
         override fun onProgressChanged(wv: WebView?, newProgress: Int) {
-            progress = newProgress
             super.onProgressChanged(wv, newProgress)
+        }
+
+        override fun onConsoleMessage(p0: ConsoleMessage?): Boolean {
+            Log.d("consolemessage", p0!!.message())
+            return true
         }
 
         override fun onCreateWindow(wv: WebView?, isDialog: Boolean, isUserGesture: Boolean, resultMsg: Message?): Boolean {
@@ -137,50 +143,19 @@ fun WebViewX5Box() {
             .fillMaxSize()
             .padding(bottom = 56.dp)
     ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-        ) {
-            TextField(
-                value = text,
-                onValueChange = { text = it },
-                trailingIcon = {
-                    Icon(
-                        imageVector = Icons.Default.Search,
-                        contentDescription = "浏览",
-                        tint = Color.Gray,
-                        modifier = Modifier
-                            .size(30.sdp)
-                            .aspectRatio(1.0f)
-                            .clickable {
-                                if (text.isNotEmpty()) {
-                                    webview.loadUrl(text)
-                                }
-                            },
-                    )
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-            )
-        }
-        Box(
-            contentAlignment = Alignment.TopStart,
-            modifier = Modifier
-                .height(1.sdp)
-                .fillMaxWidth()
-        ) {
-            Spacer(
-                modifier = Modifier
-                    .fillMaxHeight()
-                    .fillMaxWidth((progress / 100).toFloat())
-                    .background(Color.Blue)
-            )
-        }
+        Text(
+            text = tip,
+            modifier = Modifier.clickable {
+                webview.evaluateJavascript("javascript:addMark(116.77536241,23.45023437)") {
 
+                }
+            }
+        )
         AndroidView(
             factory = { WebView(it) },
             modifier = Modifier
-                .fillMaxSize()
+                .fillMaxWidth()
+                .aspectRatio(1.0f)
         ) {
             it.webViewClient = webviewClient
             it.webChromeClient = webchromeClient
@@ -220,17 +195,34 @@ fun WebViewX5Box() {
 
                 Log.d("webview x5", userAgentString)
             }
+            it.addJavascriptInterface(object
+            {
+                @JavascriptInterface
+                fun setTipMap(t: String) {
+                    tip = t
+                }
+
+                @JavascriptInterface
+                fun getPosition(): String {
+                    val p = WebViewX5MapPosition()
+                    return Json{
+                        encodeDefaults = true
+                        explicitNulls = false
+                    }.encodeToString(WebViewX5MapPosition.serializer(), p)
+                }
+            }, "wvx5map")
             webview = it
+            webview.loadUrl("file:///android_asset/webviewx5map/index.html")
         }
     }
 }
 
 @Preview
 @Composable
-fun WebViewX5BoxPreview() {
+fun WebViewX5MapPreview() {
     CompositionLocalProvider(
         LocalNavController provides rememberNavController(),
     ) {
-        WebViewX5Box()
+        WebViewX5Map()
     }
 }
