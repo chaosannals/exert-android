@@ -14,6 +14,12 @@
         <action
             android:id="@+id/action_FirstFragment_to_SecondFragment"
             app:destination="@id/SecondFragment" />
+        <action
+            android:id="@+id/action_FirstFragment_to_GistsFragment"
+            app:destination="@id/GistsFragment" />
+        <action
+            android:id="@+id/action_FirstFragment_to_CameraFragment"
+            app:destination="@id/CameraFragment" />
     </fragment>
     <fragment
         android:id="@+id/SecondFragment"
@@ -23,6 +29,28 @@
 
         <action
             android:id="@+id/action_SecondFragment_to_FirstFragment"
+            app:destination="@id/FirstFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/GistsFragment"
+        android:name="com.example.j2demo.ui.pages.GistsFragment"
+        android:label="Gists Fragment"
+        tools:layout="@layout/fragment_gists">
+
+        <action
+            android:id="@+id/action_GistsFragment_to_FirstFragment"
+            app:destination="@id/FirstFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/CameraFragment"
+        android:name="com.example.j2demo.ui.pages.CameraFragment"
+        android:label="Camera Fragment"
+        tools:layout="@layout/fragment_camera">
+
+        <action
+            android:id="@+id/action_CameraFragment_to_FirstFragment"
             app:destination="@id/FirstFragment" />
     </fragment>
 </navigation>
