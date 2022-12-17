@@ -7,8 +7,10 @@ import com.google.android.material.snackbar.Snackbar;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.util.Log;
 import android.view.View;
 
+import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
@@ -78,16 +80,44 @@ public class MainActivity extends AppCompatActivity {
                 || super.onSupportNavigateUp();
     }
 
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (requestCode == CameraFragment.REQUEST_CODE_PERMISSIONS) {
-            if (CameraFragment.allPermissionGranted(this)) {
-
-            } else {
-                Toast.makeText(this, "Permissions not granted", Toast.LENGTH_SHORT).show();
-                finish();
-            }
-        }
-    }
+//    @Override
+//    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+//        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+//        if (requestCode == CameraFragment.REQUEST_CODE_PERMISSIONS) {
+//            if (CameraFragment.allPermissionGranted(this)) {
+////                for (Fragment i: getSupportFragmentManager().getFragments()){
+////                    Toast.makeText(this, "activity child fid: " + i.getId(), Toast.LENGTH_SHORT).show();
+////                    Log.i("tttt", "activity child fid: " + i.getId());
+////                }
+//
+//                Fragment mf = getSupportFragmentManager()
+//                        .findFragmentById(R.id.nav_host_fragment_content_main);
+//                if (mf != null) {
+////                    for (Fragment i: mf.getChildFragmentManager().getFragments()){
+////                        Toast.makeText(this, "mf child fid: " + i.getId(), Toast.LENGTH_SHORT).show();
+////                        Log.i("tttt", "mf child fid: " + i.getId());
+////                    }
+//
+////                    Fragment nf = mf.getChildFragmentManager().findFragmentById(R.id.nav_graph);
+//                    Fragment nf = mf.getChildFragmentManager().getFragments().get(0);
+//                    if (nf != null) {
+////                        Fragment f = mf.getChildFragmentManager().findFragmentById(R.id.CameraFragment);
+//                        Fragment f = nf.getChildFragmentManager().getFragments().get(0);
+//                        if (f instanceof CameraFragment) {
+//                            ((CameraFragment)f).startCamera(this);
+//                        } else {
+//                            Toast.makeText(this, "f is null", Toast.LENGTH_SHORT).show();
+//                        }
+//                    } else {
+//                        Toast.makeText(this, "nf is null", Toast.LENGTH_SHORT).show();
+//                    }
+//                } else {
+//                    Toast.makeText(this, "mf is null", Toast.LENGTH_SHORT).show();
+//                }
+//            } else {
+//                Toast.makeText(this, "Permissions not granted", Toast.LENGTH_SHORT).show();
+//                finish();
+//            }
+//        }
+//    }
 }

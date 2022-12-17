@@ -1,15 +1,24 @@
 package com.example.j2demo.ui.pages;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.ImageCaptureException;
 import androidx.camera.core.Preview;
 import androidx.camera.lifecycle.ProcessCameraProvider;
+import androidx.camera.video.FallbackStrategy;
+import androidx.camera.video.MediaStoreOutputOptions;
+import androidx.camera.video.PendingRecording;
+import androidx.camera.video.Quality;
+import androidx.camera.video.QualitySelector;
 import androidx.camera.video.Recording;
 import androidx.camera.video.VideoCapture;
 import androidx.camera.video.Recorder;
+import androidx.camera.video.VideoRecordEvent;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.core.content.PermissionChecker;
 import androidx.lifecycle.LifecycleObserver;
 import androidx.lifecycle.ViewModelProvider;
 
@@ -18,7 +27,6 @@ import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.pm.PackageManager;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 
@@ -32,7 +40,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
-import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.concurrent.ExecutionException;
@@ -84,12 +91,26 @@ public class CameraFragment extends Fragment implements LifecycleObserver {
         if (allPermissionGranted(getContext())) {
             startCamera(getContext());
         } else {
-            // 没有权限发起请求，Activity 的 onRequestPermissionsResult 里面得到结果。
-            ActivityCompat.requestPermissions(
-                    getActivity(),
-                    REQUIRED_PERMISSIONS,
-                    REQUEST_CODE_PERMISSIONS
+            ActivityResultLauncher launcher = registerForActivityResult(
+                    new ActivityResultContracts.RequestMultiplePermissions(),
+                    permissions -> {
+                        for (String key: permissions.keySet()) {
+                            boolean v = permissions.get(key);
+                            Toast.makeText(getContext(), key + " granted:" + v, Toast.LENGTH_SHORT).show();
+                        }
+                        startCamera(getContext());
+                    }
             );
+            launcher.launch(REQUIRED_PERMISSIONS);
+
+            // 这种比较适合在 Activity 使用，Fragment 还是使用 registerForActivityResult
+            // activity 获取 Fragment 在有导航的情况很难获得。
+            // 没有权限发起请求，Activity 的 onRequestPermissionsResult 里面得到结果。
+//            ActivityCompat.requestPermissions(
+//                    getActivity(),
+//                    REQUIRED_PERMISSIONS,
+//                    REQUEST_CODE_PERMISSIONS
+//            );
         }
 
         cameraExecutor = Executors.newSingleThreadExecutor();
@@ -128,10 +149,58 @@ public class CameraFragment extends Fragment implements LifecycleObserver {
     }
 
 
-    private void captureVideo() {}
+    private void captureVideo() {
+        if (videoCapture == null) return;
+
+        binding.recodingButton.setEnabled(false);
+
+        if (recording != null) {
+            recording.stop();
+            recording = null;
+            return;
+        }
+
+        String name = new SimpleDateFormat(FILENAME_FORMAT)
+                .format(System.currentTimeMillis());
+        ContentValues cv = new ContentValues();
+        cv.put(MediaStore.MediaColumns.DISPLAY_NAME, name);
+        cv.put(MediaStore.MediaColumns.MIME_TYPE, "video/mp4");
+        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.P) {
+            cv.put(MediaStore.Images.Media.RELATIVE_PATH, "Movies/CameraX-Video");
+        }
+        ContentResolver contentResolver = getContext().getContentResolver();
+        MediaStoreOutputOptions mediaStoreOutputOptions = new MediaStoreOutputOptions.Builder(
+                contentResolver,
+                MediaStore.Video.Media.EXTERNAL_CONTENT_URI
+        ).setContentValues(cv)
+                .build();
+        PendingRecording pr = videoCapture.getOutput()
+                .prepareRecording(getContext(), mediaStoreOutputOptions);
+        if (PermissionChecker.checkSelfPermission(getActivity(), Manifest.permission.RECORD_AUDIO) == PermissionChecker.PERMISSION_GRANTED) {
+            pr.withAudioEnabled();
+        }
+        recording = pr.start(ContextCompat.getMainExecutor(getContext()), re -> {
+            if (re instanceof VideoRecordEvent.Start) {
+                binding.recodingButton.setText("STOP");
+                binding.recodingButton.setEnabled(true);
+            } else if (re instanceof VideoRecordEvent.Finalize) {
+                if (!((VideoRecordEvent.Finalize) re).hasError()) {
+                    Toast.makeText(getContext(), "successed", Toast.LENGTH_SHORT).show();
+                } else {
+                    if (recording != null) {
+                        recording.close();
+                        recording = null;
+                    }
+                    Toast.makeText(getContext(), "failed", Toast.LENGTH_SHORT).show();
+                }
+                binding.recodingButton.setText("START");
+                binding.recodingButton.setEnabled(true);
+            }
+        });
+    }
 
 
-    private void startCamera(Context context) {
+    public void startCamera(Context context) {
         ListenableFuture<ProcessCameraProvider> cameraProviderFuture =  ProcessCameraProvider.getInstance(context);
         cameraProviderFuture.addListener(() -> {
             try {
@@ -141,9 +210,14 @@ public class CameraFragment extends Fragment implements LifecycleObserver {
 
                 imageCapture = new ImageCapture.Builder().build();
 
+                Recorder recorder = new Recorder.Builder()
+                        .setQualitySelector(QualitySelector.from(Quality.HIGHEST, FallbackStrategy.higherQualityOrLowerThan(Quality.SD)))
+                        .build();
+                videoCapture = VideoCapture.withOutput(recorder);
+
                 CameraSelector cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA;
                 cameraProvider.unbindAll();
-                cameraProvider.bindToLifecycle(this, cameraSelector, preview, imageCapture);
+                cameraProvider.bindToLifecycle(this, cameraSelector, preview, imageCapture, videoCapture);
             } catch (ExecutionException e) {
                 e.printStackTrace();
             } catch (InterruptedException e) {
@@ -162,7 +236,7 @@ public class CameraFragment extends Fragment implements LifecycleObserver {
     }
 
     private static String[] requiredPermissions() {
-        ArrayList<String> result =  new ArrayList<String>();
+        ArrayList<String> result =  new ArrayList<>();
         result.add(Manifest.permission.CAMERA);
         result.add(Manifest.permission.RECORD_AUDIO);
         if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.P) {
