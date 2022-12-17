@@ -11,7 +11,7 @@ import androidx.annotation.NonNull;
 public class CustomDensity {
     private static float nonCompatDensity = 0f;
     private static float nonCompatScaleDensity = 0f;
-    private final static float designWidthDp = 375;
+    private final static float designWidthDp = 411;
 
     public static void setCustomDensity(
             @NonNull Activity activity,
