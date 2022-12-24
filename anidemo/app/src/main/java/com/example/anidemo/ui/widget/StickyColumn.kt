@@ -1,5 +1,6 @@
 package com.example.anidemo.ui.widget
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -18,28 +19,35 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 
-interface StickyBoxColumnScope {
+interface StickyColumnScope {
     @Stable
-    fun Modifier.sticky(): Modifier
+    fun Modifier.sticky(tag: String): Modifier
 }
 
-internal class LayoutStickyBoxImpl() : ParentDataModifier {
+internal class LayoutStickyImpl(
+    val tag: String
+) : ParentDataModifier {
     override fun Density.modifyParentData(parentData: Any?): Any {
-        return "sticky"
+        return this@LayoutStickyImpl
     }
 }
 
 @Composable
-fun StickyBoxColumn(
-    verticalArrangement: Arrangement.Vertical = Arrangement.Top,
+fun StickyColumn(
     horizontalAlignment: Alignment.Horizontal = Alignment.CenterHorizontally,
+    onStickyChanged: ((String, Boolean) -> Unit)? = null,
     modifier: Modifier = Modifier,
-    content: @Composable  StickyBoxColumnScope.() -> Unit,
+    content: @Composable  StickyColumnScope.() -> Unit,
 ) {
-    val scope = object: StickyBoxColumnScope {
-        override fun Modifier.sticky(): Modifier {
-            return this.then(LayoutStickyBoxImpl())
+    val scope = object: StickyColumnScope {
+        override fun Modifier.sticky(tag: String): Modifier {
+            return this.then(LayoutStickyImpl(tag))
         }
+    }
+    val stickyTags by remember {
+        mutableStateOf(
+            mutableSetOf<String>()
+        )
     }
 
     var contentHeight by remember {
@@ -79,16 +87,36 @@ fun StickyBoxColumn(
             var sumh = 0
             val sa = scrollAll.toInt()
             for (p in ps) {
+                // Log.d("stickyColumn", p.parentData.toString())
                 val x = when (horizontalAlignment) {
                     Alignment.CenterHorizontally -> (cs.maxWidth - p.width) / 2
                     else -> 0
                 }
-                val z = when (p.parentData) {
-                    "sticky" -> 10f
+                val ppd = p.parentData
+                val z = when (ppd) {
+                    is LayoutStickyImpl -> 1f
                     else -> 0f
                 }
-                val y = when (p.parentData) {
-                    "sticky" -> if (sa > -sumh) sa + sumh else 0
+                val y = when (ppd) {
+                    is LayoutStickyImpl -> {
+                        if (sa > -sumh) {
+                            onStickyChanged?.let {
+                                if (stickyTags.contains(ppd.tag)) {
+                                    stickyTags.remove(ppd.tag)
+                                    it(ppd.tag, false)
+                                }
+                            }
+                            sa + sumh
+                        } else {
+                            onStickyChanged?.let {
+                                if (!stickyTags.contains(ppd.tag)) {
+                                    stickyTags.add(ppd.tag)
+                                    it(ppd.tag, true)
+                                }
+                            }
+                            0
+                        }
+                    }
                     else -> sa + sumh
                 }
                 sumh += p.height
@@ -100,12 +128,12 @@ fun StickyBoxColumn(
 
 @Preview(widthDp = 375, heightDp = 667)
 @Composable
-fun StickyBoxColumnPreview() {
+fun StickyColumnPreview() {
     var boxCount by remember {
         mutableStateOf(10)
     }
     Box() {
-        StickyBoxColumn() {
+        StickyColumn() {
             Box(
                 modifier = Modifier
                     .size(200.dp)
@@ -118,7 +146,7 @@ fun StickyBoxColumnPreview() {
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .sticky()
+                    .sticky("bar")
                     .border(0.5.dp, Color.Green)
             ) {
                 Text(

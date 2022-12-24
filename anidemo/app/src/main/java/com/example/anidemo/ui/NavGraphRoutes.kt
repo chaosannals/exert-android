@@ -19,10 +19,7 @@ import com.example.anidemo.ui.page.employee.EmployeeArgsType
 import com.example.anidemo.ui.page.employee.EmployeeBean
 import com.example.anidemo.ui.page.employee.EmployeeInfoPage
 import com.example.anidemo.ui.page.employee.EmployeeListPage
-import com.example.anidemo.ui.page.pulldown.PullDown2Page
-import com.example.anidemo.ui.page.pulldown.PullDownPage
-import com.example.anidemo.ui.page.pulldown.PullDownPushUpPage
-import com.example.anidemo.ui.page.pulldown.StickyBoxColumnPage
+import com.example.anidemo.ui.page.pulldown.*
 
 fun NavGraphBuilder.employeeGraph() {
     // 路由 route 会直接导航到 startDestination ，确保 startDestination 确实存在。
@@ -74,6 +71,9 @@ fun NavGraphBuilder.pulldownGraph() {
     }
     composable("stickyboxcolumn") {
         StickyBoxColumnPage()
+    }
+    composable("stickycolumn") {
+        StickyColumnPage()
     }
 }
 
