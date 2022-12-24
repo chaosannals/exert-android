@@ -18,11 +18,14 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.rememberNavController
 import com.example.anidemo.LocalMainScroller
 import com.example.anidemo.LocalNavController
+import com.example.anidemo.ShortcutUtil
 import com.example.anidemo.ui.widget.PullDownBox
 
 @Composable
 fun GistPage() {
     val nc = LocalNavController.current
+    val context = LocalContext.current
+
     Column(
         verticalArrangement = Arrangement.Top,
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -48,6 +51,48 @@ fun GistPage() {
             modifier = Modifier
                 .clickable {
                     nc.navigate("pulldownpushup")
+                }
+        )
+        Text(
+            text="init Shortcut Scan2",
+            modifier = Modifier
+                .clickable {
+                    ShortcutUtil.init(context)
+                }
+        )
+        Text(
+            text="update Shortcut Scan2",
+            modifier = Modifier
+                .clickable {
+                    ShortcutUtil.update(context)
+                }
+        )
+        Text(
+            text="remove Shortcut Scan2",
+            modifier = Modifier
+                .clickable {
+                    ShortcutUtil.remove(context)
+                }
+        )
+        Text(
+            text="init Shortcut Scan3",
+            modifier = Modifier
+                .clickable {
+                    ShortcutUtil.init3(context)
+                }
+        )
+        Text(
+            text="update Shortcut Scan3",
+            modifier = Modifier
+                .clickable {
+                    ShortcutUtil.update3(context)
+                }
+        )
+        Text(
+            text="remove Shortcut Scan3",
+            modifier = Modifier
+                .clickable {
+                    ShortcutUtil.remove3(context)
                 }
         )
     }
