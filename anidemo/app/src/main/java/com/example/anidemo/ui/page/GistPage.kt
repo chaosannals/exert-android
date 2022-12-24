@@ -56,62 +56,6 @@ fun GistPage() {
                     nc.navigate("pulldownpushup")
                 }
         )
-        Text(
-            text="init Shortcut Scan2",
-            modifier = Modifier
-                .clickable {
-                    ShortcutUtil.init(context)
-                }
-        )
-        Text(
-            text="update Shortcut Scan2",
-            modifier = Modifier
-                .clickable {
-                    ShortcutUtil.update(context)
-                }
-        )
-        Text(
-            text="remove Shortcut Scan2",
-            modifier = Modifier
-                .clickable {
-                    ShortcutUtil.remove(context)
-                }
-        )
-        Text(
-            text="init Shortcut Scan3",
-            modifier = Modifier
-                .clickable {
-                    ShortcutUtil.init3(context)
-                }
-        )
-        Text(
-            text="update Shortcut Scan3",
-            modifier = Modifier
-                .clickable {
-                    ShortcutUtil.update3(context)
-                }
-        )
-        Text(
-            text="remove Shortcut Scan3",
-            modifier = Modifier
-                .clickable {
-                    ShortcutUtil.remove3(context)
-                }
-        )
-        Column () {
-            val sysInfo = SystemInfoUtil.getInfo(context)
-            Text("手机厂商：${sysInfo.brand}")
-            Text("手机型号：${sysInfo.model}")
-            Text("手机语言：${sysInfo.lang}")
-            Text("系统版本：${sysInfo.version}")
-            Text("IMEI: ${sysInfo.imei}")
-            Text("序列化串：${sysInfo.serial}")
-            Text("MAC：${sysInfo.macAddress}")
-            Text("ANDROID ID:${sysInfo.androidId}")
-            for (e in sysInfo.errors) {
-                Text("错误: ${e}")
-            }
-        }
     }
 }
 

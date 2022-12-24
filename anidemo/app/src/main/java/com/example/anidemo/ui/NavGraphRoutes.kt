@@ -14,6 +14,7 @@ import androidx.navigation.navArgument
 import com.example.anidemo.LocalNavController
 import com.example.anidemo.ui.page.GistPage
 import com.example.anidemo.ui.page.HomePage
+import com.example.anidemo.ui.page.InfoPage
 import com.example.anidemo.ui.page.employee.EmployeeArgsType
 import com.example.anidemo.ui.page.employee.EmployeeBean
 import com.example.anidemo.ui.page.employee.EmployeeInfoPage
@@ -93,6 +94,9 @@ fun NavGraphRoutes(
         }
         composable("gist") {
             GistPage()
+        }
+        composable("info") {
+            InfoPage()
         }
 
         employeeGraph()

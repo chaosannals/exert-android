@@ -14,7 +14,7 @@ fun CameraPage() {
     val context = LocalContext.current
 
     // 检查权限，无则申请。
-    var sp = ContextCompat.checkSelfPermission(
+    val sp = ContextCompat.checkSelfPermission(
         context,
         Manifest.permission.CAMERA
     )
