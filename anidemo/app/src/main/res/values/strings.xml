@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">AniDemo</string>
+    <string name="shortcut_scan">扫一扫</string>
 </resources>
