@@ -56,6 +56,13 @@ fun GistPage() {
                     nc.navigate("pulldownpushup")
                 }
         )
+        Text(
+            text = "StickyBoxColumn",
+            modifier = Modifier
+                .clickable {
+                    nc.navigate("stickyboxcolumn")
+                }
+        )
     }
 }
 
