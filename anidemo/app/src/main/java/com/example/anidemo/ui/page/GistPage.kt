@@ -4,6 +4,7 @@ import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -19,6 +20,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.anidemo.LocalMainScroller
 import com.example.anidemo.LocalNavController
 import com.example.anidemo.ShortcutUtil
+import com.example.anidemo.SystemInfoUtil
 import com.example.anidemo.ui.widget.PullDownBox
 
 @Composable
@@ -30,6 +32,7 @@ fun GistPage() {
         verticalArrangement = Arrangement.Top,
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
+            .verticalScroll(rememberScrollState())
             .fillMaxWidth()
     ) {
         Text(
@@ -95,6 +98,20 @@ fun GistPage() {
                     ShortcutUtil.remove3(context)
                 }
         )
+        Column () {
+            val sysInfo = SystemInfoUtil.getInfo(context)
+            Text("手机厂商：${sysInfo.brand}")
+            Text("手机型号：${sysInfo.model}")
+            Text("手机语言：${sysInfo.lang}")
+            Text("系统版本：${sysInfo.version}")
+            Text("IMEI: ${sysInfo.imei}")
+            Text("序列化串：${sysInfo.serial}")
+            Text("MAC：${sysInfo.macAddress}")
+            Text("ANDROID ID:${sysInfo.androidId}")
+            for (e in sysInfo.errors) {
+                Text("错误: ${e}")
+            }
+        }
     }
 }
 

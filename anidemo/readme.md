@@ -14,3 +14,12 @@
 
 ### 动态方式
 
+ShortcutUtil
+
+## IMEI 
+
+注: 
+- 安卓9及以前需要 android.permission.READ_PHONE_STATE
+- 安卓10 开始需要系统权限 android.permission.READ_PRIVILEGED_PHONE_STATE 这个只有系统应用才有。
+
+安卓 10 之后只能通过替代方案的ID 来区分设备。
