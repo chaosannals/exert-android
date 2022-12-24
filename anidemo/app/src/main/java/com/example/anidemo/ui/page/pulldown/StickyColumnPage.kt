@@ -59,6 +59,17 @@ fun StickyColumnPage() {
                     .weight(1f, fill = false)
             )
         }
+        Box(
+            modifier = Modifier
+                .size(44.dp, 100.dp)
+                .background(Color.Cyan),
+        )
+        Box(
+            modifier = Modifier
+                .size(200.dp, 44.dp)
+                .background(Color.Yellow)
+                .sticky("foo"),
+        )
         Column (
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally,
