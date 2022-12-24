@@ -1,6 +1,7 @@
 package com.example.anidemo.ui.widget
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.rememberScrollableState
@@ -76,14 +77,22 @@ fun StickyBoxColumn(
 
         layout(cs.maxWidth, cs.maxHeight) {
             var sumh = 0
+            val sa = scrollAll.toInt()
             for (p in ps) {
                 val x = when (horizontalAlignment) {
                     Alignment.CenterHorizontally -> (cs.maxWidth - p.width) / 2
                     else -> 0
                 }
-                val y = scrollAll.toInt() + sumh
+                val z = when (p.parentData) {
+                    "sticky" -> 1f
+                    else -> 0f
+                }
+                val y = when (p.parentData) {
+                    "sticky" -> if (sa > -sumh) sa + sumh else 0
+                    else -> sa + sumh
+                }
                 sumh += p.height
-                p.place(x, y)
+                p.place(x, y, z)
             }
         }
     }
@@ -107,7 +116,10 @@ fun StickyBoxColumnPreview() {
             Row(
                 horizontalArrangement = Arrangement.SpaceAround,
                 verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .sticky()
+                    .border(0.5.dp, Color.Green)
             ) {
                 Text(
                     text="添加一个",

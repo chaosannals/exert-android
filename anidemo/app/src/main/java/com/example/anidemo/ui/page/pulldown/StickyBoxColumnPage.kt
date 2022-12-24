@@ -1,6 +1,7 @@
 package com.example.anidemo.ui.page.pulldown
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Text
@@ -31,6 +32,7 @@ fun StickyBoxColumnPage() {
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
                 .fillMaxWidth()
+                .border(0.5.dp, Color.Green)
                 .sticky()
         ) {
             Text(
