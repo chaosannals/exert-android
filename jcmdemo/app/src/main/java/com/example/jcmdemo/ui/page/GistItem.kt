@@ -24,6 +24,7 @@ enum class GistItem(var route: String, var icon: Int) {
     WebViewX5Map("web_view_x5_map", R.drawable.ic_web),
     ImageCropperPage("image_cropper", R.drawable.ic_crop),
     ImageCropper2Page("image_cropper2", R.drawable.ic_crop),
+    PictureViewPage("picture_viewer", R.drawable.ic_preview),
 //    Conf1("conf", R.drawable.ic_conf),
 //    Conf2("conf", R.drawable.ic_conf),
 //    Conf3("conf", R.drawable.ic_conf),

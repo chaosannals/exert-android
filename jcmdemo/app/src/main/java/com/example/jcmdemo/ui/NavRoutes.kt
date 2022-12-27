@@ -4,10 +4,7 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import com.example.jcmdemo.ui.page.*
-import com.example.jcmdemo.ui.page.carousel.CarouselPage
-import com.example.jcmdemo.ui.page.carousel.ScrollCarousel2Page
-import com.example.jcmdemo.ui.page.carousel.ScrollCarouselPage
-import com.example.jcmdemo.ui.page.carousel.ScrollDragPage
+import com.example.jcmdemo.ui.page.carousel.*
 import com.example.jcmdemo.ui.page.graphic2d.PathDataParserPage
 import com.example.jcmdemo.ui.page.graphic2d.SinSpray2Page
 import com.example.jcmdemo.ui.page.graphic2d.SinSprayPage
@@ -79,5 +76,8 @@ fun NavGraphBuilder.routeGist() {
     }
     composable(GistItem.ImageCropper2Page.route) {
         ImageCropper2Page()
+    }
+    composable(GistItem.PictureViewPage.route) {
+        PictureViewerPage()
     }
 }

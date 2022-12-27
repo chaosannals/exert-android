@@ -1,4 +1,4 @@
-package com.example.jcmdemo.ui.page
+package com.example.jcmdemo.ui.layout
 
 import android.util.Log
 import androidx.compose.foundation.BorderStroke
@@ -15,12 +15,11 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.jcmdemo.R
-import com.example.jcmdemo.ui.routeTo
+import com.example.jcmdemo.ui.page.GistItem
 import kotlin.math.floor
 
 @Composable
 fun GridGistLayout() {
-
     Box(
         modifier = Modifier.wrapContentSize()
     ) {
