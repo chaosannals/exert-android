@@ -1,4 +1,4 @@
-package com.example.jcmdemo.ui.page
+package com.example.jcmdemo.ui.widget
 
 import androidx.compose.animation.animateColor
 import androidx.compose.animation.core.animateDp
@@ -18,6 +18,7 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.Fill
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.example.jcmdemo.ui.DesignPreview
 
 
 @Composable
@@ -82,5 +83,7 @@ fun SinSpray() {
 @Preview
 @Composable
 fun SinSprayPreview() {
-    SinSpray()
+    DesignPreview() {
+        SinSpray()
+    }
 }

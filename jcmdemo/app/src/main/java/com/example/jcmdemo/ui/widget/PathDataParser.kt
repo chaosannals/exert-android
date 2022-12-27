@@ -1,4 +1,4 @@
-package com.example.jcmdemo.ui.page
+package com.example.jcmdemo.ui.widget
 
 import android.util.Log
 import androidx.compose.ui.graphics.Path
@@ -11,6 +11,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Fill
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.example.jcmdemo.ui.DesignPreview
 
 data class PathDataPoint(
     var x: Float,
@@ -85,9 +86,9 @@ fun parsePath(text: String) : Path {
 }
 
 @Composable
-fun PathDataParser() {
-    val pt = "M0,0 l100,0 L100,100 h100 v-100 h100 v200 H0 z"
-
+fun PathDataParser(
+    pt: String,
+) {
     Canvas(
         modifier = Modifier
             .fillMaxWidth()
@@ -106,6 +107,9 @@ fun PathDataParser() {
 @Preview
 @Composable
 fun PathDataParserPreview() {
-
-    PathDataParser()
+    DesignPreview() {
+        PathDataParser(
+            "M0,0 l100,0 L100,100 h100 v-100 h100 v200 H0 z"
+        )
+    }
 }

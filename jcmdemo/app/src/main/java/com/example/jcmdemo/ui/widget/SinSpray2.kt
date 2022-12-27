@@ -1,6 +1,5 @@
-package com.example.jcmdemo.ui.page
+package com.example.jcmdemo.ui.widget
 
-import androidx.compose.animation.animateColor
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.Canvas
@@ -94,5 +93,5 @@ fun SinSpray2() {
 @Preview
 @Composable
 fun SinSpray2Preview() {
-    SinSpray()
+    SinSpray2()
 }

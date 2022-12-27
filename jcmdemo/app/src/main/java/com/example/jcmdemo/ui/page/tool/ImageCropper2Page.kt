@@ -1,4 +1,4 @@
-package com.example.jcmdemo.ui.page
+package com.example.jcmdemo.ui.page.tool
 
 import android.content.Context
 import android.graphics.Bitmap

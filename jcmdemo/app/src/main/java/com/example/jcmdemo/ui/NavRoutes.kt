@@ -8,6 +8,9 @@ import com.example.jcmdemo.ui.page.carousel.CarouselPage
 import com.example.jcmdemo.ui.page.carousel.ScrollCarousel2Page
 import com.example.jcmdemo.ui.page.carousel.ScrollCarouselPage
 import com.example.jcmdemo.ui.page.carousel.ScrollDragPage
+import com.example.jcmdemo.ui.page.graphic2d.PathDataParserPage
+import com.example.jcmdemo.ui.page.graphic2d.SinSpray2Page
+import com.example.jcmdemo.ui.page.graphic2d.SinSprayPage
 import com.example.jcmdemo.ui.page.tool.*
 
 fun NavGraphBuilder.routeRoot() {
@@ -42,10 +45,10 @@ fun NavGraphBuilder.routeGist() {
         VideoRecyclerPage()
     }
     composable(GistItem.SinSpray.route) {
-        SinSpray()
+        SinSprayPage()
     }
     composable(GistItem.SinSpray2.route) {
-        SinSpray2()
+        SinSpray2Page()
     }
     composable(GistItem.ScrollDragBox.route) {
         ScrollDragPage()
@@ -60,7 +63,7 @@ fun NavGraphBuilder.routeGist() {
         CarouselPage()
     }
     composable(GistItem.PathDataParser.route) {
-        PathDataParser()
+        PathDataParserPage()
     }
     composable(GistItem.WebViewBox.route) {
         WebViewBox()

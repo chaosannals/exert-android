@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">jcmdemo</string>
+    <string name="app_name">M1示例</string>
     <string name="icn_camera_view_switch_camera_content_description">切换相机</string>
     <string name="icn_camera_view_camera_shutter_content_description">快门</string>
     <string name="icn_camera_view_camera_record_video_description">录像</string>
