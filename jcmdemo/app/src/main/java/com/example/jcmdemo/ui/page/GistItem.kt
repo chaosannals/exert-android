@@ -17,6 +17,7 @@ enum class GistItem(var route: String, var icon: Int) {
     ScrollDragBox("scroll_drag_box", R.drawable.ic_view_carousel),
     ScrollCarousel("scroll_carousel", R.drawable.ic_view_carousel),
     ScrollCarousel2("scroll_carousel2", R.drawable.ic_view_carousel),
+    Carousel("carousel", R.drawable.ic_view_carousel),
     PathDataParser("path_data_parser", R.drawable.ic_image),
     WebViewBox("web_view_box", R.drawable.ic_web),
     WebViewX5Box("web_view_x5_box", R.drawable.ic_web),

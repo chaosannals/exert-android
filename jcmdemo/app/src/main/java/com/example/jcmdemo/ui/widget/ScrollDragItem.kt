@@ -1,4 +1,4 @@
-package com.example.jcmdemo.ui.page
+package com.example.jcmdemo.ui.widget
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box

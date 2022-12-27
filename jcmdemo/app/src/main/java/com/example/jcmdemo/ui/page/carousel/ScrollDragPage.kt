@@ -1,6 +1,5 @@
-package com.example.jcmdemo.ui.page
+package com.example.jcmdemo.ui.page.carousel
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.rememberScrollableState
 import androidx.compose.foundation.gestures.scrollable
@@ -12,10 +11,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.example.jcmdemo.ui.widget.ScrollDragItem
 import kotlin.math.ceil
 
 @Composable
-fun ScrollDragBox() {
+fun ScrollDragPage() {
     var offset by remember {
         mutableStateOf(0f)
     }
@@ -73,6 +73,6 @@ fun ScrollDragBox() {
 
 @Preview
 @Composable
-fun ScrollDragBoxPreview() {
-    ScrollDragBox()
+fun ScrollDragPagePreview() {
+    ScrollDragPage()
 }

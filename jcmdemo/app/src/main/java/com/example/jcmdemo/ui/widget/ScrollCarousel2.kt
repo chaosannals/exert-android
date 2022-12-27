@@ -1,8 +1,6 @@
-package com.example.jcmdemo.ui.page
+package com.example.jcmdemo.ui.widget
 
-import androidx.compose.animation.core.FastOutLinearInEasing
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.tween
+import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.Orientation
@@ -19,12 +17,11 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.zIndex
 import com.example.jcmdemo.ui.sdp
-import kotlin.math.abs
 import kotlin.math.ceil
 import kotlin.math.round
 
 @Composable
-fun ScrollCarousel(
+fun ScrollCarousel2(
     width: Dp? = null,
     height: Dp? = null,
     content: @Composable () -> Unit
@@ -41,22 +38,29 @@ fun ScrollCarousel(
     var step by remember {
         mutableStateOf(0f)
     }
-    val aniOffset by animateFloatAsState(
-        targetValue = offset,
-        animationSpec = tween(
-            durationMillis = 444,
-            easing = FastOutLinearInEasing,
-        ),
-        finishedListener = {
-            val fi = abs((it % step) - step)
-            if (fi >= 0.001f) {
-                offset = round(it / step) * step
-            }
-        }
-    )
+
     val state = rememberScrollableState { delta ->
         offset += delta
         delta
+    }
+    val transition = updateTransition(
+        targetState = state.isScrollInProgress,
+        label = "offset-t",
+    )
+    val aniOffset by transition.animateFloat(
+        transitionSpec = {
+            tween(
+                durationMillis = 444,
+                easing = FastOutLinearInEasing,
+            )
+        },
+        label = "offset-t",
+    ) {
+        if (it) {
+            offset
+        } else {
+            round(offset  / step) * step
+        }
     }
 
     val modifier by remember {
@@ -157,8 +161,8 @@ fun ScrollCarousel(
 
 @Preview
 @Composable
-fun ScrollCarouselPreview() {
-    ScrollCarousel(
+fun ScrollCarousel2Preview() {
+    ScrollCarousel2(
         height = 400.sdp,
     ) {
         ScrollDragItem(Color.Red)
