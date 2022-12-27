@@ -1,5 +1,6 @@
 package com.example.jcmdemo.ui.widget
 
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.rememberScrollableState
@@ -12,13 +13,16 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.Layout
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import com.example.jcmdemo.ui.DesignPreview
 import com.example.jcmdemo.ui.sdp
 import com.example.jcmdemo.ui.ssp
+import kotlinx.coroutines.delay
 import kotlin.math.ceil
+import kotlin.math.round
 
 class CarouselItem(
     val color: Color,
@@ -29,6 +33,7 @@ fun Carousel(
     modifier: Modifier =Modifier,
     items: List<CarouselItem>,
 ) {
+    val context = LocalContext.current
     var offset by remember {
         mutableStateOf(0f)
     }
@@ -41,6 +46,36 @@ fun Carousel(
     val scrollState = rememberScrollableState() {
         offset += it
         it
+    }
+    var s by remember {
+        mutableStateOf(0)
+    }
+
+    suspend fun turnTo(targetOffset: Float) {
+        val animateCount = 44
+        val animateDelta = ((targetOffset - offset) / animateCount).toInt()
+        for (i in 0 until animateCount) {
+            offset += animateDelta
+            delay(1)
+        }
+        offset = targetOffset
+    }
+
+    LaunchedEffect(scrollState.isScrollInProgress) {
+        if (!scrollState.isScrollInProgress) {
+            Toast.makeText(context, "${++s}", Toast.LENGTH_SHORT).show()
+            turnTo(round(offset  / step) * step)
+            Toast.makeText(context, "${s} final", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    LaunchedEffect(Unit) {
+        while(true) {
+            delay(4000)
+            if (!scrollState.isScrollInProgress) {
+                turnTo(round((offset - step)  / step) * step)
+            }
+        }
     }
 
     Box (
