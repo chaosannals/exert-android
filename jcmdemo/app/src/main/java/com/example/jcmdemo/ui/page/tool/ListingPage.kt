@@ -2,8 +2,8 @@ package com.example.jcmdemo.ui.page.tool
 
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.GridCells
-import androidx.compose.foundation.lazy.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
@@ -96,7 +96,7 @@ fun ListingPage() {
     var messages = listOf("123", "23432")
     Column() {}
     LazyVerticalGrid(
-        cells = GridCells.Fixed(2),
+        columns = GridCells.Fixed(2),
     ) {
         items(89) {
             ListingItem()

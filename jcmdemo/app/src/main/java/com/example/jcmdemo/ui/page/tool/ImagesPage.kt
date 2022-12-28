@@ -5,16 +5,12 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.GridCells
-import androidx.compose.foundation.lazy.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
@@ -28,7 +24,6 @@ import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 import coil.size.Size
 import com.example.jcmdemo.R
-import java.io.File
 
 @Composable
 fun ImageItem(path: String) {
@@ -78,7 +73,7 @@ fun ImagesPage() {
 
     Text("fs: ${fs.size}", fontSize = 10.sp)
     LazyVerticalGrid(
-        cells = GridCells.Fixed(2),
+        columns = GridCells.Fixed(2),
         modifier = Modifier.padding(0.dp, 0.dp, 0.dp, 60.dp)
     ) {
         items(fs.size) { i ->

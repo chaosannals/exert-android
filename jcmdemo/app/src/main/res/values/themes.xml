@@ -2,6 +2,14 @@
 <resources>
 
     <style name="Theme.Jcmdemo" parent="android:Theme.Material.Light.NoActionBar">
-        <item name="android:statusBarColor">@color/purple_700</item>
+        <!-- 顶部栏的颜色，全屏重绘这个在一开始会显现一下，最好改成白色 -->
+        <item name="android:statusBarColor">@color/transparent</item>
     </style>
+
+    <!-- StackOverflow 上有人说这个可以去掉 Dialog 的左右Padding,但是测试了无效。 -->
+<!--    <style name="Theme.DialogFullScreen" parent="@style/ThemeOverlay.MaterialComponents.Dialog.Alert">-->
+<!--        <item name="android:windowMinWidthMajor">100%</item>-->
+<!--        <item name="android:windowMinWidthMinor">100%</item>-->
+<!--    </style>-->
+    <!-- 实验性 API 多出个配置项用于去掉 Padding , Dialog(properties = DialogProperties(usePlatformDefaultWidth = false),...)  -->
 </resources>

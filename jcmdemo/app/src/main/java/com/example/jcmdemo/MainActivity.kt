@@ -6,6 +6,7 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.staticCompositionLocalOf
+import androidx.core.view.WindowCompat
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.jcmdemo.ui.MainBox
@@ -29,6 +30,8 @@ class MainActivity : ComponentActivity() {
         })
         QbSdk.setDownloadWithoutWifi(true)
 
+        // 窗口外框可绘制，需要手写padding，扩展的 Padding 在 com.google.accompanist:accompanist-insets 扩展库
+        WindowCompat.setDecorFitsSystemWindows(window, false)
         setContent @ExperimentalFoundationApi {
             val navController = rememberNavController()
 

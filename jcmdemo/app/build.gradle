@@ -5,12 +5,12 @@ plugins {
 }
 
 android {
-    compileSdk 32
+    compileSdk 33
 
     defaultConfig {
         applicationId "com.example.jcmdemo"
         minSdk 26
-        targetSdk 32
+        targetSdk 33
         versionCode 1
         versionName "1.0"
 
@@ -74,8 +74,13 @@ dependencies {
     implementation "androidx.camera:camera-lifecycle:${camerax_version}"
     implementation "androidx.camera:camera-video:${camerax_version}"
     implementation "androidx.camera:camera-extensions:${camerax_version}"
-    //Permissions
-    implementation("com.google.accompanist:accompanist-permissions:0.18.0")
+
+    // 扩展库
+    implementation("com.google.accompanist:accompanist-permissions:$accompanist_version")
+    implementation "com.google.accompanist:accompanist-insets:$accompanist_version"
+    implementation "com.google.accompanist:accompanist-insets-ui:$accompanist_version"
+    implementation "com.google.accompanist:accompanist-systemuicontroller:$accompanist_version"
+    implementation "com.google.accompanist:accompanist-pager:$accompanist_version"
 
     //implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
     implementation "androidx.constraintlayout:constraintlayout:2.1.4"
