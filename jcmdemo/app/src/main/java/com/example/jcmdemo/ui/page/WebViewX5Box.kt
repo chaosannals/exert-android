@@ -25,6 +25,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.navigation.compose.rememberNavController
 import com.example.jcmdemo.LocalNavController
+import com.example.jcmdemo.ui.DesignPreview
 import com.example.jcmdemo.ui.sdp
 import com.tencent.smtt.export.external.interfaces.*
 import com.tencent.smtt.sdk.WebChromeClient
@@ -121,6 +122,7 @@ fun WebViewX5Box() {
                 Lifecycle.Event.ON_DESTROY -> {
                     webview.destroy()
                 }
+                else -> {}
             }
         }
         lifecycleOwner.lifecycle.addObserver(observer)
@@ -228,9 +230,7 @@ fun WebViewX5Box() {
 @Preview
 @Composable
 fun WebViewX5BoxPreview() {
-    CompositionLocalProvider(
-        LocalNavController provides rememberNavController(),
-    ) {
+    DesignPreview() {
         WebViewX5Box()
     }
 }

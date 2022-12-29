@@ -25,6 +25,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
+import com.example.jcmdemo.ui.DesignPreview
 import com.example.jcmdemo.ui.sdp
 import com.example.jcmdemo.ui.writeLog
 
@@ -146,6 +147,7 @@ fun WebViewBox() {
                 Lifecycle.Event.ON_DESTROY -> {
                     webview.destroy()
                 }
+                else -> {}
             }
         }
         lifecycleOwner.lifecycle.addObserver(observer)
@@ -248,5 +250,7 @@ fun WebViewBox() {
 @Preview(widthDp = 375, heightDp = 668)
 @Composable
 fun WebViewBoxPreview() {
-    WebViewBox()
+    DesignPreview() {
+        WebViewBox()
+    }
 }

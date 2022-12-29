@@ -88,6 +88,7 @@ fun VideoPlayer3(path: String, modifier: Modifier=Modifier) {
                     writeLog3(context, "destroy $path")
                     exoPlayer.release()
                 }
+                else -> {}
             }
         }
         lifecycleOwner.lifecycle.addObserver(observer)

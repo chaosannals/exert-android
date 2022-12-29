@@ -43,6 +43,7 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+
     override fun onRequestPermissionsResult(
         requestCode: Int, // 自己的标识，用来区分申请权限的是哪个调用。
         permissions: Array<out String>, // 申请的权限

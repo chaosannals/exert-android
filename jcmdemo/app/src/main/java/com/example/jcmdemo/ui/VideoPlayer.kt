@@ -156,6 +156,7 @@ fun VideoPlayer(path: String, modifier: Modifier=Modifier) {
                     exoPlayer.removeListener(listener)
                     exoPlayer.release()
                 }
+                else -> {}
             }
         }
         lifecycleOwner.lifecycle.addObserver(observer)
