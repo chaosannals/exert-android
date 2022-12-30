@@ -25,6 +25,8 @@ enum class GistItem(var route: String, var icon: Int) {
     ImageCropperPage("image_cropper", R.drawable.ic_crop),
     ImageCropper2Page("image_cropper2", R.drawable.ic_crop),
     PictureViewPage("picture_viewer", R.drawable.ic_preview),
+
+    PopupPage("window_popup", R.drawable.ic_computer),
 //    Conf1("conf", R.drawable.ic_conf),
 //    Conf2("conf", R.drawable.ic_conf),
 //    Conf3("conf", R.drawable.ic_conf),

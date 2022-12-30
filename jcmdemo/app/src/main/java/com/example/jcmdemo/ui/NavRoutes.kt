@@ -9,6 +9,7 @@ import com.example.jcmdemo.ui.page.graphic2d.PathDataParserPage
 import com.example.jcmdemo.ui.page.graphic2d.SinSpray2Page
 import com.example.jcmdemo.ui.page.graphic2d.SinSprayPage
 import com.example.jcmdemo.ui.page.tool.*
+import com.example.jcmdemo.ui.page.window.PopupPage
 
 fun NavGraphBuilder.routeRoot() {
     composable(BottomItem.Home.route) {
@@ -79,5 +80,8 @@ fun NavGraphBuilder.routeGist() {
     }
     composable(GistItem.PictureViewPage.route) {
         PictureViewerPage()
+    }
+    composable(GistItem.PopupPage.route) {
+        PopupPage()
     }
 }
