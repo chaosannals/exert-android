@@ -25,7 +25,7 @@ fun GistPage () {
     val scrollState = rememberScrollState()
 
     Layout(
-        // 修改器会影响到子空间的测量，使得子修改器失效
+        // 修改器会影响到子空间的测量，使得子修改器失效（也可能是rememberScrollState的影响）
         // modifier = Modifier.fillMaxSize(),
         //modifier = Modifier.background(colorResource(id = R.color.gray)),
         modifier = Modifier.verticalScroll(scrollState),

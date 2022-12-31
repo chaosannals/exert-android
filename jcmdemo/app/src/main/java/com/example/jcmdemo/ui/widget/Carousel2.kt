@@ -22,21 +22,22 @@ fun Carousel2(
     // rememberScrollState 自身的实现上会影响到布局。
     val scrollState = rememberScrollState()
 
-    Box(modifier = modifier) {
-        Layout(
-            content = content,
-            modifier = Modifier
+    Layout(
+        content = content,
+        modifier = modifier
+        // 一加上 scrollState 布局马上乱掉，
+        // 只有少部分的 modifier 可以和 scrollState + Layout 同时使用。
+        // 比如指定百分比的 fillMaxWidth aspectRatio
                 .horizontalScroll(
                     scrollState,
 //                flingBehavior={},
                 ),
-        ) { ms, constraints ->
-            layout(constraints.maxWidth, constraints.maxHeight) {
-                ms.forEachIndexed { i, m ->
-                    val p = m.measure(constraints)
-                    val x = i * constraints.maxWidth
-                    p.place(x, 0, i.toFloat())
-                }
+    ) { ms, constraints ->
+        layout(constraints.maxWidth, constraints.maxHeight) {
+            ms.forEachIndexed { i, m ->
+                val p = m.measure(constraints)
+                val x = i * constraints.maxWidth
+                p.place(x, 0, i.toFloat())
             }
         }
     }
@@ -67,8 +68,7 @@ fun Carousel2Preview() {
             )
             Box(
                 modifier= Modifier
-//                    .fillMaxSize()
-                    .size(234.sdp, 124.sdp)
+                    .fillMaxSize()
                     .background(Color.Yellow)
             )
         }
