@@ -3,6 +3,7 @@ package com.example.jcmdemo.ui
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
+import androidx.navigation.navigation
 import com.example.jcmdemo.ui.page.*
 import com.example.jcmdemo.ui.page.carousel.*
 import com.example.jcmdemo.ui.page.form.InputFormPage
@@ -49,18 +50,27 @@ fun NavGraphBuilder.routeGist() {
     composable(GistItem.SinSpray2.route) {
         SinSpray2Page()
     }
-    composable(GistItem.ScrollDragBox.route) {
-        ScrollDragPage()
+
+    // navigation 的路由路径和 composable 路由路径不管哪一级都是全称
+    // 所以不能重复，且跳转时不需要拼接。
+    navigation(GistItem.Carousel.route, "carousel") {
+        composable(GistItem.ScrollDragBox.route) {
+            ScrollDragPage()
+        }
+        composable(GistItem.ScrollCarousel.route) {
+            ScrollCarouselPage()
+        }
+        composable(GistItem.ScrollCarousel2.route) {
+            ScrollCarousel2Page()
+        }
+        composable(GistItem.Carousel.route) {
+            CarouselPage()
+        }
+        composable(GistItem.Carousel2.route) {
+            Carousel2Page()
+        }
     }
-    composable(GistItem.ScrollCarousel.route) {
-        ScrollCarouselPage()
-    }
-    composable(GistItem.ScrollCarousel2.route) {
-        ScrollCarousel2Page()
-    }
-    composable(GistItem.Carousel.route) {
-        CarouselPage()
-    }
+
     composable(GistItem.PathDataParser.route) {
         PathDataParserPage()
     }
