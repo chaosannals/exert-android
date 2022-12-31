@@ -5,6 +5,7 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import com.example.jcmdemo.ui.page.*
 import com.example.jcmdemo.ui.page.carousel.*
+import com.example.jcmdemo.ui.page.form.InputFormPage
 import com.example.jcmdemo.ui.page.graphic2d.PathDataParserPage
 import com.example.jcmdemo.ui.page.graphic2d.SinSpray2Page
 import com.example.jcmdemo.ui.page.graphic2d.SinSprayPage
@@ -83,5 +84,8 @@ fun NavGraphBuilder.routeGist() {
     }
     composable(GistItem.PopupPage.route) {
         PopupPage()
+    }
+    composable(GistItem.InputFormPage.route) {
+        InputFormPage()
     }
 }

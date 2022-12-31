@@ -27,6 +27,8 @@ enum class GistItem(var route: String, var icon: Int) {
     PictureViewPage("picture_viewer", R.drawable.ic_preview),
 
     PopupPage("window_popup", R.drawable.ic_computer),
+
+    InputFormPage("form_input", R.drawable.ic_table_view),
 //    Conf1("conf", R.drawable.ic_conf),
 //    Conf2("conf", R.drawable.ic_conf),
 //    Conf3("conf", R.drawable.ic_conf),

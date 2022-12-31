@@ -54,6 +54,7 @@ fun PopupPage() {
                     // Popup 总是锚定在父级最外框，
                     // navigationBarsPadding padding 等都是内框。
                     // Compose 没有 margin 外框这种东西。
+                    // Popup fillMaxSize 总是屏幕宽高
                     Popup(
                         alignment = Alignment.TopStart,
                         onDismissRequest= { isShowTop=false },
