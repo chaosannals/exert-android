@@ -14,9 +14,53 @@ android {
         versionCode 1
         versionName "1.0"
 
+        manifestPlaceholders = [
+                app_name: "示例 1",
+        ]
+
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
             useSupportLibrary true
+        }
+    }
+
+    // 分发维度，每加一个标签，就多一个维度。
+    // 比如又 3个 flavors 是 mode , 4 个 flavors 是 api， 就会有 12 种分发版本
+    // Build > Select Build Variant 切换
+    // 注：修改配置会有缓存问题（比如：加了维度，然后没有显示出来），清理缓存重启。
+    flavorDimensions "mode", "platform"
+
+    productFlavors {
+        online {
+            dimension "mode"
+            manifestPlaceholders = [
+                    app_name: "示例 1 线上版",
+            ]
+        }
+        offline {
+            dimension "mode"
+            applicationIdSuffix ".offline"
+            manifestPlaceholders = [
+                    app_name: "示例 1 离线版",
+            ]
+        }
+        normal {
+            dimension "platform"
+            manifestPlaceholders = [
+                    app_name: "示例 1",
+            ]
+        }
+        xiaomi {
+            dimension "platform"
+            manifestPlaceholders = [
+                    app_name: "示例 1 小米版",
+            ]
+        }
+        huawei {
+            dimension "platform"
+            manifestPlaceholders = [
+                    app_name: "示例 1 华为",
+            ]
         }
     }
 
@@ -24,6 +68,23 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+
+        // 加入多个类型，这个是文件最后的尾缀  ***Dev.apk
+        dev {
+//            applicationId "com.example.jcmdemo.test"
+            applicationIdSuffix ".dev"
+            manifestPlaceholders = [
+                    app_name: "示例 1 开发版",
+            ]
+//            resValue("string", "testuser", "测试员")
+//            resValue("int", "testid", 1)
+        }
+        preview {
+            applicationIdSuffix ".preview"
+            manifestPlaceholders = [
+                    app_name: "示例 1 预览版",
+            ]
         }
     }
     compileOptions {

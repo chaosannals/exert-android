@@ -1,5 +1,6 @@
 package com.example.jcmdemo.ui.page
 
+import androidx.compose.material.icons.Icons
 import com.example.jcmdemo.R
 
 
@@ -35,6 +36,7 @@ enum class GistItem(
     PopupPage("window_popup", R.drawable.ic_computer),
 
     InputFormPage("form_input", R.drawable.ic_table_view),
+    FileDialogPage("file_dialog", R.drawable.ic_folder_open),
 
 //    Conf1("conf", R.drawable.ic_conf),
 //    Conf2("conf", R.drawable.ic_conf),
