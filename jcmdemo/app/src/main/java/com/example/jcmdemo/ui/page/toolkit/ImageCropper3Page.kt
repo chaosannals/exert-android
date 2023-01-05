@@ -1,18 +1,18 @@
-package com.example.jcmdemo.ui.widget
+package com.example.jcmdemo.ui.page.toolkit
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.jcmdemo.ui.DesignPreview
 
 @Composable
-fun ImageCropper() {
+fun ImageCropper3Page() {
 
 }
 
 @Preview
 @Composable
-fun ImageCropperPreview() {
+fun ImageCropper3PagePreview() {
     DesignPreview() {
-        ImageCropper()
+        ImageCropper3Page()
     }
 }

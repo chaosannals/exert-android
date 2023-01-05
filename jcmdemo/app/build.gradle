@@ -48,6 +48,7 @@ android {
         // java 代码 getString(R.string.online_url) 在 context 使用比较方便
         // kotlin compose 使用 stringResource 比较方便
         // 以上2种通过比较绕的方式都能调用。
+        // 不能覆盖原有的来达到重载的方法。
         resValue("string", "online_url", "www.your.com")
 
         // 当使用多维度构建时，需要 defaultConfig 给出默认配置，不然 android studio 调试 无法自动选中证书。
@@ -215,6 +216,11 @@ dependencies {
     androidTestImplementation 'androidx.test.ext:junit:1.1.3'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
     androidTestImplementation "androidx.compose.ui:ui-test-junit4:$compose_version"
+
+    // 加入 buildTypes 后必须这里添加 *Implementation。不然影响 Compose 预览，导致 ComposeViewAdapter 找不到。
     debugImplementation "androidx.compose.ui:ui-tooling:$compose_version"
     debugImplementation "androidx.compose.ui:ui-test-manifest:$compose_version"
+    // 后加入的 preview
+    previewImplementation "androidx.compose.ui:ui-tooling:$compose_version"
+    previewImplementation "androidx.compose.ui:ui-test-manifest:$compose_version"
 }

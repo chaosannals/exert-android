@@ -33,6 +33,8 @@ enum class GistItem(
     ImageCropper2Page("image_cropper2", R.drawable.ic_crop),
     PictureViewPage("picture_viewer", R.drawable.ic_preview),
 
+    ImageCropper3Page("image_cropper3", R.drawable.ic_crop),
+
     PopupPage("window_popup", R.drawable.ic_computer),
 
     InputFormPage("form_input", R.drawable.ic_table_view),

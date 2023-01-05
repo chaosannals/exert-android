@@ -24,6 +24,7 @@ import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 import coil.size.Size
 import com.example.jcmdemo.R
+import com.example.jcmdemo.ui.DesignPreview
 
 class InfoItem(var title: String,var info: String) {
 
@@ -66,7 +67,8 @@ fun ListingItem() {
         infos.forEach {
             Row(
                 //horizontalArrangement = Arrangement.SpaceBetween
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier
+                    .fillMaxWidth()
                     .padding(10.dp, 1.dp, 10.dp, 1.dp)
             ) {
                 Text(it.title, modifier = Modifier.weight(1.0f), fontSize = 10.sp)
@@ -108,5 +110,7 @@ fun ListingPage() {
 @Preview(showBackground = true)
 @Composable
 fun ListingPagePreview() {
-    ListingPage()
+    DesignPreview() {
+        ListingPage()
+    }
 }

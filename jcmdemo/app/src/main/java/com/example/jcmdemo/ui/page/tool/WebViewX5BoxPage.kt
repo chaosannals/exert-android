@@ -1,12 +1,10 @@
-package com.example.jcmdemo.ui.page
+package com.example.jcmdemo.ui.page.tool
 
 import android.content.Intent
-import android.graphics.Bitmap
 import android.net.Uri
-import android.net.http.SslError
 import android.os.Build
+import android.os.Message
 import android.util.Log
-import android.webkit.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -27,10 +25,14 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import com.example.jcmdemo.ui.DesignPreview
 import com.example.jcmdemo.ui.sdp
-import com.example.jcmdemo.ui.writeLog
+import com.tencent.smtt.export.external.interfaces.*
+import com.tencent.smtt.sdk.WebChromeClient
+import com.tencent.smtt.sdk.WebSettings
+import com.tencent.smtt.sdk.WebView
+import com.tencent.smtt.sdk.WebViewClient
 
 @Composable
-fun WebViewBox() {
+fun WebViewX5BoxPage() {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
 
@@ -41,98 +43,69 @@ fun WebViewBox() {
         mutableStateOf(0)
     }
 
+    var webview by remember {
+        val it = WebView(context)
+        mutableStateOf(it)
+    }
     val webviewClient = object: WebViewClient() {
-        override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
-            Log.d("webview","url: ${url}")
-            super.onPageStarted(view, url, favicon)
-        }
-        override fun onPageFinished(view: WebView?, url: String?) {
-            super.onPageFinished(view, url)
-        }
-        override fun shouldOverrideUrlLoading(
-            view: WebView?,
-            request: WebResourceRequest?
-        ): Boolean {
-            Log.d("webview","url: ${request?.url}")
-            if(null == request?.url) return false
-            val showOverrideUrl = request.url.toString()
-            try {
-                if (!showOverrideUrl.startsWith("http://")
-                    && !showOverrideUrl.startsWith("https://")) {
-                    //处理非http和https开头的链接地址
-                    Intent(Intent.ACTION_VIEW, Uri.parse(showOverrideUrl)).apply {
-                        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                        view?.context?.applicationContext?.startActivity(this)
-                    }
-                    return true
-                }
-            }catch (e:Exception){
-                Log.e("webview","url: ${request?.url} ${e}")
-                //没有安装和找到能打开(「xxxx://openlink.cc....」、「weixin://xxxxx」等)协议的应用
-                return true
-            }
-            return super.shouldOverrideUrlLoading(view, request)
-        }
-
         override fun onReceivedSslError(
-            view: WebView?,
+            wv: WebView?,
             handler: SslErrorHandler?,
             error: SslError?
         ) {
             handler?.proceed()
-            //super.onReceivedSslError(view, handler, error)
+//            super.onReceivedSslError(p0, p1, p2)
         }
 
-        override fun onReceivedError(
-            view: WebView?,
-            request: WebResourceRequest?,
-            error: WebResourceError?
-        ) {
-            Log.d("webview", "${error}")
-            // super.onReceivedError(view, request, error)
-        }
-
-        override fun shouldInterceptRequest(
-            view: WebView?,
-            request: WebResourceRequest?
-        ): WebResourceResponse? {
-//            Log.d("webview" ,"request url: ${request?.url}")
-            return super.shouldInterceptRequest(view, request)
-//            request?.url?.let {
-//                return WebResourceResponse(
-//                    getMimeType(it.toString()),
-//                    "UTF-8",
-//
-//                )
-//            }
-        }
-
-
-        fun getMimeType(url: String) : String? {
-            val ext = MimeTypeMap.getFileExtensionFromUrl(url)
-            return when (ext) {
-                "js" -> "text/javascript"
-                "html" -> "text/html"
-                "woff" -> "application/font-woff"
-                "woff2" -> "application/font-woff2"
-                "tff" -> "application/x-font-ttf"
-                "eot" -> "application/vnd.ms-fontobject"
-                "svg" -> "image/svg+xml"
-                else -> MimeTypeMap.getSingleton().getMimeTypeFromExtension(ext)
+        override fun shouldOverrideUrlLoading(wv: WebView?, url: String?): Boolean {
+            if(null == url) return false
+            try {
+                if (!url.startsWith("http://")
+                    && !url.startsWith("https://")) {
+                    //处理非http和https开头的链接地址
+                    Intent(Intent.ACTION_VIEW, Uri.parse(url)).apply {
+                        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                        wv?.context?.applicationContext?.startActivity(this)
+                    }
+                    return true
+                }
+            }catch (e:Exception){
+                Log.e("webview","url: ${url} ${e}")
+                //没有安装和找到能打开(「xxxx://openlink.cc....」、「weixin://xxxxx」等)协议的应用
+                return true
             }
+            return super.shouldOverrideUrlLoading(wv, url)
         }
-    }
-    val webchromeClient = object:  WebChromeClient() {
-        override fun onProgressChanged(view: WebView?, newProgress: Int) {
-            //回调网页内容加载进度
-            progress = newProgress
-            super.onProgressChanged(view, newProgress)
-        }
-    }
 
-    val webview by remember {
-        val it = WebView(context)
-        mutableStateOf(it)
+        override fun onReceivedError(p0: WebView?, p1: WebResourceRequest?, p2: WebResourceError?) {
+            Log.e("webview x5", "${p1}  ${p2}")
+//            super.onReceivedError(p0, p1, p2)
+        }
+
+        override fun onReceivedHttpError(
+            p0: WebView?,
+            p1: WebResourceRequest?,
+            p2: WebResourceResponse?
+        ) {
+            Log.e("webview x5", "${p1}  ${p2}")
+//            super.onReceivedHttpError(p0, p1, p2)
+        }
+    }
+    val webchromeClient = object: WebChromeClient() {
+        override fun onProgressChanged(wv: WebView?, newProgress: Int) {
+            progress = newProgress
+            super.onProgressChanged(wv, newProgress)
+        }
+
+        override fun onCreateWindow(wv: WebView?, isDialog: Boolean, isUserGesture: Boolean, resultMsg: Message?): Boolean {
+
+            // TODO 新建一个新窗口 之后要给新窗口安排 Webview 的显示
+            // resultMsg 报错的话就不要管了，直接新窗口造一个无关的。
+            (resultMsg?.obj as? WebView.WebViewTransport)?.webView = WebView(context)
+            resultMsg?.sendToTarget()
+//            return super.onCreateWindow(p0, p1, p2, p3)
+            return true
+        }
     }
 
     DisposableEffect(lifecycleOwner) {
@@ -190,12 +163,12 @@ fun WebViewBox() {
                     .fillMaxWidth()
             )
         }
-        Box (
+        Box(
             contentAlignment = Alignment.TopStart,
             modifier = Modifier
                 .height(1.sdp)
                 .fillMaxWidth()
-        ){
+        ) {
             Spacer(
                 modifier = Modifier
                     .fillMaxHeight()
@@ -204,10 +177,8 @@ fun WebViewBox() {
             )
         }
 
-
-
         AndroidView(
-            factory = { webview },
+            factory = { WebView(it) },
             modifier = Modifier
                 .fillMaxSize()
         ) {
@@ -224,8 +195,14 @@ fun WebViewBox() {
                 setSupportZoom(true)
                 builtInZoomControls = true
                 displayZoomControls = true
+
                 //是否支持通过JS打开新窗口
                 javaScriptCanOpenWindowsAutomatically = true
+
+                // 支持多窗口 onCreateWindow
+                setSupportMultipleWindows(true)
+
+
                 //不加载缓存内容
                 cacheMode = WebSettings.LOAD_NO_CACHE
 
@@ -238,19 +215,20 @@ fun WebViewBox() {
 
                 // http https 混合内容开启
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                    mixedContentMode = WebSettings.MIXED_CONTENT_ALWAYS_ALLOW
+                    mixedContentMode = android.webkit.WebSettings.MIXED_CONTENT_ALWAYS_ALLOW
                 }
 
-                Log.d("webview", userAgentString)
+                Log.d("webview x5", userAgentString)
             }
+            webview = it
         }
     }
 }
 
-@Preview(widthDp = 375, heightDp = 668)
+@Preview
 @Composable
-fun WebViewBoxPreview() {
+fun WebViewX5BoxPagePreview() {
     DesignPreview() {
-        WebViewBox()
+        WebViewX5BoxPage()
     }
 }

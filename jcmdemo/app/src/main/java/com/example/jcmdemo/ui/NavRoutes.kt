@@ -13,6 +13,7 @@ import com.example.jcmdemo.ui.page.graphic2d.SinSpray2Page
 import com.example.jcmdemo.ui.page.graphic2d.SinSprayPage
 import com.example.jcmdemo.ui.page.resource.ValuesPage
 import com.example.jcmdemo.ui.page.tool.*
+import com.example.jcmdemo.ui.page.toolkit.ImageCropper3Page
 import com.example.jcmdemo.ui.page.window.PopupPage
 
 fun NavGraphBuilder.routeRoot() {
@@ -28,29 +29,48 @@ fun NavGraphBuilder.routeRoot() {
 }
 
 fun NavGraphBuilder.routeGist() {
-    composable(GistItem.Camera.route) {
-        CameraPage()
+    navigation(GistItem.Camera.route, "tool") {
+        composable(GistItem.Camera.route) {
+            CameraPage()
+        }
+        composable(GistItem.Listing.route) @ExperimentalFoundationApi {
+            ListingPage()
+        }
+        composable(GistItem.Images.route) @ExperimentalFoundationApi {
+            ImagesPage()
+        }
+        composable(GistItem.Videos.route) @ExperimentalFoundationApi {
+            VideosPage()
+        }
+        composable(GistItem.Video.route) {
+            VideoPage()
+        }
+        composable(GistItem.VideoRecycler.route) {
+            VideoRecyclerPage()
+        }
+
+        composable(GistItem.WebViewBox.route) {
+            WebViewBoxPage()
+        }
+        composable(GistItem.WebViewX5Box.route) {
+            WebViewX5BoxPage()
+        }
+        composable(GistItem.WebViewX5Map.route) {
+            WebViewX5MapPage()
+        }
+
+        composable(GistItem.ImageCropperPage.route) {
+            ImageCropperPage()
+        }
+        composable(GistItem.ImageCropper2Page.route) {
+            ImageCropper2Page()
+        }
     }
-    composable(GistItem.Listing.route) @ExperimentalFoundationApi {
-        ListingPage()
-    }
-    composable(GistItem.Images.route) @ExperimentalFoundationApi {
-        ImagesPage()
-    }
-    composable(GistItem.Videos.route) @ExperimentalFoundationApi {
-        VideosPage()
-    }
-    composable(GistItem.Video.route) {
-        VideoPage()
-    }
-    composable(GistItem.VideoRecycler.route) {
-        VideoRecyclerPage()
-    }
-    composable(GistItem.SinSpray.route) {
-        SinSprayPage()
-    }
-    composable(GistItem.SinSpray2.route) {
-        SinSpray2Page()
+
+    navigation(GistItem.ImageCropper3Page.route, "toolkit") {
+        composable(GistItem.ImageCropper3Page.route) {
+            ImageCropper3Page()
+        }
     }
 
     // navigation 的路由路径和 composable 路由路径不管哪一级都是全称
@@ -71,31 +91,27 @@ fun NavGraphBuilder.routeGist() {
         composable(GistItem.Carousel2.route) {
             Carousel2Page()
         }
+        composable(GistItem.PictureViewPage.route) {
+            PictureViewerPage()
+        }
     }
 
-    composable(GistItem.PathDataParser.route) {
-        PathDataParserPage()
+    navigation(GistItem.PathDataParser.route, "graphic2d") {
+        composable(GistItem.PathDataParser.route) {
+            PathDataParserPage()
+        }
+        composable(GistItem.SinSpray.route) {
+            SinSprayPage()
+        }
+        composable(GistItem.SinSpray2.route) {
+            SinSpray2Page()
+        }
     }
-    composable(GistItem.WebViewBox.route) {
-        WebViewBox()
-    }
-    composable(GistItem.WebViewX5Box.route) {
-        WebViewX5Box()
-    }
-    composable(GistItem.WebViewX5Map.route) {
-        WebViewX5Map()
-    }
-    composable(GistItem.ImageCropperPage.route) {
-        ImageCropperPage()
-    }
-    composable(GistItem.ImageCropper2Page.route) {
-        ImageCropper2Page()
-    }
-    composable(GistItem.PictureViewPage.route) {
-        PictureViewerPage()
-    }
-    composable(GistItem.PopupPage.route) {
-        PopupPage()
+
+    navigation(GistItem.PopupPage.route, "window") {
+        composable(GistItem.PopupPage.route) {
+            PopupPage()
+        }
     }
 
     navigation(GistItem.InputFormPage.route, "form") {

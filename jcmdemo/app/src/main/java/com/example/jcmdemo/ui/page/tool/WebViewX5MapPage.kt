@@ -1,4 +1,4 @@
-package com.example.jcmdemo.ui.page
+package com.example.jcmdemo.ui.page.tool
 
 import android.content.Intent
 import android.net.Uri
@@ -19,10 +19,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
-import androidx.navigation.compose.rememberNavController
-import com.example.jcmdemo.LocalNavController
 import com.example.jcmdemo.ui.DesignPreview
-import com.example.jcmdemo.ui.sdp
 import com.tencent.smtt.export.external.interfaces.*
 import com.tencent.smtt.sdk.WebChromeClient
 import com.tencent.smtt.sdk.WebSettings
@@ -39,7 +36,7 @@ data class WebViewX5MapPosition (
 )
 
 @Composable
-fun WebViewX5Map() {
+fun WebViewX5MapPage() {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
     
@@ -221,8 +218,8 @@ fun WebViewX5Map() {
 
 @Preview
 @Composable
-fun WebViewX5MapPreview() {
+fun WebViewX5MapPagePreview() {
     DesignPreview() {
-        WebViewX5Map()
+        WebViewX5MapPage()
     }
 }
