@@ -11,6 +11,7 @@ import com.example.jcmdemo.ui.page.form.InputFormPage
 import com.example.jcmdemo.ui.page.graphic2d.PathDataParserPage
 import com.example.jcmdemo.ui.page.graphic2d.SinSpray2Page
 import com.example.jcmdemo.ui.page.graphic2d.SinSprayPage
+import com.example.jcmdemo.ui.page.resource.ValuesPage
 import com.example.jcmdemo.ui.page.tool.*
 import com.example.jcmdemo.ui.page.window.PopupPage
 
@@ -103,6 +104,12 @@ fun NavGraphBuilder.routeGist() {
         }
         composable(GistItem.InputFormPage.route) {
             InputFormPage()
+        }
+    }
+
+    navigation(GistItem.ValuesPage.route, "resource") {
+        composable(GistItem.ValuesPage.route) {
+            ValuesPage()
         }
     }
 }

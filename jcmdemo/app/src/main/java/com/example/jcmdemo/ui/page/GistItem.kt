@@ -38,6 +38,8 @@ enum class GistItem(
     InputFormPage("form_input", R.drawable.ic_table_view),
     FileDialogPage("file_dialog", R.drawable.ic_folder_open),
 
+    ValuesPage("resource_values", R.drawable.ic_menu_book),
+
 //    Conf1("conf", R.drawable.ic_conf),
 //    Conf2("conf", R.drawable.ic_conf),
 //    Conf3("conf", R.drawable.ic_conf),

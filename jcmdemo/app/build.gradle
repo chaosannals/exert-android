@@ -5,6 +5,21 @@ plugins {
 }
 
 android {
+    // 配置指定版本的签名，上架不同应用商店需要不同证书。
+    signingConfigs {
+        debug {
+            storeFile file('F:\\demo.jks')
+            keyAlias 'key0'
+            storePassword '123456'
+            keyPassword '123456'
+        }
+        'online-huawei-release' {
+            storeFile file('..\\demo.jks')
+            storePassword '123456'
+            keyAlias 'key0'
+            keyPassword '123456'
+        }
+    }
     compileSdk 33
 
     defaultConfig {
@@ -22,6 +37,22 @@ android {
         vectorDrawables {
             useSupportLibrary true
         }
+
+        // Build > Select Build Variant 切换 后会导致调试时使用该版本。
+
+        // buildConfigField resValue 都需要给出 defaultConfig 默认配置，不然某个版本会因为缺失而编译失败。
+        // 字符串需要自行添加双引号。
+        // 代码里 BuildConfig.ONLINE_URL
+        buildConfigField("String", "ONLINE_URL", "\"www.your.com\"")
+
+        // java 代码 getString(R.string.online_url) 在 context 使用比较方便
+        // kotlin compose 使用 stringResource 比较方便
+        // 以上2种通过比较绕的方式都能调用。
+        resValue("string", "online_url", "www.your.com")
+
+        // 当使用多维度构建时，需要 defaultConfig 给出默认配置，不然 android studio 调试 无法自动选中证书。
+        // 使用不同的证书时，如果要装到同一台 安卓设备，必须不同的包名，不然就报“包名相同 签名不同的问题”。（也可以卸载掉一个，这只是个警告，还是可以安装。）
+        signingConfig signingConfigs.debug
     }
 
     // 分发维度，每加一个标签，就多一个维度。
@@ -36,6 +67,14 @@ android {
             manifestPlaceholders = [
                     app_name: "示例 1 线上版",
             ]
+            // 字符串需要自行添加双引号。
+            // 代码里 BuildConfig.ONLINE_URL
+            buildConfigField("String", "ONLINE_URL", "\"www.your-online.com\"")
+
+            // java 代码 getString(R.string.online_url) 在 context 使用比较方便
+            // kotlin compose 使用 stringResource 比较方便
+            // 以上2种通过比较绕的方式都能调用。
+            resValue("string", "online_url", "www.your-online.com")
         }
         offline {
             dimension "mode"
