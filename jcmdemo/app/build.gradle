@@ -110,6 +110,11 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
 
+        debug {
+//            applicationIdSuffix ".debug"
+            debuggable true
+        }
+
         // 加入多个类型，这个是文件最后的尾缀  ***Dev.apk
         dev {
 //            applicationId "com.example.jcmdemo.test"
@@ -220,6 +225,9 @@ dependencies {
     // 加入 buildTypes 后必须这里添加 *Implementation。不然影响 Compose 预览，导致 ComposeViewAdapter 找不到。
     debugImplementation "androidx.compose.ui:ui-tooling:$compose_version"
     debugImplementation "androidx.compose.ui:ui-test-manifest:$compose_version"
+    //
+    releaseImplementation "androidx.compose.ui:ui-tooling:$compose_version"
+    releaseImplementation "androidx.compose.ui:ui-test-manifest:$compose_version"
     // 后加入的 preview
     previewImplementation "androidx.compose.ui:ui-tooling:$compose_version"
     previewImplementation "androidx.compose.ui:ui-test-manifest:$compose_version"
