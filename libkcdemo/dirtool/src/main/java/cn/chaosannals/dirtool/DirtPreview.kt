@@ -7,6 +7,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.navigation.compose.rememberNavController
 
 @Composable
 fun DirtPreview(
@@ -15,7 +16,7 @@ fun DirtPreview(
     content: @Composable () -> Unit,
 ) {
     CompositionLocalProvider(
-
+        LocalNavController provides rememberNavController()
     ) {
         Box(
             modifier = modifier.run {

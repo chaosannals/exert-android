@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.navigation.compose.rememberNavController
 import cn.chaosannals.dirtool.DirtPreview
+import cn.chaosannals.dirtool.LocalNavController
 
 @Composable
 fun DesignPreview(
