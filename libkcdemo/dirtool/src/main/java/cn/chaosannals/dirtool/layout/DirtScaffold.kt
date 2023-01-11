@@ -15,7 +15,6 @@ import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import cn.chaosannals.dirtool.DirtPreview
-import cn.chaosannals.dirtool.LocalNavController
 import cn.chaosannals.dirtool.sdp
 import cn.chaosannals.dirtool.widget.DirtBottomBar
 import cn.chaosannals.dirtool.widget.DirtBottomBarButton
@@ -173,13 +172,12 @@ fun DirtScaffoldPreview() {
     DirtPreview {
         DirtScaffold {
             val scaffold = LocalDirtScaffoldContextSubject.current
-            val navController = LocalNavController.current
             scaffold.reset {
                 title="示例"
             }
             top {
                 DirtTopBar(
-                    onClickBack = { navController.navigateUp() },
+                    onClickBack = { },
                 ) {
                     DirtTopBarButton(Icons.Default.Settings)
                     DirtTopBarButton(Icons.Default.AccountBox)

@@ -15,6 +15,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         Dirt.designWidthDp = 375.dp
+        Dirt.designHeightDp = 667.dp
         WindowCompat.setDecorFitsSystemWindows(window,false)
         setContent { RouteHostBox() }
     }

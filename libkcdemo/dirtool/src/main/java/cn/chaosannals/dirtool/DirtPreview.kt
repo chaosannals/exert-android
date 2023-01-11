@@ -15,24 +15,20 @@ fun DirtPreview(
     isLimit: Boolean = true,
     content: @Composable () -> Unit,
 ) {
-    CompositionLocalProvider(
-        LocalNavController provides rememberNavController()
+    Box(
+        modifier = modifier.run {
+            if (isLimit) {
+                sizeIn(
+                    minWidth = 0.dp,
+                    maxWidth = Dirt.designWidthDp.value.sdp,
+                    minHeight = 0.dp,
+                    maxHeight = Dirt.designHeightDp.value.sdp,
+                )
+            } else {
+                width(Dirt.designWidthDp.value.sdp)
+            }
+        },
     ) {
-        Box(
-            modifier = modifier.run {
-                if (isLimit) {
-                    sizeIn(
-                        minWidth = 0.dp,
-                        maxWidth = Dirt.designWidthDp.value.sdp,
-                        minHeight = 0.dp,
-                        maxHeight = Dirt.designHeightDp.value.sdp,
-                    )
-                } else {
-                    width(Dirt.designWidthDp.value.sdp)
-                }
-            },
-        ) {
-            content()
-        }
+        content()
     }
 }

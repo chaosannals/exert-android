@@ -6,12 +6,10 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import cn.chaosannals.dirtool.LocalNavController
-import cn.chaosannals.dirtool.layout.DirtScaffoldContext
-import cn.chaosannals.dirtool.layout.LocalDirtScaffoldContext
 import cn.chaosannals.dirtool.layout.LocalDirtScaffoldContextSubject
 import cn.chaosannals.dirtool.layout.reset
 import com.example.libkcdemo.ui.DesignPreview
+import com.example.libkcdemo.ui.LocalNavController
 
 @Composable
 fun GistPage() {
