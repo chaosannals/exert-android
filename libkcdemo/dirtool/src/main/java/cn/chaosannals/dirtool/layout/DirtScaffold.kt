@@ -21,8 +21,9 @@ import cn.chaosannals.dirtool.widget.DirtBottomBar
 import cn.chaosannals.dirtool.widget.DirtBottomBarButton
 import cn.chaosannals.dirtool.widget.DirtTopBar
 import cn.chaosannals.dirtool.widget.DirtTopBarButton
+import io.reactivex.rxjava3.subjects.PublishSubject
 
-class DirtScaffoldContext (
+data class DirtScaffoldContext (
     var title: String = "",
     var titleColor: Color = Color.Black,
     var topBarColor: Color = Color(0xFF4488FF),
@@ -33,20 +34,42 @@ class DirtScaffoldContext (
     var isFloatingNavigationBar: Boolean = true,
     var floatingRightDp: Dp = 20.sdp,
     var floatingBottomDp: Dp = 64.sdp,
-) {
-
-}
+)
 
 val LocalDirtScaffoldContext = staticCompositionLocalOf<DirtScaffoldContext> {
-    error("not DirtScaffoldContext")
+    error("not DirtScaffold Context")
+}
+val LocalDirtScaffoldContextSubject = staticCompositionLocalOf<PublishSubject<DirtScaffoldContext>> {
+    error("not DirtScaffold Context subject")
 }
 
+// 仅用于预览创建 Mock 对象。
 @Composable
 fun rememberDirtScaffoldContext() : DirtScaffoldContext {
     val scaffold by remember {
         mutableStateOf(DirtScaffoldContext())
     }
     return scaffold
+}
+
+@Composable
+fun rememberDirtScaffoldContextSubject(action: ((DirtScaffoldContext) -> Unit)? = null) : PublishSubject<DirtScaffoldContext> {
+    val scaffold by remember {
+        val r = PublishSubject.create<DirtScaffoldContext>()
+        action?.let { r.subscribe(it) }
+        mutableStateOf(r)
+    }
+    return scaffold
+}
+
+@Composable
+fun PublishSubject<DirtScaffoldContext>.reset(
+    action: DirtScaffoldContext.() -> Unit
+) {
+    val scaffold = LocalDirtScaffoldContext.current
+    val now = scaffold.copy()
+    now.action()
+    onNext(now)
 }
 
 class DirtScaffoldScope(
@@ -71,9 +94,17 @@ fun DirtScaffold(
     content: @Composable DirtScaffoldScope.() -> Unit,
 ) {
     val compose = DirtScaffoldScope()
-    val scaffold = rememberDirtScaffoldContext()
+    var scaffold by remember {
+        mutableStateOf(DirtScaffoldContext())
+    }
+
+    val subject = rememberDirtScaffoldContextSubject {
+        scaffold = it
+    }
+
     CompositionLocalProvider(
         LocalDirtScaffoldContext provides scaffold,
+        LocalDirtScaffoldContextSubject provides subject,
     ) {
         ConstraintLayout(
             modifier = modifier
@@ -141,9 +172,11 @@ fun DirtScaffold(
 fun DirtScaffoldPreview() {
     DirtPreview {
         DirtScaffold {
-            val scaffold = LocalDirtScaffoldContext.current
+            val scaffold = LocalDirtScaffoldContextSubject.current
             val navController = LocalNavController.current
-            scaffold.title = "示例"
+            scaffold.reset {
+                title="示例"
+            }
             top {
                 DirtTopBar(
                     onClickBack = { navController.navigateUp() },
