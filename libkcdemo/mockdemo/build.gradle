@@ -58,6 +58,10 @@ dependencies {
     // Kotlin + coroutines
     implementation "androidx.work:work-runtime-ktx:$work_version"
 
+    // ktor clien
+    implementation "io.ktor:ktor-client-core:$ktor_version"
+    implementation "io.ktor:ktor-client-okhttp:$ktor_version"
+
     // ktor server
     implementation "io.ktor:ktor-server-jetty:$ktor_version" // 至少 minSDK26
 

@@ -11,10 +11,12 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navigation
 import com.example.mockdemo.ui.layout.MainScaffold
 import com.example.mockdemo.ui.page.GistPage
 import com.example.mockdemo.ui.page.HomePage
 import com.example.mockdemo.ui.page.MinePage
+import com.example.mockdemo.ui.page.network.KtorClientPage
 import com.example.mockdemo.ui.theme.LibkcdemoTheme
 
 val LocalNavController = staticCompositionLocalOf<NavController> {
@@ -50,6 +52,15 @@ fun NavGraphBuilder.routeRootGraph() {
     }
     composable("mine") {
         MinePage()
+    }
+    routeNetworkGraph()
+}
+
+fun NavGraphBuilder.routeNetworkGraph() {
+    navigation("ktor-client", "network") {
+        composable("ktor-client") {
+            KtorClientPage()
+        }
     }
 }
 
