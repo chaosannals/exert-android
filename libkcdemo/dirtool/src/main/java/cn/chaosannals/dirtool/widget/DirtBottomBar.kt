@@ -2,6 +2,7 @@ package cn.chaosannals.dirtool.widget
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
@@ -29,12 +30,14 @@ fun RowScope.DirtBottomBarButton(
     icon: Painter? = null,
     iconImageVector: ImageVector? = null,
     iconColor: Color? = null,
+    onClick: (() -> Unit)? = null,
 ) {
     Box(
         modifier = Modifier
             .padding(top=4.sdp)
             .weight(1f)
-            .height(44.sdp),
+            .height(44.sdp)
+            .clickable { onClick?.invoke() },
     ) {
         if (icon != null) {
             if (iconColor == null) {

@@ -1,9 +1,13 @@
 package cn.chaosannals.dirtool
 
+import android.Manifest
+import android.app.Activity
+import android.content.Context
+import android.content.pm.PackageManager
 import android.content.res.Resources
 import android.util.DisplayMetrics
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.annotation.NonNull
+import androidx.compose.foundation.layout.*
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -12,6 +16,8 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import kotlin.math.floor
 
 object Dirt {
@@ -92,6 +98,17 @@ inline val Float.spx : Float get() = run {
 
 inline val Double.spx : Double get() = run {
     return this * Dirt.ratio * Dirt.density
+}
+
+fun Context.ensurePermission(permission: String, requestCode: Int) {
+    val sp = ContextCompat.checkSelfPermission(this, permission)
+    if (sp != PackageManager.PERMISSION_GRANTED) {
+        ActivityCompat.requestPermissions(
+            this as Activity,
+            arrayOf(permission),
+            requestCode // 自定标识
+        )
+    }
 }
 
 @Preview

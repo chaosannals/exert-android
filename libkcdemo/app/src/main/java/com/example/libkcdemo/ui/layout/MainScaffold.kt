@@ -20,10 +20,7 @@ import cn.chaosannals.dirtool.LocalNavController
 import cn.chaosannals.dirtool.layout.DirtScaffold
 import cn.chaosannals.dirtool.layout.DirtScaffoldScope
 import cn.chaosannals.dirtool.layout.LocalDirtScaffoldContext
-import cn.chaosannals.dirtool.widget.DirtBottomBar
-import cn.chaosannals.dirtool.widget.DirtBottomBarButton
-import cn.chaosannals.dirtool.widget.DirtTopBar
-import cn.chaosannals.dirtool.widget.DirtTopBarButton
+import cn.chaosannals.dirtool.widget.*
 import com.example.libkcdemo.ui.DesignPreview
 
 @Composable
@@ -31,68 +28,59 @@ fun MainScaffold(
     modifier: Modifier = Modifier,
     content: @Composable DirtScaffoldScope.() -> Unit,
 ) {
-    val navController = rememberNavController()
-
-    CompositionLocalProvider(
-        LocalNavController provides navController,
-    ) {
-        DirtScaffold(
-            modifier = modifier
-                .background(
-                    brush = Brush.verticalGradient(
-                        listOf (
-                            Color(0xFF4499FF),
-                            Color.White,
-                            Color(0xFFF4F4F4),
-                            Color(0xFFF0F0F0),
-                        ),
+    val navController = LocalNavController.current
+    DirtScaffold(
+        modifier = modifier
+            .background(
+                brush = Brush.verticalGradient(
+                    listOf(
+                        Color(0xFF4499FF),
+                        Color.White,
+                        Color(0xFFF4F4F4),
+                        Color(0xFFF0F0F0),
                     ),
+                ),
+            )
+            .fillMaxSize()
+    ) {
+        val scaffold = LocalDirtScaffoldContext.current
+        scaffold.topBarColor = Color.Transparent
+
+        content()
+
+        top {
+            DirtTopBar(
+                onClickBack = { navController.navigateUp() },
+            ) {
+                DirtTopBarButton(Icons.Default.ShoppingCart)
+                DirtTopBarButton(Icons.Default.Settings)
+            }
+        }
+
+        bottom {
+            DirtBottomBar(
+                modifier = Modifier
+            ) {
+                DirtBottomBarButton(
+                    title = "首页",
+                    iconImageVector = Icons.Default.Home,
+                    onClick = { navController.navigate("home")}
                 )
-                .fillMaxSize()
-        ) {
-            val scaffold = LocalDirtScaffoldContext.current
-            scaffold.topBarColor = Color.Transparent
-
-            content()
-
-            top {
-                DirtTopBar(
-                    onClickBack = { navController.navigateUp() },
-                ) {
-                    DirtTopBarButton(Icons.Default.ShoppingCart)
-                    DirtTopBarButton(Icons.Default.Settings)
-                }
+                DirtBottomBarButton(
+                    title = "概览",
+                    iconImageVector = Icons.Default.List,
+                    onClick = { navController.navigate("gist")}
+                )
+                DirtBottomBarButton(
+                    title = "我的",
+                    iconImageVector = Icons.Default.Person,
+                    onClick = { navController.navigate("mine")}
+                )
             }
+        }
 
-            bottom {
-                DirtBottomBar(
-                    modifier = Modifier
-                ) {
-                    DirtBottomBarButton(
-                        title = "首页",
-                        iconImageVector = Icons.Default.Home,
-                    )
-                    DirtBottomBarButton(
-                        title = "列表",
-                        iconImageVector = Icons.Default.List,
-                    )
-                    DirtBottomBarButton(
-                        title = "我的",
-                        iconImageVector = Icons.Default.Person,
-                    )
-                }
-            }
-
-            floating {
-                Box(
-                    modifier = Modifier
-                        .size(40.dp)
-                        .clip(CircleShape)
-                        .background(Color.Green),
-                ) {
-
-                }
-            }
+        floating {
+            DirtFloatingBall()
         }
     }
 }

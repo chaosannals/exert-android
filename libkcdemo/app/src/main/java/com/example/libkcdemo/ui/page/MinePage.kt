@@ -4,25 +4,22 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
-import cn.chaosannals.dirtool.layout.DirtScaffold
 import cn.chaosannals.dirtool.layout.LocalDirtScaffoldContext
 import com.example.libkcdemo.ui.DesignPreview
 
 @Composable
-fun HomePage() {
+fun MinePage() {
     val scaffold = LocalDirtScaffoldContext.current
-    scaffold.title = ""
-    scaffold.isTopBarBackVisible = false
-
+    scaffold.isTopBarBackVisible = true
     Column() {
-        Text("Home")
+        Text("Mine")
     }
 }
 
 @Preview
 @Composable
-fun HomePagePreview() {
+fun MinePagePreview() {
     DesignPreview {
-        HomePage()
+        MinePage()
     }
 }

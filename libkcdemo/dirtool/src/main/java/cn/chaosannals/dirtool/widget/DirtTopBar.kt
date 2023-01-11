@@ -80,17 +80,19 @@ fun DirtTopBar(
             .background(scaffold.topBarColor),
     ) {
         onClickBack?.let {
-            Box(
-                contentAlignment = Alignment.Center,
-                modifier = Modifier.size(40.sdp)
-            ) {
-                Icon(
-                    imageVector = Icons.Default.ArrowBack,
-                    contentDescription = "back",
-                    tint = scaffold.topBarButtonColor,
-                    modifier = Modifier
-                        .size(24.sdp)
-                )
+            if (scaffold.isTopBarBackVisible) {
+                Box(
+                    contentAlignment = Alignment.Center,
+                    modifier = Modifier.size(40.sdp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.ArrowBack,
+                        contentDescription = "back",
+                        tint = scaffold.topBarButtonColor,
+                        modifier = Modifier
+                            .size(24.sdp)
+                    )
+                }
             }
         }
         Text(

@@ -9,22 +9,30 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navigation
 import cn.chaosannals.dirtool.LocalNavController
 import com.example.libkcdemo.ui.layout.MainScaffold
+import com.example.libkcdemo.ui.page.GistPage
 import com.example.libkcdemo.ui.page.HomePage
+import com.example.libkcdemo.ui.page.MinePage
+import com.example.libkcdemo.ui.page.network.KtorServerPage
 import com.example.libkcdemo.ui.theme.LibkcdemoTheme
 
 @Composable
 fun RouteHostBox() {
     val navController = rememberNavController()
-    LibkcdemoTheme {
-        MainScaffold() {
-            NavHost(
-                navController = navController,
-                startDestination = "home",
-                modifier = Modifier.fillMaxSize()
-            ) {
-                routeRootGraph()
+    CompositionLocalProvider(
+        LocalNavController provides navController,
+    ) {
+        LibkcdemoTheme {
+            MainScaffold() {
+                NavHost(
+                    navController = navController,
+                    startDestination = "home",
+                    modifier = Modifier.fillMaxSize()
+                ) {
+                    routeRootGraph()
+                }
             }
         }
     }
@@ -33,6 +41,21 @@ fun RouteHostBox() {
 fun NavGraphBuilder.routeRootGraph() {
     composable("home") {
         HomePage()
+    }
+    composable("gist") {
+        GistPage()
+    }
+    composable("mine") {
+        MinePage()
+    }
+    routeNetworkGraph()
+}
+
+fun NavGraphBuilder.routeNetworkGraph() {
+    navigation("ktor-server", route="network") {
+        composable("ktor-server") {
+            KtorServerPage()
+        }
     }
 }
 

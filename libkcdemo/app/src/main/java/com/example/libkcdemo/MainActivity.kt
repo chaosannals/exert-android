@@ -16,7 +16,6 @@ class MainActivity : ComponentActivity() {
 
         Dirt.designWidthDp = 375.dp
         WindowCompat.setDecorFitsSystemWindows(window,false)
-        window.statusBarColor = Color.Transparent.toArgb()
         setContent { RouteHostBox() }
     }
 }

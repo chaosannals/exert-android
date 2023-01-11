@@ -8,7 +8,6 @@ import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
@@ -28,11 +27,15 @@ class DirtScaffoldContext (
     var titleColor: Color = Color.Black,
     var topBarColor: Color = Color(0xFF4488FF),
     var topBarButtonColor: Color = Color.White,
+    var isTopBarBackVisible: Boolean = true,
     var bottomBarColor: Color = Color.White,
     var isFloatingVisible: Boolean = true,
+    var isFloatingNavigationBar: Boolean = true,
     var floatingRightDp: Dp = 20.sdp,
-    var floatingBottomDp: Dp = 144.sdp,
-)
+    var floatingBottomDp: Dp = 64.sdp,
+) {
+
+}
 
 val LocalDirtScaffoldContext = staticCompositionLocalOf<DirtScaffoldContext> {
     error("not DirtScaffoldContext")
@@ -106,7 +109,6 @@ fun DirtScaffold(
                 Box(
                     modifier=Modifier
                         .constrainAs(bottomRef) {
-                            // top.linkTo(mainRef.bottom, margin=0.dp)
                             bottom.linkTo(parent.bottom, margin=0.dp)
                             start.linkTo(parent.start, margin=0.dp)
                             end.linkTo(parent.end, margin=0.dp)
@@ -115,11 +117,17 @@ fun DirtScaffold(
             }
             compose.floatingCompose?.let {
                 if (scaffold.isFloatingVisible) {
+                    val bottomDp = if (scaffold.isFloatingNavigationBar) {
+                        scaffold.floatingBottomDp + WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
+                    } else {
+                        scaffold.floatingBottomDp
+                    }
+
                     Box(
                         modifier = Modifier
                             .constrainAs(floatingRef) {
                                 end.linkTo(parent.end, margin = scaffold.floatingRightDp)
-                                bottom.linkTo(parent.bottom, margin = scaffold.floatingBottomDp)
+                                bottom.linkTo(parent.bottom, margin = bottomDp)
                             }
                     ) { it() }
                 }
