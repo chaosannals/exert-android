@@ -10,16 +10,21 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import cn.chaosannals.dirtool.ensurePermission
+import com.example.libkcdemo.R
 import com.example.libkcdemo.ui.DesignPreview
 import io.ktor.client.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
+import io.ktor.network.tls.certificates.*
 import io.ktor.server.application.*
 import io.ktor.server.engine.*
 import io.ktor.server.jetty.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.security.KeyStore
 
 @Composable
 fun KtorServerPage() {
@@ -28,13 +33,33 @@ fun KtorServerPage() {
 
     // Server
     LaunchedEffect(Unit) {
-        embeddedServer(Jetty, port=8080) {
-            routing {
-                get("/") {
-                    call.respondText { "Hello" }
+//        val keyStore = KeyStore.getInstance("BKS")
+//        withContext(Dispatchers.IO) {
+//            val f = context.resources.openRawResource(R.raw.demo) // res/raw/demo.jks
+//            keyStore.load(f, "123456".toCharArray())
+//        }
+        val environment = applicationEngineEnvironment {
+            connector {
+                port = 8080
+            }
+            // 安卓上 javax.naming.ldap.LdapName 被剔除了。
+//            sslConnector(
+//                keyStore = keyStore,
+//                keyAlias = "sampleAlias",
+//                keyStorePassword = { "123456".toCharArray() },
+//                privateKeyPassword = { "".toCharArray() },
+//            ) {
+//                port = 8443
+//            }
+            module {
+                routing {
+                    get("/") {
+                        call.respondText { "Hello" }
+                    }
                 }
             }
-        }.start(wait = false)
+        }
+        embeddedServer(Jetty, environment).start(wait = false)
     }
 
 
