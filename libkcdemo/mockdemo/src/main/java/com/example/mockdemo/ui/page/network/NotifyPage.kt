@@ -97,7 +97,7 @@ fun NotifyPage() {
                         .setContentText("progress")
                         .setContentIntent(contentIntent)
                         .setAutoCancel(true) // 自动关闭通知栏，只有设置了 ContentIntent 才起效。
-//                        .setDeleteIntent(cancelIntent) // 滑动取消
+                        .setDeleteIntent(cancelIntent) // 自定义滑动取消 Intent
                         // .setOngoing(true) // 固定通知栏，导致没办法通过滑动取消
                         .setTicker("title")
                         .setWhen(timestamp)

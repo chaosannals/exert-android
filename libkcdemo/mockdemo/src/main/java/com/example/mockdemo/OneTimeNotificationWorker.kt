@@ -23,8 +23,8 @@ class OneTimeNotificationWorker(appContext: Context, workerParames: WorkerParame
     // 使用 setForeground 时必须实现 getForegroundInfo 不然会报没有实现错误。
     override suspend fun getForegroundInfo(): ForegroundInfo {
         val id = "myNotifyChannelId"
-        val name: CharSequence = "getString(R.string.channel_name)"
-        val description = "getString(R.string.channel_description)"
+        val name: CharSequence = "Mock OneTimeNotification Name"
+        val description = "Mock Demo One Time Notification。"
         val importance = NotificationManager.IMPORTANCE_DEFAULT
         val channel = NotificationChannel(id, name, importance)
         channel.description = description
@@ -33,17 +33,16 @@ class OneTimeNotificationWorker(appContext: Context, workerParames: WorkerParame
         manager.createNotificationChannel(channel)
 
         // 点击的时候调用 Intent ，这里使用取消。
-        val cancel = "applicationContext.getString(R.string.cancel_download)"
+        val cancel = "取消"
         val intent = WorkManager.getInstance(applicationContext)
             .createCancelPendingIntent(getId())
 
         val notification = NotificationCompat.Builder(applicationContext, id)
-            .setContentTitle("title")
+            .setContentTitle("OneTime")
             .setTicker("title")
-            .setContentText("progress")
-//            .setSmallIcon(R.drawable.ic_work_notification)
+            .setContentText("单次通知栏消息")
             .setSmallIcon(R.drawable.ic_notifications_active)
-            .setOngoing(true)
+            .setOngoing(true) // 固定通知，使得无法被滑动关闭
             .addAction(android.R.drawable.ic_delete, cancel, intent)
             .build()
 
