@@ -17,6 +17,8 @@ import com.example.mockdemo.ui.page.GistPage
 import com.example.mockdemo.ui.page.HomePage
 import com.example.mockdemo.ui.page.MinePage
 import com.example.mockdemo.ui.page.network.KtorClientPage
+import com.example.mockdemo.ui.page.network.NotifyPage
+import com.example.mockdemo.ui.page.network.NotifyWorkPage
 import com.example.mockdemo.ui.theme.LibkcdemoTheme
 
 val LocalNavController = staticCompositionLocalOf<NavController> {
@@ -60,6 +62,12 @@ fun NavGraphBuilder.routeNetworkGraph() {
     navigation("ktor-client", "network") {
         composable("ktor-client") {
             KtorClientPage()
+        }
+        composable("notify") {
+            NotifyPage()
+        }
+        composable("notify-work") {
+            NotifyWorkPage()
         }
     }
 }

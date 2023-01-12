@@ -29,6 +29,16 @@ fun GistPage() {
             modifier = Modifier
                 .clickable { navController.navigate("ktor-client") }
         )
+        Text(
+            text="notify",
+            modifier = Modifier
+                .clickable { navController.navigate("notify") }
+        )
+        Text(
+            text="notify work",
+            modifier = Modifier
+                .clickable { navController.navigate("notify-work") }
+        )
     }
 }
 
