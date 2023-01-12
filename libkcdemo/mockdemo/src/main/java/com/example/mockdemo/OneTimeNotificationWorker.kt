@@ -16,12 +16,22 @@ class OneTimeNotificationWorker(appContext: Context, workerParames: WorkerParame
     override suspend fun doWork(): Result {
         delay(1000)
         setForeground(getForegroundInfo())
-        delay(10000)
+        delay(1000)
+        setForeground(newForegroundInfo(44))
+        delay(1000)
+        setForeground(newForegroundInfo(84))
+        delay(1000)
+        setForeground(newForegroundInfo(100))
+        delay(4000)
         return Result.success() // 返回时会把通知栏关闭
     }
 
     // 使用 setForeground 时必须实现 getForegroundInfo 不然会报没有实现错误。
     override suspend fun getForegroundInfo(): ForegroundInfo {
+        return newForegroundInfo(0)
+    }
+
+    fun newForegroundInfo(progress: Int): ForegroundInfo {
         val id = "myNotifyChannelId"
         val name: CharSequence = "Mock OneTimeNotification Name"
         val description = "Mock Demo One Time Notification。"
@@ -43,6 +53,8 @@ class OneTimeNotificationWorker(appContext: Context, workerParames: WorkerParame
             .setContentText("单次通知栏消息")
             .setSmallIcon(R.drawable.ic_notifications_active)
             .setOngoing(true) // 固定通知，使得无法被滑动关闭
+            .setOnlyAlertOnce(true) // 单个唯一，这样才能配合进度不断更新进度
+            .setProgress(100, progress, false)
             .addAction(android.R.drawable.ic_delete, cancel, intent)
             .build()
 
