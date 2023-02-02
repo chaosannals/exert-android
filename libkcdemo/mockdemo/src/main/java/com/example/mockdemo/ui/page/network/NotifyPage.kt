@@ -112,7 +112,7 @@ fun NotifyPage() {
                         //.setShowWhen(false)
                         .setSmallIcon(R.drawable.ic_notifications_active)
                         .setLargeIcon(BitmapFactory.decodeResource(context.resources, R.drawable.ic_notifications_active))
-                        .setNumber(234)
+                        .setNumber(24)
                         .setOnlyAlertOnce(true) // 唯一提醒，通过 ID 来防止重复。
                         .setProgress(100, 44, false)
                         .setVibrate(longArrayOf(1000L, 1000L, 400L, 400L)) // 震动间隔
