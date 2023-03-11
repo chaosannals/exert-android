@@ -20,6 +20,7 @@ class MainActivity : ComponentActivity() {
                 openMatchBrandSystemManager(this)
             }
         }
+        registerSecondBroadcastReceiver(this)
         setContent {
             BackpdemoTheme {
                 Surface(

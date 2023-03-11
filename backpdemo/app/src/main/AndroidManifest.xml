@@ -28,6 +28,7 @@
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED"/>
                 <action android:name="android.intent.action.INPUT_METHOD_CHANGED"/>
+                <action android:name="android.intent.action.ACTION_AIRPLANE_MODE_CHANGED"/>
             </intent-filter>
         </receiver>
     </application>

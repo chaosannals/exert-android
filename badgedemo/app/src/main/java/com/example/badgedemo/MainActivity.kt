@@ -36,7 +36,7 @@ class MainActivity : ComponentActivity() {
 //            }
         val r = OneTimeWorkRequestBuilder<BadgerNotificationWorker>()
             .build()
-        WorkManager.getInstance(this).
+        WorkManager.getInstance(this)
 
 
         setContent {
