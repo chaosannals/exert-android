@@ -5,6 +5,7 @@ import androidx.compose.animation.core.FastOutLinearInEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Text
@@ -13,9 +14,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.Layout
+import androidx.compose.ui.layout.ParentDataModifier
 import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.layout.layoutId
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import com.example.anidemo.ui.px2dp
 import java.util.Calendar
@@ -30,6 +33,22 @@ val animationSpec = tween<Float>(
     easing = FastOutLinearInEasing,
 )
 
+interface ScrollColumnScope {
+    fun toAnchor(tag: String)
+
+
+    @Stable
+    fun Modifier.anchorTag(tag: String): Modifier
+}
+
+private class ScrollColumnImpl(
+    val tag: String
+) : ParentDataModifier {
+    override fun Density.modifyParentData(parentData: Any?): Any {
+        return this@ScrollColumnImpl
+    }
+}
+
 @Composable
 fun PullDownPushUpColumn(
     modifier: Modifier = Modifier,
@@ -40,7 +59,7 @@ fun PullDownPushUpColumn(
     onPushUp:((Float) -> Unit)? = null,
     topContent: (@Composable (Float) -> Unit)? = null,
     bottomContent: (@Composable (Float) -> Unit)? = null,
-    content: (@Composable (Float) -> Unit)? = null,
+    content: (@Composable ScrollColumnScope.(Float) -> Unit)? = null,
 ) {
     var contentHeight by remember {
         mutableStateOf(0)
@@ -58,6 +77,21 @@ fun PullDownPushUpColumn(
     }
     var pullPushAnimating by remember {
         mutableStateOf(false)
+    }
+    val tags = mutableMapOf<String, Float>()
+
+    val scope = object: ScrollColumnScope {
+        override fun toAnchor(tag: String) {
+            Log.d("myanchor", "on toAnchor ${tag} | ${tags.size}")
+            if (tags.containsKey(tag)) {
+                Log.d("myanchor", "toAnchor ${tag} ${tags[tag]}")
+                scrollAll = -tags[tag]!!
+            }
+        }
+
+        override fun Modifier.anchorTag(tag: String): Modifier {
+            return this.then(ScrollColumnImpl(tag))
+        }
     }
 
     val scrollState = rememberScrollableState {
@@ -162,7 +196,7 @@ fun PullDownPushUpColumn(
                 ) {
                     topContent?.invoke(scrollAll)
                 }
-                content?.invoke(scrollAll)
+                content?.invoke(scope, scrollAll)
                 Box(
                     modifier = Modifier
                         .layoutId("bottom")
@@ -181,6 +215,12 @@ fun PullDownPushUpColumn(
                 for (m in ms) {
                     val p = m.measure(cs)
                     val x = 0
+                    val ppd = p.parentData
+                    if (ppd is ScrollColumnImpl) {
+                        tags[ppd.tag] = heightSum.toFloat()
+                        Log.d("myanchor", "set ${ppd.tag} = ${heightSum}")
+                    }
+
                     when (m.layoutId) {
                         "top" -> tp = p
                         "bottom" -> bp = p
@@ -191,6 +231,7 @@ fun PullDownPushUpColumn(
                         }
                     }
                 }
+
                 contentHeight = heightSum
                 contentSurplusHeight = if (cs.maxHeight > contentHeight) 0 else cs.maxHeight - contentHeight
                 Log.d("pulldownpushup", "cmh: ${cs.maxHeight} | ch: ${contentHeight} | csh: ${contentSurplusHeight}")
@@ -210,9 +251,13 @@ fun PullDownPushUpColumn(
 fun PullDowPushUpColumnPreview() {
     PullDownPushUpColumn() {
         Text(
-            text = "一些内容",
+            text = "转到锚点",
             modifier = Modifier
                 .border(1.dp, Color.Cyan)
+                .clickable {
+                    Log.d("myanchor", "on click")
+                    toAnchor("myanchor")
+                }
         )
         for (i in 1..10) {
             Box(
@@ -224,6 +269,10 @@ fun PullDowPushUpColumnPreview() {
                 Text(text = i.toString())
             }
         }
+        Text(
+            text = "一个锚点",
+            modifier = Modifier.anchorTag("myanchor")
+        )
         Text(
             text = "底下一些内容",
             modifier = Modifier

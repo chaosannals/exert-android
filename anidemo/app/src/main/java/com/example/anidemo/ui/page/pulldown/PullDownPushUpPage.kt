@@ -1,5 +1,6 @@
 package com.example.anidemo.ui.page.pulldown
 
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -83,6 +84,14 @@ fun PullDownPushUpPage() {
                     }
                 }
         )
+        Text(
+            text="转到锚点",
+            modifier = Modifier
+                .clickable {
+                    Log.d("myanchor", "on click")
+                    toAnchor("myanchor")
+                }
+        )
         for (i in 0..boxCount) {
             Box(
                 modifier = Modifier
@@ -93,6 +102,11 @@ fun PullDownPushUpPage() {
                 Text(text = i.toString())
             }
         }
+        Text(
+            text = "锚点",
+            modifier = Modifier
+                .anchorTag("myanchor")
+        )
         Text(
             text = "减少一些内容",
             modifier = Modifier

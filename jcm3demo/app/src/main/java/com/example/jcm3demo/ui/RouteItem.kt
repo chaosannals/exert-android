@@ -8,6 +8,7 @@ import com.example.jcm3demo.ui.page.tool.*
 
 // 路由配置
 enum class RouteItem(var route: String, var page: @Composable () -> Unit) {
+    @OptIn(ExperimentalMaterial3Api::class)
     Conf("conf", { ConfPage() }),
     Home("home", { HomePage() }),
     Tool("tool", { ToolPage() }),
