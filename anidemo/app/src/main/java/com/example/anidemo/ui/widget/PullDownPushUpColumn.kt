@@ -24,11 +24,11 @@ import com.example.anidemo.ui.px2dp
 import java.util.Calendar
 import kotlin.math.abs
 
-fun hinderScroll(it: Float, sa: Float, mv: Float, lv: Float) : Float {
+private fun hinderScroll(it: Float, sa: Float, mv: Float, lv: Float) : Float {
     return (it * 0.4f * (mv - abs(sa - lv)) / mv)
 }
 
-val animationSpec = tween<Float>(
+private val animationSpec = tween<Float>(
     durationMillis = 444,
     easing = FastOutLinearInEasing,
 )
@@ -36,13 +36,13 @@ val animationSpec = tween<Float>(
 interface ScrollColumnScope {
     fun toAnchor(tag: String)
 
-
     @Stable
     fun Modifier.anchorTag(tag: String): Modifier
 }
 
 private class ScrollColumnImpl(
-    val tag: String
+    val tag: String,
+    val onNear: (() -> Unit)? = null,
 ) : ParentDataModifier {
     override fun Density.modifyParentData(parentData: Any?): Any {
         return this@ScrollColumnImpl
@@ -59,6 +59,7 @@ fun PullDownPushUpColumn(
     onPushUp:((Float) -> Unit)? = null,
     topContent: (@Composable (Float) -> Unit)? = null,
     bottomContent: (@Composable (Float) -> Unit)? = null,
+    onNearTag: ((String) -> Unit)? = null,
     content: (@Composable ScrollColumnScope.(Float) -> Unit)? = null,
 ) {
     var contentHeight by remember {
@@ -77,6 +78,10 @@ fun PullDownPushUpColumn(
     }
     var pullPushAnimating by remember {
         mutableStateOf(false)
+    }
+
+    var nearTag: String? by remember {
+        mutableStateOf(null)
     }
     val tags = mutableMapOf<String, Float>()
 
@@ -228,6 +233,32 @@ fun PullDownPushUpColumn(
                             val y = heightSum + sai
                             heightSum += p.height
                             p.place(x, y)
+                        }
+                    }
+                }
+
+                onNearTag?.let { near ->
+                    var nearY = if (tags.containsKey(nearTag)) {
+                        tags[nearTag]
+                    } else {
+                        null
+                    }
+
+                    val sa = abs(scrollAll)
+                    tags.forEach { t, y ->
+                        if (nearTag == null) {
+                            nearTag = t
+                            nearY = y
+                            near(t)
+                        } else if (nearTag != t) {
+                            val nd = abs(nearY!! - sa)
+                            val d = abs(y - sa)
+                            Log.d("myanchor", "d: ${d}   nd: ${nd}")
+                            if (d < nd) {
+                                nearTag = t
+                                nearY = y
+                                near(t)
+                            }
                         }
                     }
                 }
