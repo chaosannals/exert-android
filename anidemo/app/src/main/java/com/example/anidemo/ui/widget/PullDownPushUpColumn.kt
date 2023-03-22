@@ -100,7 +100,7 @@ fun PullDownPushUpColumn(
     }
 
     val scrollState = rememberScrollableState {
-        Log.d("pulldownpushup", "scrolling: ${it}")
+        // Log.d("pulldownpushup", "scrolling: ${it}")
 
         val sv = when {
             !pullPushAnimating && scrollAll > 0f -> {

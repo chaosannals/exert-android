@@ -75,6 +75,9 @@ fun NavGraphBuilder.pulldownGraph() {
     composable("stickycolumn") {
         StickyColumnPage()
     }
+    composable("areapick") {
+        AreaPickPage()
+    }
 }
 
 @Composable

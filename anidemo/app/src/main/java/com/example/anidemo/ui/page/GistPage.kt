@@ -70,6 +70,13 @@ fun GistPage() {
                     nc.navigate("stickycolumn")
                 }
         )
+        Text(
+            text = "AreaPick",
+            modifier = Modifier
+                .clickable {
+                    nc.navigate("areapick")
+                }
+        )
     }
 }
 
