@@ -5,7 +5,6 @@ import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.rememberScrollableState
 import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.*
-import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -13,27 +12,9 @@ import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.anidemo.ui.sdp
 import com.example.anidemo.ui.sf
-import com.example.anidemo.ui.ssp
-
-@Composable
-fun AreaRow(
-    text: String,
-    color: Color = Color(0xFFC1C1C1),
-) {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(29.sdp),
-    ) {
-        Text(
-            text = text,
-            color = color,
-            fontSize = 13.ssp,
-            modifier = Modifier
-                .padding(vertical = 5.sdp),
-        )
-    }
-}
+import kotlin.math.floor
+import kotlin.math.max
+import kotlin.math.min
 
 @Composable
 fun AreaColumn(
@@ -42,6 +23,14 @@ fun AreaColumn(
     selected: AreaItem? = null,
     onSelected: ((AreaItem) -> Unit)? = null,
 ) {
+    val selectedIndex = max(items.indexOf(selected), 0)
+    val lineHeight = 29f.sf
+    val startIndent = lineHeight * 2
+
+    var lineCurrent by remember {
+        mutableStateOf(selectedIndex)
+    }
+
     var contentHeight by remember {
         mutableStateOf(0)
     }
@@ -49,29 +38,49 @@ fun AreaColumn(
         mutableStateOf(0)
     }
     var scrollAll by remember {
-        val i = items.indexOf(selected)
-        val start = if (i >= 0) -29f.sf * i else 0f
-        mutableStateOf(start + 58f.sf)
-    }
-    var selectAnimating by remember {
-        mutableStateOf(false)
+        val start = if (selectedIndex >= 0) -lineHeight * selectedIndex else 0f
+        mutableStateOf(start + startIndent)
     }
     val scrollState = rememberScrollableState {
-        Log.d("areapicker", "scrolling: ${scrollAll}  ${58f.sf} ${contentHeight} ${contentSurplusHeight}")
+        //Log.d("areapicker", "scrolling: ${scrollAll}  ${startIndent} ${contentHeight} ${contentSurplusHeight}")
 
-        val start = 58f.sf
-        //val end = if (contentSurplusHeight == 0) - 58f.sf else contentSurplusHeight + 58f.sf
+        //val end = if (contentSurplusHeight == 0) - startIndent else contentSurplusHeight + startIndent
 
         val sv = when {
-            selectAnimating -> it
-            scrollAll > start -> -(scrollAll - start + 1f)
-            (contentSurplusHeight == 0 && scrollAll < 58f.sf) -> (scrollAll - 58f.sf) + 1f
-            scrollAll < (contentSurplusHeight - 58f.sf) -> -(scrollAll - contentSurplusHeight + 58f.sf) + 1f
+            scrollAll > startIndent -> -(scrollAll - startIndent + 1f)
+            contentSurplusHeight == 0 -> {
+                if (scrollAll < startIndent) {
+                    (scrollAll - startIndent) + 1f
+                } else {
+                    // TODO
+                    it
+                }
+            }
+            scrollAll < (contentSurplusHeight - startIndent) -> -(scrollAll - contentSurplusHeight + startIndent) + 1f
             else -> it
         }
 
         scrollAll += sv
+        lineCurrent = min(items.size - 1, floor(-(scrollAll - startIndent - 0.5 * lineHeight) / lineHeight).toInt())
+        Log.d("areapicker", "line: ${lineCurrent} scrolling: ${scrollAll}  ${startIndent} ${contentHeight} ${contentSurplusHeight}")
         sv
+    }
+
+    LaunchedEffect(selectedIndex) {
+        Log.d("areapicker", "launched line: ${selectedIndex}")
+        lineCurrent = selectedIndex
+        scrollAll = startIndent - (lineCurrent * lineHeight)
+    }
+
+    LaunchedEffect(scrollState.isScrollInProgress) {
+        if (!scrollState.isScrollInProgress) {
+            scrollAll = startIndent - (lineCurrent * lineHeight)
+
+            if (selectedIndex != lineCurrent) {
+                val index = max(min(lineCurrent, items.size - 1), 0)
+                onSelected?.invoke(items[index])
+            }
+        }
     }
 
     Layout(
@@ -82,10 +91,10 @@ fun AreaColumn(
                 orientation = Orientation.Vertical,
             ),
         content = {
-            items.forEach {
+            items.forEachIndexed { i, it ->
                 var color = Color(0xFFC1C1C1)
                 selected?.let {s ->
-                    if (it.id == s.id) {
+                    if (i == lineCurrent) {
                         color = Color(0xFF333333)
                     }
                 }

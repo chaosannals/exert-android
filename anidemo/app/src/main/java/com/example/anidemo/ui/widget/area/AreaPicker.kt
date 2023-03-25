@@ -17,31 +17,34 @@ fun AreaPicker(
     items: List<AreaItem>,
     modifier: Modifier = Modifier,
 ) {
-    var lv1 by remember {
+    val lv1items: List<AreaItem> by remember {
         mutableStateOf(
-            AreaItem(
-                id = 110000,
-                parentId = 0,
-                name="北京市",
-            )
+            items.filter { it.parentId == 0 }
         )
     }
-    var lv2 by remember {
+    var lv1: AreaItem? by remember {
         mutableStateOf(
-            AreaItem(
-                id = 110100,
-                parentId = 110000,
-                name="北京市",
-            )
+            lv1items[0]
         )
     }
-    var lv3 by remember {
+    var lv2items: List<AreaItem> by remember {
         mutableStateOf(
-            AreaItem(
-                id = 110101,
-                parentId = 110100,
-                name="东城区",
-            )
+            items.filter { if (lv1 != null) it.parentId == lv1!!.id else false }
+        )
+    }
+    var lv2: AreaItem? by remember {
+        mutableStateOf(
+            lv2items[0]
+        )
+    }
+    var lv3items: List<AreaItem> by remember {
+        mutableStateOf(
+            items.filter { if (lv2 != null) it.parentId == lv2!!.id else false }
+        )
+    }
+    var lv3: AreaItem? by remember {
+        mutableStateOf(
+            lv3items[0]
         )
     }
 
@@ -71,18 +74,31 @@ fun AreaPicker(
                 .zIndex(10f),
         ) {
             AreaColumn(
-                items = items.filter { it.parentId == 0 },
+                items = lv1items,
                 selected = lv1,
+                onSelected = {
+                    lv1 = it
+                    lv2items = items.filter { if (lv1 != null) it.parentId == lv1!!.id else false }
+                    lv2 = lv2items[0]
+                    lv3items = items.filter { if (lv2 != null) it.parentId == lv2!!.id else false }
+                    lv3 = lv3items[0]
+                             },
                 modifier = Modifier.weight(1f),
             )
             AreaColumn(
-                items = items.filter { it.parentId == lv1.id },
+                items = lv2items,
                 selected = lv2,
+                onSelected = {
+                    lv2 = it
+                    lv3items = items.filter { if (lv2 != null) it.parentId == lv2!!.id else false }
+                    lv3 = lv2items[0]
+                             },
                 modifier = Modifier.weight(1f),
             )
             AreaColumn(
-                items = items.filter { it.parentId == lv2.id },
+                items = lv3items,
                 selected = lv3,
+                onSelected = { lv3 = it },
                 modifier = Modifier.weight(1f),
             )
         }
