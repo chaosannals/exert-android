@@ -34,35 +34,26 @@ fun AreaColumn(
     var contentHeight by remember {
         mutableStateOf(0)
     }
-    var contentSurplusHeight by remember {
+    var scrollBottom by remember {
         mutableStateOf(0)
     }
+
     var scrollAll by remember {
         val start = if (selectedIndex >= 0) -lineHeight * selectedIndex else 0f
         mutableStateOf(start + startIndent)
     }
     val scrollState = rememberScrollableState {
-        //Log.d("areapicker", "scrolling: ${scrollAll}  ${startIndent} ${contentHeight} ${contentSurplusHeight}")
-
-        //val end = if (contentSurplusHeight == 0) - startIndent else contentSurplusHeight + startIndent
+        //Log.d("areapicker", "scrolling: ${scrollAll}  ${startIndent} ${contentHeight} ${scrollBottom}")
 
         val sv = when {
             scrollAll > startIndent -> -(scrollAll - startIndent + 1f)
-            contentSurplusHeight == 0 -> {
-                if (scrollAll < startIndent) {
-                    (scrollAll - startIndent) + 1f
-                } else {
-                    // TODO
-                    it
-                }
-            }
-            scrollAll < (contentSurplusHeight - startIndent) -> -(scrollAll - contentSurplusHeight + startIndent) + 1f
+            scrollAll < scrollBottom -> -(scrollAll - scrollBottom) + 1f
             else -> it
         }
 
         scrollAll += sv
         lineCurrent = min(items.size - 1, floor(-(scrollAll - startIndent - 0.5 * lineHeight) / lineHeight).toInt())
-        Log.d("areapicker", "line: ${lineCurrent} scrolling: ${scrollAll}  ${startIndent} ${contentHeight} ${contentSurplusHeight}")
+        Log.d("areapicker", "line: ${lineCurrent} scrolling: ${scrollAll}  ${startIndent} ${contentHeight} ${scrollBottom}")
         sv
     }
 
@@ -114,7 +105,7 @@ fun AreaColumn(
             }
 
             contentHeight = heightSum
-            contentSurplusHeight = if (cs.maxHeight > contentHeight) 0 else cs.maxHeight - contentHeight
+            scrollBottom = cs.maxHeight - contentHeight - startIndent.toInt()
         }
     }
 }
