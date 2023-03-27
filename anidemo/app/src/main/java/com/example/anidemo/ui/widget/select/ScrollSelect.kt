@@ -1,15 +1,22 @@
-package com.example.anidemo.ui.widget.area
+package com.example.anidemo.ui.widget.select
 
 import android.util.Log
+import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.rememberScrollableState
 import androidx.compose.foundation.gestures.scrollable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.tooling.preview.Preview
+import com.example.anidemo.ui.DesignPreview
 import com.example.anidemo.ui.sdp
 import com.example.anidemo.ui.sf
 import kotlin.math.floor
@@ -17,14 +24,14 @@ import kotlin.math.max
 import kotlin.math.min
 
 @Composable
-fun AreaColumn(
-    items: List<AreaItem>,
+fun ScrollSelect(
+    items: List<ScrollOption>,
     modifier: Modifier = Modifier,
-    selected: AreaItem? = null,
-    onSelected: ((AreaItem) -> Unit)? = null,
+    selected: ScrollOption? = null,
+    onSelected: ((ScrollOption) -> Unit)? = null,
 ) {
     val selectedIndex = max(items.indexOf(selected), 0)
-    val lineHeight = 29f.sf
+    val lineHeight = scrollOptionLineHeight.sf
     val startIndent = lineHeight * 2
 
     var lineCurrent by remember {
@@ -74,93 +81,67 @@ fun AreaColumn(
         }
     }
 
-    Layout(
+    Box (
         modifier = modifier
-            .scrollable(
-                state = scrollState,
-                enabled = true,
-                orientation = Orientation.Vertical,
-            ),
-        content = {
-            items.forEachIndexed { i, it ->
-                var color = Color(0xFFC1C1C1)
-                selected?.let {s ->
+            .fillMaxWidth()
+            .height(400.sdp)
+            .background(Color.White)
+            .clip(RectangleShape)
+    ) {
+        Layout(
+            modifier = Modifier
+                .scrollable(
+                    state = scrollState,
+                    enabled = true,
+                    orientation = Orientation.Vertical,
+                ),
+            content = {
+                items.forEachIndexed { i, it ->
+                    var color = Color(0xFFC1C1C1)
                     if (i == lineCurrent) {
                         color = Color(0xFF333333)
                     }
+                    ScrollSelectRow(it.text, color)
                 }
-                AreaRow(it.name, color)
             }
-        }
-    ) {ms, cs ->
-        val sai = scrollAll.toInt()
-        layout(cs.maxWidth, cs.maxHeight) {
-            var heightSum = 0
-            for (m in ms) {
-                val p = m.measure(cs)
-                val x = 0
-                val y = heightSum + sai
-                heightSum += p.height
-                p.place(x, y)
-            }
+        ) { ms, cs ->
+            val sai = scrollAll.toInt()
+            layout(cs.maxWidth, cs.maxHeight) {
+                var heightSum = 0
+                for (m in ms) {
+                    val p = m.measure(cs)
+                    val x = 0
+                    val y = heightSum + sai
+                    heightSum += p.height
+                    p.place(x, y)
+                }
 
-            contentHeight = heightSum
-            scrollBottom = - contentHeight + startIndent.toInt() + lineHeight.toInt()
-            Log.d("areapicker", "maxHeight: ${cs.maxHeight}")
+                contentHeight = heightSum
+                scrollBottom = - contentHeight + startIndent.toInt() + lineHeight.toInt()
+                Log.d("areapicker", "maxHeight: ${cs.maxHeight}")
+            }
         }
     }
 }
 
 @Preview
 @Composable
-fun AreaColumnPreview() {
-    // val areaItems = LoadAreaItems(LocalContext.current)
-    var lv1 by remember {
-        mutableStateOf(
-            AreaItem(
-                id = 110000,
-                parentId = 0,
-                name="北京市",
-            )
-        )
+fun ScrollSelectColumnPreview() {
+    val items = defaultScrollOptions
+    var selected: ScrollOption? by remember {
+        mutableStateOf(null)
     }
-    var lv2 by remember {
-        mutableStateOf(
-            AreaItem(
-                id = 110100,
-                parentId = 110000,
-                name="北京市",
+    DesignPreview() {
+        Box(
+            modifier = Modifier
+                .width(200.sdp)
+                .height(600.sdp)
+        ) {
+            ScrollSelect(
+                items = items,
+                selected = selected,
+                onSelected = { selected = it },
             )
-        )
-    }
-    var lv3 by remember {
-        mutableStateOf(
-            AreaItem(
-                id = 110101,
-                parentId = 110100,
-                name="东城区",
-            )
-        )
-    }
-    Row (
-        modifier= Modifier
-            .fillMaxWidth()
-            .height(150.sdp),
-    ) {
-        AreaColumn(
-            items = defaultAreaItems.filter { it.parentId == 0 },
-            selected = lv1,
-            modifier = Modifier.weight(1f),
-        )
-        AreaColumn(
-            items = defaultAreaItems.filter { it.parentId == lv1.id },
-            selected = lv2,
-            modifier = Modifier.weight(1f),
-        )
-        AreaColumn(
-            items = defaultAreaItems.filter { it.parentId == lv2.id },
-            selected = lv3,
-            modifier = Modifier.weight(1f),
-        )
+        }
     }
 }

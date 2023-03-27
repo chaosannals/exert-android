@@ -50,7 +50,7 @@ fun AreaPicker(
 
     Box(
         contentAlignment = Alignment.Center,
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .height(150.sdp)
             .background(Color.White)
