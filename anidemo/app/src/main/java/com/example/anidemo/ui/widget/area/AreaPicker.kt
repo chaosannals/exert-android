@@ -8,6 +8,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.zIndex
 import com.example.anidemo.ui.sdp
@@ -109,6 +110,6 @@ fun AreaPicker(
 @Composable
 fun AreaPickerPreview() {
     AreaPicker(
-        items= defaultAreaItems,
+        items= LoadAreaItems(LocalContext.current),
     )
 }

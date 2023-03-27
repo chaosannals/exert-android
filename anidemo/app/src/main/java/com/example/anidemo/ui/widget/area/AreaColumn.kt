@@ -9,6 +9,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.Layout
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.anidemo.ui.sdp
 import com.example.anidemo.ui.sf
@@ -114,7 +115,7 @@ fun AreaColumn(
 @Preview
 @Composable
 fun AreaColumnPreview() {
-    // val areaItems = LoadAreaItems(LocalContext.current)
+     val areaItems = LoadAreaItems(LocalContext.current)
     var lv1 by remember {
         mutableStateOf(
             AreaItem(
@@ -148,17 +149,17 @@ fun AreaColumnPreview() {
             .height(150.sdp),
     ) {
         AreaColumn(
-            items = defaultAreaItems.filter { it.parentId == 0 },
+            items = areaItems.filter { it.parentId == 0 },
             selected = lv1,
             modifier = Modifier.weight(1f),
         )
         AreaColumn(
-            items = defaultAreaItems.filter { it.parentId == lv1.id },
+            items = areaItems.filter { it.parentId == lv1.id },
             selected = lv2,
             modifier = Modifier.weight(1f),
         )
         AreaColumn(
-            items = defaultAreaItems.filter { it.parentId == lv2.id },
+            items = areaItems.filter { it.parentId == lv2.id },
             selected = lv3,
             modifier = Modifier.weight(1f),
         )
