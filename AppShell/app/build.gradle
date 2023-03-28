@@ -22,9 +22,24 @@ android {
     }
 
     buildTypes {
+        // 必须 HTTPS
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+
+            resValue("bool", "http_allow", "false")
+
+            signingConfig signingConfigs.debug
+        }
+
+        // debug 允许 http
+        debug {
+            applicationIdSuffix ".debug"
+            debuggable true
+
+            resValue("bool", "http_allow", "true")
+
+            signingConfig signingConfigs.debug
         }
     }
     compileOptions {
@@ -68,7 +83,7 @@ dependencies {
     implementation 'org.mongodb:bson:4.9.0'
 
     // x5
-    api 'com.tencent.tbs:tbssdk:44226'
+    api 'com.tencent.tbs:tbssdk:44286'
 
     testImplementation 'junit:junit:4.13.2'
 
