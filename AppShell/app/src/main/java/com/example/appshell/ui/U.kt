@@ -1,5 +1,8 @@
 package com.example.appshell.ui
 
+import android.Manifest
+import android.app.Activity
+import android.content.pm.PackageManager
 import android.content.res.Resources
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
@@ -11,6 +14,8 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import kotlin.math.floor
 
 object U {
@@ -93,7 +98,7 @@ inline val Double.dp2px : Float get() = run {
     return (this * U.ratio * U.density).toFloat()
 }
 
-fun Modifier.mockShadowLayer(
+fun Modifier.shadow2(
     color: Color = Color(0xFFF2F7FA),
     alpha: Float = 1f,
     cornersRadius: Dp = 0.dp,
@@ -123,6 +128,21 @@ fun Modifier.mockShadowLayer(
             cornersRadius.toPx(),
             cornersRadius.toPx(),
             paint
+        )
+    }
+}
+
+// 检查权限，无则申请。
+fun ensurePermit(context: Activity, permission: String, code: Int = 1) {
+    val sp = ContextCompat.checkSelfPermission(
+        context,
+        permission
+    )
+    if (sp != PackageManager.PERMISSION_GRANTED) {
+        ActivityCompat.requestPermissions(
+            context,
+            arrayOf(permission),
+            code // 自定标识
         )
     }
 }

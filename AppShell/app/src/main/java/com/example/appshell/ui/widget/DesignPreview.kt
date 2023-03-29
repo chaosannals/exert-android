@@ -6,9 +6,10 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.rememberNavController
-import com.example.appshell.LocalNavController
+import com.example.appshell.*
 import com.example.appshell.ui.sdp
 
 @Composable
@@ -31,6 +32,8 @@ fun DesignPreview(
 
     CompositionLocalProvider(
         LocalNavController provides rememberNavController(),
+        LocalAppDatabase provides  rememberAppDatabase(context = LocalContext.current),
+        LocalMainScrollSubject provides rememberMainScrollSubject {},
     ) {
         Box(
             contentAlignment = Alignment.TopStart,

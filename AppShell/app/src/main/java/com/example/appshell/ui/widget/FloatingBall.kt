@@ -12,7 +12,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
-import com.example.appshell.ui.mockShadowLayer
+import com.example.appshell.ui.shadow2
 import com.example.appshell.ui.sdp
 
 @Composable
@@ -25,7 +25,7 @@ fun FloatingBall(
         modifier = modifier
             .clickable { onClick() }
             .aspectRatio(1f)
-            .mockShadowLayer(
+            .shadow2(
                 alpha = 0.9f,
                 cornersRadius = 50.sdp,
                 shadowBlurRadius = 0.4.sdp,
