@@ -17,6 +17,7 @@ import com.example.appshell.db.AppDatabase
 import com.example.appshell.db.WebViewConf
 import com.example.appshell.ui.MainBox
 import com.example.appshell.ui.ensurePermit
+import com.example.appshell.ui.widget.form.FormContext
 import com.tencent.smtt.export.external.TbsCoreSettings
 import com.tencent.smtt.sdk.QbSdk
 import io.reactivex.rxjava3.subjects.PublishSubject
@@ -32,6 +33,10 @@ val LocalAppDatabase = staticCompositionLocalOf<AppDatabase> {
 
 val LocalMainScrollSubject = staticCompositionLocalOf<PublishSubject<Float>> {
     error("No Main Scroll subject provided!")
+}
+
+val LocalFormContext = staticCompositionLocalOf<FormContext> {
+    error("No Form context")
 }
 
 @Composable
@@ -53,6 +58,14 @@ fun rememberMainScrollSubject(action: (Float) -> Unit) : PublishSubject<Float> {
         mutableStateOf(r)
     }
     return sps
+}
+
+@Composable
+fun rememberFormContext() : FormContext {
+    val r by remember {
+        mutableStateOf(FormContext())
+    }
+    return r
 }
 
 class MainActivity : ComponentActivity() {

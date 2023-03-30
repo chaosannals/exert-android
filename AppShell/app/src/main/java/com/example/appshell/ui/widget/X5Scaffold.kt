@@ -1,12 +1,14 @@
 package com.example.appshell.ui.widget
 
 import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.gestures.draggable
 import androidx.compose.foundation.gestures.rememberDraggableState
 import androidx.compose.foundation.layout.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.window.Popup
@@ -23,6 +25,7 @@ fun X5Scaffold(
         mutableStateOf(false)
     }
 
+    var offsetX by remember { mutableStateOf(0f) }
     var offsetY by remember { mutableStateOf(0f) }
 
     Box(
@@ -39,13 +42,27 @@ fun X5Scaffold(
             FloatingBall(
                 modifier = Modifier
                     .size(44.sdp)
-                    .offset { IntOffset(0, offsetY.roundToInt()) }
-                    .draggable(
-                        orientation = Orientation.Vertical,
-                        state = rememberDraggableState() {
-                            offsetY += it
+                    .offset {
+                        IntOffset(
+                            offsetX.roundToInt(),
+                            offsetY.roundToInt(),
+                        )
+                    }
+                        // 这种只能单轴
+//                    .draggable(
+//                        orientation = Orientation.Vertical,
+//                        state = rememberDraggableState() {
+//                            offsetY += it
+//                        }
+//                    )
+                    .pointerInput(Unit) {
+                        detectDragGestures { change, dragAmount ->
+                            change.consume()
+                            offsetX += dragAmount.x
+                            offsetY += dragAmount.y
                         }
-                    ),
+                    }
+                ,
                 onClick = {
                     isShowDebugger = true
                 },

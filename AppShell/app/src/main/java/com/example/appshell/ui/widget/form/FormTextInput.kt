@@ -39,6 +39,7 @@ fun FormTextInput(
         mutableStateOf(validateFormText(
             text,
             isRequired,
+            isNullable,
             onValidate,
         ))
     }
@@ -48,6 +49,7 @@ fun FormTextInput(
         validateResult = validateFormText(
             text,
             isRequired,
+            isNullable,
             onValidate,
         )
     }
@@ -99,6 +101,7 @@ fun FormTextInput(
                     validateResult = validateFormText(
                         text,
                         isRequired,
+                        isNullable,
                         onValidate,
                     )
                     //Toast.makeText(context, "ovc: ${text} $validateResult", Toast.LENGTH_SHORT).show()
@@ -149,7 +152,7 @@ fun FormTextInputPreview() {
         mutableStateOf("1458752654@qq.com")
     }
 
-    DesignPreview() {
+    DesignPreview {
         Form {
             FormTextInput(
                 title="邮件",

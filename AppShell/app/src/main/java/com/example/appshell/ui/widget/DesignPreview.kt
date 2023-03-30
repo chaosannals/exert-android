@@ -34,6 +34,7 @@ fun DesignPreview(
         LocalNavController provides rememberNavController(),
         LocalAppDatabase provides  rememberAppDatabase(context = LocalContext.current),
         LocalMainScrollSubject provides rememberMainScrollSubject {},
+        LocalFormContext provides rememberFormContext(),
     ) {
         Box(
             contentAlignment = Alignment.TopStart,

@@ -74,9 +74,10 @@ fun adaptText(
 fun validateFormText(
     text: String?,
     isRequired: Boolean,
+    isNullable: Boolean,
     onValidate: ((String?) -> String?)? = null,
 ):String? {
-    return if (isRequired && text == null) {
+    return if (isRequired && ((isNullable && text == null) || (!isNullable && (text ?: "").isEmpty()))) {
         "必填的"
     } else {
         onValidate?.invoke(text)

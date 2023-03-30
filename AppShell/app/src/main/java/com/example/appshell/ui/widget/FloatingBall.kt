@@ -10,6 +10,7 @@ import androidx.compose.material.icons.filled.Settings
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.appshell.ui.shadow2
@@ -23,7 +24,6 @@ fun FloatingBall(
     Box(
         contentAlignment = Alignment.Center,
         modifier = modifier
-            .clickable { onClick() }
             .aspectRatio(1f)
             .shadow2(
                 alpha = 0.9f,
@@ -32,7 +32,9 @@ fun FloatingBall(
                 offsetY = 1.sdp
             )
             .padding(1.sdp)
-            .background(Color.White, CircleShape),
+            .background(Color.White, CircleShape)
+            .clip(CircleShape)
+            .clickable { onClick() },
     ) {
         Icon(
             imageVector = Icons.Default.Settings,

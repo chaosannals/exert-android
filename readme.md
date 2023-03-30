@@ -1,5 +1,13 @@
 # android
 
+## Jetpack Compose
+
+### Modifier 修改器
+
+修改器本身带顺序，所以表现力上比  CSS 要好很多。
+例子：.clickable {}.clip()  和 clip().clickable{} 区别在于裁剪区和点击区。而 CSS 则不能，因为各个属性都是申明式，先后顺序是属性优先级决定的。 backgroud: red; width 100px;  和 width: 100px background: red 一样的。
+
+
 ## 目录
 
 ### anidemo
