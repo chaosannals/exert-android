@@ -63,7 +63,6 @@ fun DebugView(
                      .aspectRatio(1f)
                      .fillMaxSize(0.84f)
                      .clickable {
-
                          navController.navigate("home-page")
                      }
                  ,
@@ -75,7 +74,6 @@ fun DebugView(
                      .aspectRatio(1f)
                      .fillMaxSize(0.84f)
                      .clickable {
-                         
                          navController.navigate("tbs-page")
                      }
                  ,

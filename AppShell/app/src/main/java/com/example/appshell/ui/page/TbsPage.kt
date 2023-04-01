@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import com.example.appshell.db.WebViewConf
 import com.example.appshell.ui.widget.DesignPreview
 import com.example.appshell.ui.widget.X5WebShell
 
@@ -18,7 +19,11 @@ fun TbsPage() {
             .navigationBarsPadding()
             .fillMaxSize()
     ) {
-        X5WebShell("http://debugx5.qq.com")
+        X5WebShell(WebViewConf(
+            id = 1,
+            startUrl = "http://debugx5.qq.com",
+            valName = "app"
+        ))
     }
 }
 

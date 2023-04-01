@@ -1,5 +1,7 @@
 package com.example.appshell.ui.widget
 
+import android.Manifest
+import android.app.Activity
 import android.content.Intent
 import android.net.Uri
 import android.os.Message
@@ -8,16 +10,26 @@ import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.addCallback
 import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.statusBars
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import com.example.appshell.LocalNavController
+import com.example.appshell.db.WebViewConf
+import com.example.appshell.js.KjsObject
+import com.example.appshell.ui.U
+import com.example.appshell.ui.dp2px
+import com.example.appshell.ui.ensurePermit
 import com.tencent.smtt.export.external.interfaces.*
 import com.tencent.smtt.sdk.WebChromeClient
 import com.tencent.smtt.sdk.WebSettings
@@ -26,12 +38,16 @@ import com.tencent.smtt.sdk.WebViewClient
 
 @Composable
 fun X5WebShell(
-    startUrl: String,
+    conf: WebViewConf?,
+    onLoaded: ((WebView)->Unit)? = null,
 ) {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
     val dispatcher = LocalOnBackPressedDispatcherOwner.current
     val navController = LocalNavController.current
+
+    ensurePermit(context as Activity, Manifest.permission.INTERNET)
+    ensurePermit(context as Activity, Manifest.permission.ACCESS_NETWORK_STATE)
 
     var progress by remember {
         mutableStateOf(0)
@@ -138,6 +154,22 @@ fun X5WebShell(
         }
     }
 
+    val kjso by remember {
+        mutableStateOf(
+            KjsObject(
+                OnToast = {
+                    Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
+                },
+                OnToggleTabbarVisible = {
+                    Toast.makeText(context, "toggle tabbar $it", Toast.LENGTH_SHORT).show()
+                },
+                OnInvalidToken = {
+                    Toast.makeText(context, "invalid Token", Toast.LENGTH_SHORT).show()
+                }
+            )
+        )
+    }
+
     AndroidView(
         factory = { WebView(it) },
         modifier = Modifier
@@ -158,14 +190,14 @@ fun X5WebShell(
             displayZoomControls = true
 
             //是否支持通过JS打开新窗口
-            javaScriptCanOpenWindowsAutomatically = true
+            //javaScriptCanOpenWindowsAutomatically = true
 
             // 支持多窗口 onCreateWindow
             setSupportMultipleWindows(true)
 
 
             //不加载缓存内容
-            cacheMode = WebSettings.LOAD_NO_CACHE
+            //cacheMode = WebSettings.LOAD_NO_CACHE
 
             // 页面报错继续
             domStorageEnabled = true
@@ -179,7 +211,12 @@ fun X5WebShell(
 
             Log.d("webview x5", userAgentString)
         }
-        it.loadUrl(startUrl)
+
+        conf?.let {c ->
+            it.addJavascriptInterface(kjso, c.valName)
+            it.loadUrl(c.startUrl)
+        }
+        onLoaded?.invoke(it)
         webview = it
     }
 }
@@ -187,7 +224,12 @@ fun X5WebShell(
 @Preview
 @Composable
 fun X5WebShellPreview() {
+    val conf = WebViewConf(
+        id = 1,
+        startUrl = "https://m.bilibili.com",
+        valName = "app"
+    )
     DesignPreview {
-        X5WebShell("http://debugx5.qq.com")
+        X5WebShell(conf)
     }
 }

@@ -15,6 +15,7 @@ data class WebViewConf(
     @PrimaryKey var id: Int,
     @ColumnInfo(name = "start_url") var startUrl: String,
     @ColumnInfo(name = "var_name") var valName: String,
+    @ColumnInfo(name = "token") var token: String? = null,
 )
 
 @Composable

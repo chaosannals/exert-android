@@ -16,6 +16,14 @@ android {
         versionCode 1
         versionName "1.0"
 
+        // 不用 x5 内核，使用系统内核也是可以打开网页。目前测试无差别。
+        // tbs FAQ：
+        // 不给 x86 下载内核，设置以下无效。
+        // 内核使用下载，所以必须联网。
+//        ndk {
+//            abiFilters 'armeabi', 'armeabi-v7a', 'arm64-v8a', 'x86', 'x86_64'
+//        }
+
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
             useSupportLibrary true

@@ -14,6 +14,7 @@ import androidx.core.view.WindowCompat
 import androidx.navigation.NavHostController
 import androidx.room.Room
 import com.example.appshell.db.AppDatabase
+import com.example.appshell.db.MIGRATION_1_TO_2
 import com.example.appshell.db.WebViewConf
 import com.example.appshell.ui.MainBox
 import com.example.appshell.ui.ensurePermit
@@ -42,7 +43,13 @@ val LocalFormContext = staticCompositionLocalOf<FormContext> {
 @Composable
 fun rememberAppDatabase(context: Context): AppDatabase {
     val database by remember {
-        val db = Room.databaseBuilder(context, AppDatabase::class.java, "appshell").build()
+        val db = Room.databaseBuilder(
+            context,
+            AppDatabase::class.java,
+            "appshell",
+        )
+            .addMigrations(MIGRATION_1_TO_2)
+            .build()
         mutableStateOf(db)
     }
     return database
@@ -72,9 +79,6 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        ensurePermit(this, Manifest.permission.INTERNET)
-        ensurePermit(this, Manifest.permission.ACCESS_NETWORK_STATE)
-
         // 初始化
 
         // 初始化 X5
@@ -96,6 +100,7 @@ class MainActivity : ComponentActivity() {
 
 
         WindowCompat.setDecorFitsSystemWindows(window, false)
+
         window.statusBarColor = Color.Transparent.toArgb()
 
         setContent {

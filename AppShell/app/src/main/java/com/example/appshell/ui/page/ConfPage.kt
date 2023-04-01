@@ -52,6 +52,7 @@ fun ConfPage() {
                 FormTextInput(
                     title = "初始URL",
                     isRequired = true,
+                    isNullable = false,
                     value = conf?.startUrl,
                     onValueChange = {
                         conf?.startUrl = it ?: ""
@@ -60,9 +61,18 @@ fun ConfPage() {
                 FormTextInput(
                     title = "导出变量",
                     isRequired = true,
+                    isNullable = false,
                     value = conf?.valName,
                     onValueChange = {
                         conf?.valName =  it ?: ""
+                    }
+                )
+                FormTextInput(
+                    title = "Token",
+                    isRequired = true,
+                    value = conf?.token,
+                    onValueChange = {
+                        conf?.token =  it
                     }
                 )
             }
