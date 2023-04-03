@@ -14,19 +14,21 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.appshell.LocalNavController
-import com.example.appshell.ui.dp2px
-import com.example.appshell.ui.shadow2
-import com.example.appshell.ui.sdp
-
+import com.example.appshell.ui.*
+import com.example.appshell.ui.widget.form.Form
+import com.example.appshell.ui.widget.form.FormTextInput
 
 
 @Composable
 fun DebugView(
     modifier: Modifier = Modifier,
 ) {
+    val context = LocalContext.current
     val navController = LocalNavController.current
+
     val shape = RoundedCornerShape(5.sdp)
     Column (
          modifier = modifier
@@ -90,6 +92,26 @@ fun DebugView(
                  ,
              )
          }
+
+        val otherConf by remember {
+            val conf = context.LoadOtherConf()
+            mutableStateOf(conf)
+        }
+
+        Form() {
+            FormTextInput(
+                title = "字符串1",
+                value = otherConf.stringValue1,
+                onValueChange =
+                {
+                    otherConf.stringValue1 = it!!
+                    context.SaveOtherConf(otherConf)
+                },
+                isRequired = true,
+                isNullable = false,
+            )
+
+        }
     }
 }
 
