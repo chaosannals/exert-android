@@ -100,7 +100,6 @@ class MainActivity : ComponentActivity() {
 
 
         WindowCompat.setDecorFitsSystemWindows(window, false)
-
         window.statusBarColor = Color.Transparent.toArgb()
 
         setContent {
