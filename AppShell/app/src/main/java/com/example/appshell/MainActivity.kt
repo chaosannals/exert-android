@@ -1,32 +1,23 @@
 package com.example.appshell
 
-import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.runtime.*
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.core.view.WindowCompat
-import androidx.navigation.NavHostController
 import androidx.room.Room
 import com.example.appshell.db.AppDatabase
 import com.example.appshell.db.MIGRATION_1_TO_2
-import com.example.appshell.db.WebViewConf
 import com.example.appshell.ui.MainBox
-import com.example.appshell.ui.ensurePermit
 import com.example.appshell.ui.widget.form.FormContext
 import com.tencent.smtt.export.external.TbsCoreSettings
 import com.tencent.smtt.sdk.QbSdk
 import io.reactivex.rxjava3.subjects.PublishSubject
 import java.util.concurrent.TimeUnit
-
-val LocalNavController = staticCompositionLocalOf<NavHostController> {
-    error("No NavController  provided!")
-}
 
 val LocalAppDatabase = staticCompositionLocalOf<AppDatabase> {
     error("No App database!")

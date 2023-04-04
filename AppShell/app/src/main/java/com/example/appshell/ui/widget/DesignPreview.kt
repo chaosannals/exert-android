@@ -10,6 +10,9 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.rememberNavController
 import com.example.appshell.*
+import com.example.appshell.ui.LocalNavController
+import com.example.appshell.ui.LocalRouteStatus
+import com.example.appshell.ui.rememberRouteStatus
 import com.example.appshell.ui.sdp
 
 @Composable
@@ -32,9 +35,11 @@ fun DesignPreview(
 
     CompositionLocalProvider(
         LocalNavController provides rememberNavController(),
+        LocalRouteStatus provides rememberRouteStatus(),
         LocalAppDatabase provides  rememberAppDatabase(context = LocalContext.current),
         LocalMainScrollSubject provides rememberMainScrollSubject {},
         LocalFormContext provides rememberFormContext(),
+        LocalX5ScaffoldStatus provides rememberX5ScaffoldStatus(),
     ) {
         Box(
             contentAlignment = Alignment.TopStart,

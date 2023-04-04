@@ -1,25 +1,27 @@
 package com.example.appshell.ui
 
-import android.util.Log
+
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.runtime.*
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
 import com.example.appshell.*
-import com.example.appshell.db.WebViewConf
-import com.example.appshell.db.ensureWebViewConf
 import com.example.appshell.ui.theme.AppShellTheme
 import com.example.appshell.ui.widget.DesignPreview
+import com.example.appshell.ui.widget.LocalX5ScaffoldStatus
 import com.example.appshell.ui.widget.X5Scaffold
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+import com.example.appshell.ui.widget.rememberX5ScaffoldStatus
 
 @Composable
 fun MainBox() {
     AppShellTheme {
         val navController = rememberNavController()
+        val routeStatus = rememberRouteStatus()
         val database = rememberAppDatabase(context = LocalContext.current)
+        val scaffoldStatus = rememberX5ScaffoldStatus()
         var sd by remember {
             mutableStateOf(0f)
         }
@@ -32,11 +34,17 @@ fun MainBox() {
             LocalNavController provides navController,
             LocalAppDatabase provides database,
             LocalMainScrollSubject provides sps,
+            LocalRouteStatus provides routeStatus,
+            LocalX5ScaffoldStatus provides scaffoldStatus,
         ) {
-            X5Scaffold() {
+            X5Scaffold(
+                modifier = Modifier
+                    .navigationBarsPadding()
+            ) {
                 NavHost(
                     navController = navController,
-                    startDestination = "home-page",
+//                    startDestination = routeStatus.startRoute,
+                startDestination = "home-page",
                 ) {
                     routeRootGraph()
                 }

@@ -8,6 +8,7 @@ import androidx.compose.material.Icon
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -16,7 +17,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
-import com.example.appshell.LocalNavController
+import com.example.appshell.ui.LocalNavController
 import com.example.appshell.ui.*
 import com.example.appshell.ui.widget.form.Form
 import com.example.appshell.ui.widget.form.FormTextInput
@@ -28,6 +29,7 @@ fun DebugView(
 ) {
     val context = LocalContext.current
     val navController = LocalNavController.current
+    val scaffoldStatus = LocalX5ScaffoldStatus.current
 
     val shape = RoundedCornerShape(5.sdp)
     Column (
@@ -64,8 +66,10 @@ fun DebugView(
                  modifier = Modifier
                      .aspectRatio(1f)
                      .fillMaxSize(0.84f)
-                     .clickable {
-                         navController.navigate("home-page")
+                     .clickable
+                     {
+//                         navController.navigate("home-page")
+                         navController.routeTop("home-page")
                      }
                  ,
              )
@@ -75,8 +79,10 @@ fun DebugView(
                  modifier = Modifier
                      .aspectRatio(1f)
                      .fillMaxSize(0.84f)
-                     .clickable {
-                         navController.navigate("tbs-page")
+                     .clickable
+                     {
+//                         navController.navigate("tbs-page")
+                         navController.routeTop("tbs-page")
                      }
                  ,
              )
@@ -86,10 +92,22 @@ fun DebugView(
                  modifier = Modifier
                      .aspectRatio(1f)
                      .fillMaxSize(0.84f)
-                     .clickable {
-                         navController.navigate("conf-page")
+                     .clickable
+                     {
+//                         navController.navigate("conf-page")
+                         navController.routeTop("conf-page")
                      }
                  ,
+             )
+             Icon(
+                 imageVector = Icons.Default.Menu,
+                 contentDescription = "toggle",
+                 modifier = Modifier
+                     .aspectRatio(1f)
+                     .fillMaxSize(0.84f)
+                     .clickable {
+                         scaffoldStatus.isShowNavbar = !scaffoldStatus.isShowNavbar
+                     }
              )
          }
 

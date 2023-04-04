@@ -24,7 +24,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
-import com.example.appshell.LocalNavController
+import com.example.appshell.ui.LocalNavController
 import com.example.appshell.db.WebViewConf
 import com.example.appshell.js.KjsObject
 import com.example.appshell.ui.U
@@ -46,8 +46,10 @@ fun X5WebShell(
     val dispatcher = LocalOnBackPressedDispatcherOwner.current
     val navController = LocalNavController.current
 
-    ensurePermit(context as Activity, Manifest.permission.INTERNET)
-    ensurePermit(context as Activity, Manifest.permission.ACCESS_NETWORK_STATE)
+    (context as? Activity)?.let {
+        ensurePermit(it, Manifest.permission.INTERNET)
+        ensurePermit(it, Manifest.permission.ACCESS_NETWORK_STATE)
+    }
 
     var progress by remember {
         mutableStateOf(0)
@@ -123,6 +125,7 @@ fun X5WebShell(
                 if (webview != null && webview!!.canGoBack()) {
                     webview!!.goBack()
                 } else {
+                    //navController.backQueue.clear()
                     navController.popBackStack()
                 }
                 //Toast.makeText(context, "back", Toast.LENGTH_SHORT).show()

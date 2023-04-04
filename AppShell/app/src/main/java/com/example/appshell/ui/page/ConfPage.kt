@@ -41,7 +41,6 @@ fun ConfPage() {
     Column(
         modifier = Modifier
             .statusBarsPadding()
-            .navigationBarsPadding()
             .fillMaxSize()
     ) {
         ScrollColumn(

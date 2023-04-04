@@ -16,7 +16,6 @@ fun TbsPage() {
     Column (
         modifier = Modifier
             .statusBarsPadding()
-            .navigationBarsPadding()
             .fillMaxSize()
     ) {
         X5WebShell(WebViewConf(

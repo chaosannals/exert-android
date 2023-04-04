@@ -31,7 +31,6 @@ fun HomePage() {
 
     Column (
         modifier = Modifier
-            .navigationBarsPadding()
             .fillMaxSize()
     ) {
         conf?.let {c ->
