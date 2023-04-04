@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -99,6 +100,13 @@ fun X5Scaffold(
                         onClicked =
                         {
                             navController.routeTop("conf-page")
+                        },
+                    )
+                    NavbarButton(
+                        imageVector = Icons.Default.List,
+                        onClicked =
+                        {
+                            navController.routeTop("lazy-page")
                         },
                     )
                 }

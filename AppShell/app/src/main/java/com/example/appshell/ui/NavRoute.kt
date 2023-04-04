@@ -12,6 +12,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
 import com.example.appshell.ui.page.ConfPage
 import com.example.appshell.ui.page.HomePage
+import com.example.appshell.ui.page.LazyPage
 import com.example.appshell.ui.page.TbsPage
 import kotlinx.parcelize.Parcelize
 
@@ -47,6 +48,9 @@ fun NavGraphBuilder.routeRootGraph() {
     }
     composable("conf-page") {
         ConfPage()
+    }
+    composable("lazy-page") {
+        LazyPage()
     }
 }
 
