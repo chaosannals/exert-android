@@ -1,5 +1,11 @@
 # android
 
+## Kotlin Multiplatform Mobile
+
+KMM 目录结构类似 Futter ，但目前结构混乱，同样是以多平台目录配合公共目录的形式，公共目录里面居然混入了 iosMain 这种特定平台的东西。
+
+androidApp 和 iosApp 也是类似 Flutter 那种纯粹的启动器。而是有部分业务代码混入。 Greeting 这种业务示例按理说应该只出现在 shared 目录下。
+
 ## Jetpack Compose
 
 ### Modifier 修改器
