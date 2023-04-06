@@ -6,7 +6,7 @@ KMM 目录结构类似 Futter ，但目前结构混乱，同样是以多平台�
 
 androidApp 和 iosApp 也是类似 Flutter 那种纯粹的启动器。而是有部分业务代码混入。 Greeting 这种业务示例按理说应该只出现在 shared 目录下。
 
-不过好在新建的空白项目还能正常启动。
+不过好在新建的空白项目 android 下还能正常启动。
 
 ## Jetpack Compose
 
