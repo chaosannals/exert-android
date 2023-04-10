@@ -1,6 +1,5 @@
 package com.example.appshell.ui
 
-import android.Manifest
 import android.app.Activity
 import android.content.pm.PackageManager
 import android.content.res.Resources

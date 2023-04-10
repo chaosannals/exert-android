@@ -10,10 +10,7 @@ import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
-import com.example.appshell.ui.page.ConfPage
-import com.example.appshell.ui.page.HomePage
-import com.example.appshell.ui.page.LazyPage
-import com.example.appshell.ui.page.TbsPage
+import com.example.appshell.ui.page.*
 import kotlinx.parcelize.Parcelize
 
 @Parcelize
@@ -51,6 +48,9 @@ fun NavGraphBuilder.routeRootGraph() {
     }
     composable("lazy-page") {
         LazyPage()
+    }
+    composable("lazy-drag-page") {
+        LazyDragPage()
     }
 }
 

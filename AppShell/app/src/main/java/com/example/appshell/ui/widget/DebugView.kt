@@ -6,10 +6,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Icon
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Build
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Menu
-import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
@@ -30,6 +27,21 @@ fun DebugView(
     val context = LocalContext.current
     val navController = LocalNavController.current
     val scaffoldStatus = LocalX5ScaffoldStatus.current
+
+    val subject = LocalX5ScaffoldRxSubject.current
+
+    var isLoading by remember {
+        mutableStateOf(false)
+    }
+
+    DisposableEffect(subject) {
+        val s = subject.subscribe {
+            isLoading = it.isShowLoadingPane
+        }
+        onDispose {
+            s.dispose()
+        }
+    }
 
     val shape = RoundedCornerShape(5.sdp)
     Column (
@@ -107,6 +119,21 @@ fun DebugView(
                      .fillMaxSize(0.84f)
                      .clickable {
                          scaffoldStatus.isShowNavbar = !scaffoldStatus.isShowNavbar
+                     }
+             )
+
+             Icon(
+                 imageVector = if (isLoading) Icons.Default.Lock else Icons.Default.Done,
+                 contentDescription = "loading",
+                 modifier = Modifier
+                     .aspectRatio(1f)
+                     .fillMaxSize(0.84f)
+                     .clickable {
+                         subject.onNext(
+                             X5ScaffoldStatus(
+                                 isShowLoadingPane = true
+                             )
+                         )
                      }
              )
          }

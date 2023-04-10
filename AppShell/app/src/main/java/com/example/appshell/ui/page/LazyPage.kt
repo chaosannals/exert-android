@@ -2,6 +2,8 @@ package com.example.appshell.ui.page
 
 import android.annotation.SuppressLint
 import android.util.Log
+import androidx.compose.animation.core.AnimationSpec
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.FlingBehavior
@@ -10,6 +12,7 @@ import androidx.compose.foundation.gestures.rememberScrollableState
 import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.pager.PagerDefaults.flingBehavior
@@ -37,7 +40,7 @@ fun LazyPage() {
             "aaaa",
             "bbbb"
         )
-        for(i in 1..100) {
+        for(i in 1..1000) {
             v.add("text- ${i}")
         }
         v
@@ -56,7 +59,7 @@ fun LazyPage() {
 //    }
 
     LaunchedEffect(Unit) {
-        for(i in 1..100) {
+        for(i in 1..10000) {
             infos.add("text- ${i}")
         }
         Log.d("lazypage", "count: ${infos.size}")
@@ -112,10 +115,8 @@ fun LazyPage() {
 
                 LazyColumn(
                     state = lazyState,
-//                    flingBehavior=flingBehavior(
-//                        state = pagerState,
-////                        pagerSnapDistance
-//                    ),
+                    // padding 有显示效果，但是 lazyState firstVisibleItemIndex firstVisibleItemScrollOffset 却不会没有因此变化
+//                    contentPadding = PaddingValues(top= 40.sdp, bottom = 40.sdp),
                     modifier = Modifier
 //                        .verticalScroll(scrollState)
                         .fillMaxWidth()

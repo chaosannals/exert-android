@@ -14,6 +14,7 @@ import com.example.appshell.ui.widget.DesignPreview
 import com.example.appshell.ui.widget.LocalX5ScaffoldStatus
 import com.example.appshell.ui.widget.X5Scaffold
 import com.example.appshell.ui.widget.rememberX5ScaffoldStatus
+import java.util.concurrent.TimeUnit
 
 @Composable
 fun MainBox() {
@@ -26,8 +27,15 @@ fun MainBox() {
             mutableStateOf(0f)
         }
 
-        val sps = rememberMainScrollSubject {
-            sd = it
+        val sps = rememberMainScrollSubject()
+
+        DisposableEffect(sps) {
+            val s = sps
+                .throttleLast(400, TimeUnit.MILLISECONDS)
+                .subscribe { sd = it }
+            onDispose {
+                s.dispose()
+            }
         }
 
         CompositionLocalProvider(

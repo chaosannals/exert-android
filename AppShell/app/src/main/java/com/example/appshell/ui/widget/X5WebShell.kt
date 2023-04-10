@@ -2,10 +2,12 @@ package com.example.appshell.ui.widget
 
 import android.Manifest
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Message
 import android.util.Log
+import android.view.KeyEvent
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.addCallback
@@ -30,11 +32,9 @@ import com.example.appshell.js.KjsObject
 import com.example.appshell.ui.U
 import com.example.appshell.ui.dp2px
 import com.example.appshell.ui.ensurePermit
+import com.tencent.smtt.export.external.TbsCoreSettings
 import com.tencent.smtt.export.external.interfaces.*
-import com.tencent.smtt.sdk.WebChromeClient
-import com.tencent.smtt.sdk.WebSettings
-import com.tencent.smtt.sdk.WebView
-import com.tencent.smtt.sdk.WebViewClient
+import com.tencent.smtt.sdk.*
 
 @Composable
 fun X5WebShell(
@@ -126,7 +126,15 @@ fun X5WebShell(
                     webview!!.goBack()
                 } else {
                     //navController.backQueue.clear()
-                    navController.popBackStack()
+                    if (navController.backQueue.isEmpty()) {
+                        // 此类 onBackPressed 的操作会导致无限递归
+                        // 因为这类 onBackPressed 函数就是调用了监听器，监听器再调用 onBackPressed 导致无限递归。
+                        //(context as? Activity)?.onBackPressed()
+
+                        (context as? Activity)?.finish()
+                    } else {
+                        navController.popBackStack()
+                    }
                 }
                 //Toast.makeText(context, "back", Toast.LENGTH_SHORT).show()
             }
@@ -235,4 +243,23 @@ fun X5WebShellPreview() {
     DesignPreview {
         X5WebShell(conf)
     }
+}
+
+fun Context.initX5WebShell() {
+    // 初始化 X5
+    QbSdk.initX5Environment(this, object: QbSdk.PreInitCallback {
+        override fun onCoreInitFinished() {
+
+        }
+
+        override fun onViewInitFinished(p0: Boolean) {
+
+        }
+    })
+    val tbss = mapOf(
+        TbsCoreSettings.TBS_SETTINGS_USE_SPEEDY_CLASSLOADER to true,
+        TbsCoreSettings.TBS_SETTINGS_USE_DEXLOADER_SERVICE to true,
+    )
+    QbSdk.initTbsSettings(tbss)
+    QbSdk.setDownloadWithoutWifi(true)
 }

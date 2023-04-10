@@ -37,7 +37,7 @@ fun DesignPreview(
         LocalNavController provides rememberNavController(),
         LocalRouteStatus provides rememberRouteStatus(),
         LocalAppDatabase provides  rememberAppDatabase(context = LocalContext.current),
-        LocalMainScrollSubject provides rememberMainScrollSubject {},
+        LocalMainScrollSubject provides rememberMainScrollSubject(),
         LocalFormContext provides rememberFormContext(),
         LocalX5ScaffoldStatus provides rememberX5ScaffoldStatus(),
     ) {
