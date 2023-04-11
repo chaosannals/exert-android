@@ -55,6 +55,7 @@ fun MainBox() {
                 startDestination = "home-page",
                 ) {
                     routeRootGraph()
+                    routeDemoGraph()
                 }
             }
         }

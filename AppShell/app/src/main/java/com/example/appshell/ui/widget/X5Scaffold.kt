@@ -29,9 +29,9 @@ import kotlin.math.roundToInt
 
 @Parcelize
 data class X5ScaffoldStatus(
-    var isShowFloatingBall: Boolean = true,
-    var isShowNavbar: Boolean = true,
-    var isShowLoadingPane: Boolean = false,
+    val isShowFloatingBall: Boolean = true,
+    val isShowNavbar: Boolean = true,
+    val isShowLoadingPane: Boolean = false,
 ) : Parcelable
 
 //val X5ScaffoldStatusSaver = run {
@@ -78,7 +78,7 @@ fun X5Scaffold(
     content: @Composable () -> Unit,
 ) {
     val navController = LocalNavController.current
-    val status = LocalX5ScaffoldStatus.current
+    var status = LocalX5ScaffoldStatus.current
     val coroutineScope = rememberCoroutineScope()
 
     var isShowDebugger by remember {
@@ -147,14 +147,7 @@ fun X5Scaffold(
                             imageVector = Icons.Default.List,
                             onClicked =
                             {
-                                navController.routeTop("lazy-page")
-                            },
-                        )
-                        NavbarButton(
-                            imageVector = Icons.Default.DateRange,
-                            onClicked =
-                            {
-                                navController.routeTop("lazy-drag-page")
+                                navController.routeTop("demo-page")
                             },
                         )
                     }
@@ -191,7 +184,9 @@ fun X5Scaffold(
                         },
                     onClick = {
                         // 这个却可以
-                        status.isShowLoadingPane = true
+                        status = status.copy(
+                            isShowLoadingPane = true
+                        )
 
                         subject.onNext(
                             subject.value!!.copy(

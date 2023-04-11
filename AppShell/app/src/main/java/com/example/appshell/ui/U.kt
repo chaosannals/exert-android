@@ -97,6 +97,16 @@ inline val Double.dp2px : Float get() = run {
     return (this * U.ratio * U.density).toFloat()
 }
 
+inline val Int.px2dp: Dp get() = run {
+    return (this / U.density / U.ratio).dp
+}
+inline val Float.px2dp: Dp get() = run {
+    return (this / U.density / U.ratio).dp
+}
+inline val Double.px2dp: Dp get() = run {
+    return (this / U.density / U.ratio).dp
+}
+
 fun Modifier.shadow2(
     color: Color = Color(0xFFF2F7FA),
     alpha: Float = 1f,

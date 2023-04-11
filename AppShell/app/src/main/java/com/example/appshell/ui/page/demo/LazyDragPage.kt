@@ -1,4 +1,4 @@
-package com.example.appshell.ui.page
+package com.example.appshell.ui.page.demo
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box

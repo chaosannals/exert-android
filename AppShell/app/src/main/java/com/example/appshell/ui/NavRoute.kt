@@ -10,7 +10,9 @@ import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
+import androidx.navigation.navigation
 import com.example.appshell.ui.page.*
+import com.example.appshell.ui.page.demo.*
 import kotlinx.parcelize.Parcelize
 
 @Parcelize
@@ -36,6 +38,35 @@ fun rememberRouteStatus(): RouteStatus {
     return status
 }
 
+fun NavGraphBuilder.routeDemoGraph() {
+    navigation("lazy-page", "demo") {
+        composable("lazy-page") {
+            LazyPage()
+        }
+        composable("lazy-drag-page") {
+            LazyDragPage()
+        }
+        composable("lazy-nested-pre-column-page") {
+            LazyNestedPreColumnPage()
+        }
+        composable("lazy-nested-column-page") {
+            LazyNestedColumnPage()
+        }
+        composable("nested-post-scroll-lazy-column-page") {
+            NestedPostScrollLazyColumnPage()
+        }
+        composable("nested-pre-scroll-lazy-column-page") {
+            NestedPreScrollLazyColumnPage()
+        }
+        composable("pull-refresh-page") {
+            PullRefreshPage()
+        }
+        composable("swipe-refresh-page") {
+            SwipeRefreshPage()
+        }
+    }
+}
+
 fun NavGraphBuilder.routeRootGraph() {
     composable("home-page") {
         HomePage()
@@ -46,11 +77,8 @@ fun NavGraphBuilder.routeRootGraph() {
     composable("conf-page") {
         ConfPage()
     }
-    composable("lazy-page") {
-        LazyPage()
-    }
-    composable("lazy-drag-page") {
-        LazyDragPage()
+    composable("demo-page") {
+        DemoPage()
     }
 }
 

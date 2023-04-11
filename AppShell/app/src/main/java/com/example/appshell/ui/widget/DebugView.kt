@@ -118,7 +118,7 @@ fun DebugView(
                      .aspectRatio(1f)
                      .fillMaxSize(0.84f)
                      .clickable {
-                         scaffoldStatus.isShowNavbar = !scaffoldStatus.isShowNavbar
+                         //scaffoldStatus.isShowNavbar = !scaffoldStatus.isShowNavbar
                      }
              )
 
