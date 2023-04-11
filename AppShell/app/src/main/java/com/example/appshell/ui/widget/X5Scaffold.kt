@@ -27,12 +27,22 @@ import kotlinx.parcelize.Parcelize
 import java.util.concurrent.TimeUnit
 import kotlin.math.roundToInt
 
+//interface  X5ScaffoldStatable {
+//    val isShowFloatingBall: Boolean
+//    val isShowNavbar: Boolean
+//    val isShowLoadingPane: Boolean
+//}
+
 @Parcelize
 data class X5ScaffoldStatus(
-    val isShowFloatingBall: Boolean = true,
-    val isShowNavbar: Boolean = true,
-    val isShowLoadingPane: Boolean = false,
+//    override var isShowFloatingBall: Boolean = true,
+//    override var isShowNavbar: Boolean = true,
+//    override var isShowLoadingPane: Boolean = false,
+    var isShowFloatingBall: Boolean = true,
+    var isShowNavbar: Boolean = true,
+    var isShowLoadingPane: Boolean = false,
 ) : Parcelable
+//    , X5ScaffoldStatable
 
 //val X5ScaffoldStatusSaver = run {
 //    val isShowFloatingBallKey = "isShowFloatingBall"
@@ -81,6 +91,13 @@ fun X5Scaffold(
     var status = LocalX5ScaffoldStatus.current
     val coroutineScope = rememberCoroutineScope()
 
+    val isShowNavbar by remember {
+        derivedStateOf { status.isShowNavbar }
+    }
+//    val isShowLoadingPaneDS by remember {
+//        derivedStateOf { status.isShowLoadingPane }
+//    }
+
     var isShowDebugger by remember {
         mutableStateOf(false)
     }
@@ -117,7 +134,7 @@ fun X5Scaffold(
                 ) {
                     content()
                 }
-                if (status.isShowNavbar) {
+                if (isShowNavbar) {
                     Navbar(
                         modifier = Modifier
                             .zIndex(10f)
@@ -195,10 +212,7 @@ fun X5Scaffold(
                         )
 
                         // 不联动
-//                        coroutineScope.launch {
-//                            delay(1000)
-//                            status.isShowLoadingPane = false
-//                        }
+//                        status.isShowLoadingPane = false
                         isShowDebugger = true
                     },
                 )
@@ -212,7 +226,9 @@ fun X5Scaffold(
 //                    }
 //                )
 //            }
+
             if (isShowLoadingPane) {
+//            if (isShowLoadingPaneDS) {
                 LoadingPane(
                     onClicked = {
                         subject.onNext(
