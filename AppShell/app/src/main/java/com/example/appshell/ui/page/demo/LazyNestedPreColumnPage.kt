@@ -23,7 +23,7 @@ fun LazyNestedPreColumnPage() {
                 Text(
                     "I'm item $index",
                     modifier = Modifier
-                        .fillMaxWidth()
+//                        .fillMaxWidth()
                         .padding(16.dp),
                 )
             }

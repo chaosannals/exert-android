@@ -16,7 +16,7 @@ android {
         minSdk 24
         targetSdk 33
         versionCode 1
-        versionName "1.0"
+        versionName app_version
 
         // 不用 x5 内核，使用系统内核也是可以打开网页。目前测试无差别。
         // tbs FAQ：
@@ -40,6 +40,8 @@ android {
 
             resValue("string", "app_name", "AppShell 正式版")
             resValue("bool", "http_allow", "false")
+
+
 
             signingConfig signingConfigs.debug
         }
@@ -71,6 +73,43 @@ android {
     packagingOptions {
         resources {
             excludes += '/META-INF/{AL2.0,LGPL2.1}'
+        }
+    }
+
+    // 分发维度，每加一个标签，就多一个维度。
+    // 比如又 3个 flavors 是 mode , 4 个 flavors 是 api， 就会有 12 种分发版本
+    // Build > Select Build Variant 切换
+    // 注：修改配置会有缓存问题（比如：加了维度，然后没有显示出来），清理缓存重启。
+    flavorDimensions "mode", "platform"
+
+    productFlavors {
+        online {
+            dimension "mode"
+
+        }
+
+        offline {
+            dimension "mode"
+        }
+
+        normal {
+            dimension "platform"
+        }
+
+        googlePlay {
+            dimension "platform"
+        }
+        xiaomiAppStore {
+            dimension "platform"
+        }
+    }
+
+    // 遍历所有构造变量
+    applicationVariants.all { variant ->
+        // 找到输出相关的变量
+        variant.outputs.all { output ->
+            // 替换掉输出变量的文件名
+            output.outputFileName = "${variant.getFlavorName()}-${variant.buildType.name}-${versionName}-${new Date().format('yyyyMMdd')}-${output.getFilter(com.android.build.OutputFile.ABI)}.apk"
         }
     }
 }
@@ -108,6 +147,9 @@ dependencies {
     // rx
     implementation 'io.reactivex.rxjava3:rxandroid:3.0.0'
     implementation 'io.reactivex.rxjava3:rxkotlin:3.0.1'
+
+    // 图片显示
+    api "io.coil-kt:coil-compose:2.2.0"
 
     // BSON
     implementation 'org.mongodb:bson:4.9.0'

@@ -34,6 +34,7 @@ private val animateSpec = spring(
 
 @Composable
 fun LazyNestedPreColumn(
+    modifier: Modifier = Modifier,
     content: LazyListScope.() -> Unit
 ) {
     val mss = LocalMainScrollSubject.current
@@ -118,8 +119,8 @@ fun LazyNestedPreColumn(
     }
 
     Box(
-        modifier = Modifier
-            .fillMaxSize()
+        modifier = modifier
+//            .fillMaxSize()
             .nestedScroll(nestedScrollConnection)
 //            .draggable( // 使用 nestedScrollConnection 时无效
 //                onDragStarted =
@@ -142,7 +143,8 @@ fun LazyNestedPreColumn(
                 top = abs(topPx.value).px2dp,
                 bottom = abs(bottomPx.value).px2dp,
             ),
-//            modifier = Modifier
+            modifier = Modifier
+                .fillMaxSize(),
 //                .draggable( // 无效
 //                    onDragStarted =
 //                    {
@@ -171,7 +173,7 @@ fun LazyNestedPreColumnPreview() {
                 Text(
                     "I'm item $index",
                     modifier = Modifier
-                        .fillMaxWidth()
+//                        .fillMaxWidth()
                         .padding(16.dp),
                 )
             }
