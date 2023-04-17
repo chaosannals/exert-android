@@ -47,7 +47,7 @@ fun HomePage() {
                 val code = "javascript:JSON.stringify(${c.valName});"
                 Log.d("x5demo", "call ${code}")
                 it.evaluateJavascript("${code}") {
-                    Toast.makeText(context, "info: $it", Toast.LENGTH_LONG).show()
+                    // Toast.makeText(context, "info: $it", Toast.LENGTH_LONG).show()
                     Log.d("x5demo", "called")
                 }
 
@@ -59,7 +59,7 @@ fun HomePage() {
                     ${c.valName}.invalidToken();
                     ${c.valName}.Say();
                 """.trimIndent()) {
-                    Toast.makeText(context, "call toast: $it", Toast.LENGTH_LONG).show()
+                    // Toast.makeText(context, "call toast: $it", Toast.LENGTH_LONG).show()
                 }
             }
         }

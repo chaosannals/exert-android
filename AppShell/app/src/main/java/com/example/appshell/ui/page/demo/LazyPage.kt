@@ -123,6 +123,10 @@ fun LazyPage() {
                     it
                 }*/
 
+
+                // 锚点通过记录自身索引和 lazyState.scrollToItem 实现。
+                // 因为 LazyColumn 自身不支持，所以这个索引根据自己的布局算。
+                // 通过 lazyState.firstVisibleItemIndex 判断是那个标签。
                 LazyColumn(
                     state = lazyState,
                     // padding 有显示效果，但是 lazyState firstVisibleItemIndex firstVisibleItemScrollOffset 却不会没有因此变化
@@ -160,6 +164,7 @@ fun LazyPage() {
                         )
                     }
                     item {
+
                         Text(
                             text ="底部",
                             modifier = Modifier

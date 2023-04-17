@@ -43,6 +43,9 @@ fun NavGraphBuilder.routeDemoGraph() {
         composable("coil-photo-page") {
             CoilPhotoPage()
         }
+        composable("http-client-page") {
+            HttpClientPage()
+        }
         composable("lazy-page") {
             LazyPage()
         }

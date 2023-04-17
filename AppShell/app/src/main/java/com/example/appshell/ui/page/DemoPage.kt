@@ -37,6 +37,7 @@ fun DemoPage() {
             .statusBarsPadding(),
     ) {
         DemoRouteButton("Coil Photo", "coil-photo-page")
+        DemoRouteButton("Http Client", "http-client-page")
         DemoRouteButton("Lazy Drag", "lazy-drag-page")
         DemoRouteButton("Lazy Nested Pre Column", "lazy-nested-pre-column-page")
         DemoRouteButton("Lazy Nested Column", "lazy-nested-column-page")
