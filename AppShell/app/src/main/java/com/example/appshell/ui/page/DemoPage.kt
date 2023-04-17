@@ -46,6 +46,7 @@ fun DemoPage() {
         DemoRouteButton("Nested Pre Scroll Lazy Column", "nested-pre-scroll-lazy-column-page")
         DemoRouteButton("Pull Refresh", "pull-refresh-page")
         DemoRouteButton("Swipe Refresh", "swipe-refresh-page")
+        DemoRouteButton("Tip Message", "tip-message-page")
     }
 }
 

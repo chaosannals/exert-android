@@ -70,6 +70,9 @@ fun NavGraphBuilder.routeDemoGraph() {
         composable("swipe-refresh-page") {
             SwipeRefreshPage()
         }
+        composable("tip-message-page") {
+            TipMessagePage()
+        }
     }
 }
 

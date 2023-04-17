@@ -1,6 +1,7 @@
 package com.example.appshell.ui
 
 
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -44,18 +45,21 @@ fun MainBox() {
             LocalMainScrollSubject provides sps,
             LocalRouteStatus provides routeStatus,
             LocalX5ScaffoldStatus provides scaffoldStatus,
+            LocalTipQueue provides rememberTipQueue(),
         ) {
-            X5Scaffold(
-                modifier = Modifier
-                    .navigationBarsPadding()
-            ) {
-                NavHost(
-                    navController = navController,
-//                    startDestination = routeStatus.startRoute,
-                startDestination = "home-page",
+            TipMessageBox {
+                X5Scaffold(
+                    modifier = Modifier
+                        .navigationBarsPadding()
                 ) {
-                    routeRootGraph()
-                    routeDemoGraph()
+                    NavHost(
+                        navController = navController,
+//                    startDestination = routeStatus.startRoute,
+                        startDestination = "home-page",
+                    ) {
+                        routeRootGraph()
+                        routeDemoGraph()
+                    }
                 }
             }
         }
