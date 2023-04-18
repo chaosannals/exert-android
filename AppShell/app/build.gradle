@@ -13,7 +13,7 @@ android {
 
     defaultConfig {
         applicationId "com.example.appshell"
-        minSdk 24
+        minSdk 26
         targetSdk 33
         versionCode 1
         versionName app_version
@@ -115,8 +115,10 @@ android {
 }
 
 dependencies {
+    implementation 'androidx.core:core-ktx:1.10.0'
 
-    implementation 'androidx.core:core-ktx:1.9.0'
+    // 时间扩展库，依赖 java 8 新的 LocalDateTime 类，需要 安卓 26（安卓 8.0） 以上版本
+    implementation 'org.jetbrains.kotlinx:kotlinx-datetime:0.4.0'
 
     implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.6.1'
     implementation 'androidx.activity:activity-compose:1.7.0'
