@@ -58,6 +58,9 @@ fun NavGraphBuilder.routeDemoGraph() {
         composable("lazy-nested-column-page") {
             LazyNestedColumnPage()
         }
+        composable("loading-pane-page") {
+            LoadingPanePage()
+        }
         composable("nested-post-scroll-lazy-column-page") {
             NestedPostScrollLazyColumnPage()
         }

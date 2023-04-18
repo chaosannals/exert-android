@@ -42,6 +42,7 @@ fun DemoPage() {
         DemoRouteButton("Lazy Nested Pre Column", "lazy-nested-pre-column-page")
         DemoRouteButton("Lazy Nested Column", "lazy-nested-column-page")
         DemoRouteButton("Lazy", "lazy-page")
+        DemoRouteButton("Loading Pane", "loading-pane-page")
         DemoRouteButton("Nested Post Scroll Lazy Column", "nested-post-scroll-lazy-column-page")
         DemoRouteButton("Nested Pre Scroll Lazy Column", "nested-pre-scroll-lazy-column-page")
         DemoRouteButton("Pull Refresh", "pull-refresh-page")

@@ -11,10 +11,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
 import com.example.appshell.*
 import com.example.appshell.ui.theme.AppShellTheme
-import com.example.appshell.ui.widget.DesignPreview
-import com.example.appshell.ui.widget.LocalX5ScaffoldStatus
-import com.example.appshell.ui.widget.X5Scaffold
-import com.example.appshell.ui.widget.rememberX5ScaffoldStatus
+import com.example.appshell.ui.widget.*
 import java.util.concurrent.TimeUnit
 
 @Composable
@@ -46,19 +43,22 @@ fun MainBox() {
             LocalRouteStatus provides routeStatus,
             LocalX5ScaffoldStatus provides scaffoldStatus,
             LocalTipQueue provides rememberTipQueue(),
+            LocalLoadingPaneSubject provides rememberLoadingPaneSubject(),
         ) {
-            TipMessageBox {
-                X5Scaffold(
-                    modifier = Modifier
-                        .navigationBarsPadding()
-                ) {
-                    NavHost(
-                        navController = navController,
-//                    startDestination = routeStatus.startRoute,
-                        startDestination = "home-page",
+            LoadingPaneBox() {
+                TipMessageBox {
+                    X5Scaffold(
+                        modifier = Modifier
+                            .navigationBarsPadding()
                     ) {
-                        routeRootGraph()
-                        routeDemoGraph()
+                        NavHost(
+                            navController = navController,
+//                    startDestination = routeStatus.startRoute,
+                            startDestination = "home-page",
+                        ) {
+                            routeRootGraph()
+                            routeDemoGraph()
+                        }
                     }
                 }
             }

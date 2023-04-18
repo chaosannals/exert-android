@@ -38,6 +38,7 @@ fun DesignPreview(
         LocalFormContext provides rememberFormContext(),
         LocalX5ScaffoldStatus provides rememberX5ScaffoldStatus(),
         LocalTipQueue provides rememberTipQueue(),
+        LocalLoadingPaneSubject provides rememberLoadingPaneSubject(),
     ) {
         Box(
             contentAlignment = Alignment.TopStart,
