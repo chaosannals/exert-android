@@ -19,7 +19,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
-import com.example.appshell.ui.LocalNavController
+import com.example.appshell.LocalTotalStatus
 import com.example.appshell.db.WebViewConf
 import com.example.appshell.js.KjsObject
 import com.example.appshell.ui.ensurePermit
@@ -35,7 +35,7 @@ fun X5WebShell(
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
     val dispatcher = LocalOnBackPressedDispatcherOwner.current
-    val navController = LocalNavController.current
+    val totalStatus = LocalTotalStatus.current
 
     (context as? Activity)?.let {
         ensurePermit(it, Manifest.permission.INTERNET)
@@ -117,14 +117,14 @@ fun X5WebShell(
                     webview!!.goBack()
                 } else {
                     //navController.backQueue.clear()
-                    if (navController.backQueue.isEmpty()) {
+                    if (totalStatus.router.backQueue.isEmpty()) {
                         // 此类 onBackPressed 的操作会导致无限递归
                         // 因为这类 onBackPressed 函数就是调用了监听器，监听器再调用 onBackPressed 导致无限递归。
                         //(context as? Activity)?.onBackPressed()
 
                         (context as? Activity)?.finish()
                     } else {
-                        navController.popBackStack()
+                        totalStatus.router.popBackStack()
                     }
                 }
                 //Toast.makeText(context, "back", Toast.LENGTH_SHORT).show()

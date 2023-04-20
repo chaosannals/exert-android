@@ -20,10 +20,6 @@ data class RouteStatus(
     var startRoute: String,
 ) : Parcelable
 
-val LocalNavController = staticCompositionLocalOf<NavHostController> {
-    error("No NavController  provided!")
-}
-
 val LocalRouteStatus = staticCompositionLocalOf<RouteStatus>{
     error("No Route Status")
 }

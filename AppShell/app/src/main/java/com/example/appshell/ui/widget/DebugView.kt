@@ -14,7 +14,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
-import com.example.appshell.ui.LocalNavController
+import com.example.appshell.LocalTotalStatus
 import com.example.appshell.ui.*
 import com.example.appshell.ui.widget.form.Form
 import com.example.appshell.ui.widget.form.FormTextInput
@@ -25,7 +25,7 @@ fun DebugView(
     modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
-    val navController = LocalNavController.current
+    val totalStatus = LocalTotalStatus.current
     val scaffoldStatus = LocalX5ScaffoldStatus.current
 
     val subject = LocalX5ScaffoldRxSubject.current
@@ -81,7 +81,7 @@ fun DebugView(
                      .clickable
                      {
 //                         navController.navigate("home-page")
-                         navController.routeTop("home-page")
+                         totalStatus.router.routeTop("home-page")
                      }
                  ,
              )
@@ -94,7 +94,7 @@ fun DebugView(
                      .clickable
                      {
 //                         navController.navigate("tbs-page")
-                         navController.routeTop("tbs-page")
+                         totalStatus.router.routeTop("tbs-page")
                      }
                  ,
              )
@@ -107,7 +107,7 @@ fun DebugView(
                      .clickable
                      {
 //                         navController.navigate("conf-page")
-                         navController.routeTop("conf-page")
+                         totalStatus.router.routeTop("conf-page")
                      }
                  ,
              )

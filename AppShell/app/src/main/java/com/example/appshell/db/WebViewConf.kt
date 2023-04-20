@@ -6,7 +6,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import com.example.appshell.LocalAppDatabase
+import com.example.appshell.LocalTotalStatus
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
@@ -20,11 +20,11 @@ data class WebViewConf(
 
 @Composable
 fun ensureWebViewConf(action: (WebViewConf) -> Unit) {
-    val db = LocalAppDatabase.current
+    val totalStatus = LocalTotalStatus.current
 
     LaunchedEffect(Unit) {
         launch(Dispatchers.IO) {
-            val dao = db.webViewConfDao()
+            val dao = totalStatus.database.webViewConfDao()
             var info = dao.getInfo()
             if (info == null) {
                 info = WebViewConf(

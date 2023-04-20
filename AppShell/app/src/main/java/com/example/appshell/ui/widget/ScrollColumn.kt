@@ -30,7 +30,7 @@ import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.example.appshell.LocalMainScrollSubject
+import com.example.appshell.LocalTotalStatus
 import com.example.appshell.ui.dp2px
 import com.example.appshell.ui.sdp
 import com.example.appshell.ui.ssp
@@ -80,7 +80,7 @@ fun ScrollColumn(
     isControlFloating: Boolean = true,
     content: (@Composable ScrollColumnScope.() -> Unit)? = null,
 ) {
-    val mss = LocalMainScrollSubject.current
+    val totalStatus = LocalTotalStatus.current
 
     var contentHeight by remember {
         mutableStateOf(0)
@@ -145,7 +145,7 @@ fun ScrollColumn(
 
     if (isControlFloating) {
         LaunchedEffect(scrollAll) {
-            mss.onNext(abs(scrollAll) / (abs(contentSurplusHeight) + 1))
+            totalStatus.scrollOffset.onNext(abs(scrollAll) / (abs(contentSurplusHeight) + 1))
         }
     }
 

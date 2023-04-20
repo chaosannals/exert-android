@@ -2,14 +2,12 @@ package com.example.appshell.ui.page
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import com.example.appshell.ui.LocalNavController
+import com.example.appshell.LocalTotalStatus
 import com.example.appshell.ui.ssp
 import com.example.appshell.ui.widget.DesignPreview
 
@@ -18,14 +16,14 @@ fun DemoRouteButton(
     text: String,
     path: String,
 ) {
-    val navController = LocalNavController.current
+    val totalStatus = LocalTotalStatus.current
 
     Text(
         text = text,
         fontSize = 14.ssp,
         modifier = Modifier
             .clickable {
-                navController.navigate(path)
+                totalStatus.router.navigate(path)
             }
     )
 }

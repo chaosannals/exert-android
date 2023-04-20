@@ -12,7 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.example.appshell.LocalAppDatabase
+import com.example.appshell.LocalTotalStatus
 import com.example.appshell.db.WebViewConf
 import com.example.appshell.ui.sdp
 import com.example.appshell.ui.shadow2
@@ -27,8 +27,7 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun ConfPage() {
-    val db = LocalAppDatabase.current
-    val coroutineScope = rememberCoroutineScope()
+    val totalStatus = LocalTotalStatus.current
 
     var conf: WebViewConf? by remember {
         mutableStateOf(null)
@@ -98,9 +97,9 @@ fun ConfPage() {
                     .background(Color.Cyan, RoundedCornerShape(24.sdp))
                     .padding(14.sdp, 4.sdp)
                     .clickable {
-                        coroutineScope.launch(Dispatchers.IO) {
+                        totalStatus.scope.launch(Dispatchers.IO) {
                             conf?.let {
-                                val dao = db.webViewConfDao()
+                                val dao = totalStatus.database.webViewConfDao()
                                 dao.save(it)
                             }
                         }

@@ -31,10 +31,8 @@ fun DesignPreview(
     }
 
     CompositionLocalProvider(
-        LocalNavController provides rememberNavController(),
+        LocalTotalStatus provides rememberTotalStatus(),
         LocalRouteStatus provides rememberRouteStatus(),
-        LocalAppDatabase provides  rememberAppDatabase(context = LocalContext.current),
-        LocalMainScrollSubject provides rememberMainScrollSubject(),
         LocalFormContext provides rememberFormContext(),
         LocalX5ScaffoldStatus provides rememberX5ScaffoldStatus(),
         LocalTipQueue provides rememberTipQueue(),

@@ -18,13 +18,13 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.zIndex
-import com.example.appshell.ui.LocalNavController
+import com.example.appshell.LocalTotalStatus
 import com.example.appshell.ui.routeTop
 import com.example.appshell.ui.sdp
 import io.reactivex.rxjava3.subjects.BehaviorSubject
 import io.reactivex.rxjava3.subjects.PublishSubject
+import kotlinx.parcelize.IgnoredOnParcel
 import kotlinx.parcelize.Parcelize
-import java.util.concurrent.TimeUnit
 import kotlin.math.roundToInt
 
 //interface  X5ScaffoldStatable {
@@ -41,7 +41,10 @@ data class X5ScaffoldStatus(
     var isShowFloatingBall: Boolean = true,
     var isShowNavbar: Boolean = true,
     var isShowLoadingPane: Boolean = false,
+
 ) : Parcelable
+
+
 //    , X5ScaffoldStatable
 
 //val X5ScaffoldStatusSaver = run {
@@ -58,6 +61,7 @@ val LocalX5ScaffoldStatus = staticCompositionLocalOf<X5ScaffoldStatus> {
     error("No X5Scaffold Status !")
 }
 
+// BehaviorSubject 确保状态可读，拆解的基本状态理论上好过整体。
 val LocalX5ScaffoldRxSubject = staticCompositionLocalOf<BehaviorSubject<X5ScaffoldStatus>> {
     error("No X5Scaffold rx subject")
 }
@@ -76,7 +80,7 @@ fun rememberX5ScaffoldStatus(): X5ScaffoldStatus {
 fun rememberX5ScaffoldRxSubject(): BehaviorSubject<X5ScaffoldStatus> {
     val subject by remember {
         val ps = BehaviorSubject.create<X5ScaffoldStatus>()
-        ps.onNext(X5ScaffoldStatus())
+        ps.onNext(X5ScaffoldStatus()) // 做初始化，防止初始空。
         mutableStateOf(ps)
     }
     return subject
@@ -87,7 +91,7 @@ fun X5Scaffold(
     modifier: Modifier = Modifier,
     content: @Composable () -> Unit,
 ) {
-    val navController = LocalNavController.current
+    val totalStatus = LocalTotalStatus.current
     var status = LocalX5ScaffoldStatus.current
     val coroutineScope = rememberCoroutineScope()
 
@@ -143,28 +147,28 @@ fun X5Scaffold(
                             imageVector = Icons.Default.Home,
                             onClicked =
                             {
-                                navController.routeTop("home-page")
+                                totalStatus.router.routeTop("home-page")
                             },
                         )
                         NavbarButton(
                             imageVector = Icons.Default.Build,
                             onClicked =
                             {
-                                navController.routeTop("tbs-page")
+                                totalStatus.router.routeTop("tbs-page")
                             },
                         )
                         NavbarButton(
                             imageVector = Icons.Default.Settings,
                             onClicked =
                             {
-                                navController.routeTop("conf-page")
+                                totalStatus.router.routeTop("conf-page")
                             },
                         )
                         NavbarButton(
                             imageVector = Icons.Default.List,
                             onClicked =
                             {
-                                navController.routeTop("demo-page")
+                                totalStatus.router.routeTop("demo-page")
                             },
                         )
                     }

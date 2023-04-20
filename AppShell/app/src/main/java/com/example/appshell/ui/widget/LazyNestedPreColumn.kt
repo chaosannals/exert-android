@@ -20,7 +20,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
-import com.example.appshell.LocalMainScrollSubject
+import com.example.appshell.LocalTotalStatus
 import com.example.appshell.ui.px2dp
 import kotlinx.coroutines.launch
 import kotlin.math.abs
@@ -37,7 +37,7 @@ fun LazyNestedPreColumn(
     modifier: Modifier = Modifier,
     content: LazyListScope.() -> Unit
 ) {
-    val mss = LocalMainScrollSubject.current
+    val totalStatus = LocalTotalStatus.current
     val density = LocalDensity.current
     val spaceMaxHeight = 84.dp
     val spaceMaxHeightPx = with(density) { spaceMaxHeight.roundToPx().toFloat() }
@@ -113,9 +113,10 @@ fun LazyNestedPreColumn(
 //        val h = status.layoutInfo.visibleItemsInfo.map { it.size }.reduce { a, b -> a + b }
 //        val t = status.layoutInfo.visibleItemsInfo.map { it.index }.max()
         val c = status.layoutInfo.visibleItemsInfo.size
-        val v = (index.toFloat() / (status.layoutInfo.totalItemsCount - c)) * 100f
-        Log.d("lazy-nested-pre-column", "index: ${index} ; ; ${v}%")
-        mss.onNext(v)
+        val t = status.layoutInfo.totalItemsCount
+        val v = (index.toFloat() / max(t - c,1)) * 100f
+        Log.d("lazy-nested-pre-column", "index: ${index} ; c: ${c} ; t: ${t} ; ${v}%")
+        totalStatus.scrollOffset.onNext(v)
     }
 
     Box(

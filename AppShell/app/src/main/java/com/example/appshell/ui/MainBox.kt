@@ -17,18 +17,15 @@ import java.util.concurrent.TimeUnit
 @Composable
 fun MainBox() {
     AppShellTheme {
-        val navController = rememberNavController()
+        val status = rememberTotalStatus()
         val routeStatus = rememberRouteStatus()
-        val database = rememberAppDatabase(context = LocalContext.current)
         val scaffoldStatus = rememberX5ScaffoldStatus()
         var sd by remember {
             mutableStateOf(0f)
         }
 
-        val sps = rememberMainScrollSubject()
-
-        DisposableEffect(sps) {
-            val s = sps
+        DisposableEffect(status) {
+            val s = status.scrollOffset
                 .throttleLast(400, TimeUnit.MILLISECONDS)
                 .subscribe { sd = it }
             onDispose {
@@ -37,9 +34,7 @@ fun MainBox() {
         }
 
         CompositionLocalProvider(
-            LocalNavController provides navController,
-            LocalAppDatabase provides database,
-            LocalMainScrollSubject provides sps,
+            LocalTotalStatus provides status,
             LocalRouteStatus provides routeStatus,
             LocalX5ScaffoldStatus provides scaffoldStatus,
             LocalTipQueue provides rememberTipQueue(),
@@ -52,7 +47,7 @@ fun MainBox() {
                             .navigationBarsPadding()
                     ) {
                         NavHost(
-                            navController = navController,
+                            navController = status.router,
 //                    startDestination = routeStatus.startRoute,
                             startDestination = "home-page",
                         ) {
