@@ -29,6 +29,9 @@ data class TotalStatus(
     val scrollOffset: PublishSubject<Float> = PublishSubject.create()
 
     @IgnoredOnParcel
+    val exceptionQueue: PublishSubject<Throwable> = PublishSubject.create()
+
+    @IgnoredOnParcel
     var navController: NavHostController? = null
 
     @IgnoredOnParcel
@@ -40,6 +43,17 @@ data class TotalStatus(
     val router: NavHostController get() = navController!!
     val database: AppDatabase get() = appDatabase!!
     val scope: CoroutineScope get() = coroutineScope!!
+
+    fun routeTo(path: String, isClear: Boolean=false) {
+        try {
+            if (isClear) {
+                router.backQueue.clear()
+            }
+            router.navigate(path)
+        } catch (t: Throwable) {
+            exceptionQueue.onNext(t)
+        }
+    }
 }
 
 val TotalStatusSaver = run {

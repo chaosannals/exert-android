@@ -1,18 +1,18 @@
 package com.example.appshell.ui
 
 
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.rememberNavController
 import com.example.appshell.*
 import com.example.appshell.ui.theme.AppShellTheme
 import com.example.appshell.ui.widget.*
 import java.util.concurrent.TimeUnit
+import kotlin.time.DurationUnit
+import kotlin.time.toDuration
 
 @Composable
 fun MainBox() {
@@ -20,16 +20,30 @@ fun MainBox() {
         val status = rememberTotalStatus()
         val routeStatus = rememberRouteStatus()
         val scaffoldStatus = rememberX5ScaffoldStatus()
+        val tipQueue = rememberTipQueue()
         var sd by remember {
             mutableStateOf(0f)
         }
 
         DisposableEffect(status) {
-            val s = status.scrollOffset
+            val scrollOffsetDisposable = status.scrollOffset
                 .throttleLast(400, TimeUnit.MILLISECONDS)
                 .subscribe { sd = it }
+
+            val exceptionQueueDisposable = status.exceptionQueue
+                .subscribe {
+                    tipQueue.onNext(
+                        TipItem(
+                            "${it.message}",
+                            Color.Red,
+                            1.4.toDuration(DurationUnit.SECONDS),
+                        )
+                    )
+                }
+
             onDispose {
-                s.dispose()
+                scrollOffsetDisposable.dispose()
+                exceptionQueueDisposable.dispose()
             }
         }
 
@@ -37,7 +51,7 @@ fun MainBox() {
             LocalTotalStatus provides status,
             LocalRouteStatus provides routeStatus,
             LocalX5ScaffoldStatus provides scaffoldStatus,
-            LocalTipQueue provides rememberTipQueue(),
+            LocalTipQueue provides tipQueue,
             LocalLoadingPaneSubject provides rememberLoadingPaneSubject(),
         ) {
             LoadingPaneBox() {
