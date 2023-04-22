@@ -1,9 +1,9 @@
 buildscript {
     ext {
         app_version = '1.0.1'
-        compose_ui_version = '1.4.0'
+        compose_ui_version = '1.4.2'
         nav_version = '2.5.3'
-        kotlin_version = '1.8.0'
+        kotlin_version = '1.8.10'
         room_version = "2.5.1"
         accompanist_version = "0.30.1"
 
@@ -23,5 +23,5 @@ plugins {
     id 'com.android.library' version '7.4.2' apply false
     id 'org.jetbrains.kotlin.android' version "$kotlin_version" apply false
     id 'org.jetbrains.kotlin.plugin.serialization' version "$kotlin_version" apply false
-    id 'com.google.devtools.ksp' version '1.8.0-1.0.9' apply false
+    id 'com.google.devtools.ksp' version "$kotlin_version-1.0.9" apply false // 版本号是 <最高>-<最低> 兼容版本，不一定有，要查包库。
 }
