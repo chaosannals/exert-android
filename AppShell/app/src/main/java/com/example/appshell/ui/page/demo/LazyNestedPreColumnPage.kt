@@ -31,13 +31,16 @@ fun LazyNestedPreColumnPage() {
             item {
                 Box(modifier = Modifier.size(140.sdp).background(Color.Cyan))
             }
-            items(4) { index ->
-                Text(
-                    "I'm item $index",
-                    modifier = Modifier
+            items(44444) { index ->
+                val t = "I'm item $index"
+                key (t) {
+                    Text(
+                        t,
+                        modifier = Modifier
 //                        .fillMaxWidth()
-                        .padding(16.dp),
-                )
+                            .padding(16.dp),
+                    )
+                }
             }
         }
     }
