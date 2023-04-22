@@ -32,3 +32,5 @@
 -keep class com.tencent.tbs.** {
     *;
 }
+
+-keep class com.tencent.imsdk.** { *; }

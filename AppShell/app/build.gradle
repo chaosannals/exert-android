@@ -27,6 +27,12 @@ android {
 //            abiFilters 'armeabi', 'armeabi-v7a', 'arm64-v8a', 'x86', 'x86_64'
 //        }
 
+
+        // 腾讯IM
+        ndk {
+            abiFilters "armeabi-v7a", "arm64-v8a", "x86", "x86_64"
+        }
+
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
             useSupportLibrary true
@@ -159,6 +165,11 @@ dependencies {
 
     // x5
     api 'com.tencent.tbs:tbssdk:44286'
+
+    // txim
+//    api 'com.tencent.imsdk:imsdk:5.1.66' // 基础版，啥都没有，就几个简单接口。。。而且很久没更新。
+    api 'com.tencent.imsdk:imsdk-plus:7.1.3933'
+//    api 'com.tencent.imsdk:imsdk-plus-pro:版本号'
 
     // room
     implementation "androidx.room:room-runtime:$room_version"

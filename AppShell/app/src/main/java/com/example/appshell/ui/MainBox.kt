@@ -25,6 +25,27 @@ fun MainBox() {
             mutableStateOf(0f)
         }
 
+        DisposableEffect(Unit) {
+            val txIMDisposable = TxIM.logQueue.subscribe {
+                tipQueue.onNext(
+                    TipItem(
+                        content = "[${it.logLevel}] ${it.logContent}",
+                        color = when (it.logLevel) {
+                            0 -> Color.Red
+                            1 -> Color.Yellow
+                            in 900..999 -> Color.Blue
+                            else -> Color.Green
+                        },
+                        1.4.toDuration(DurationUnit.SECONDS)
+                    )
+                )
+            }
+
+            onDispose {
+                txIMDisposable.dispose()
+            }
+        }
+
         DisposableEffect(status) {
             val scrollOffsetDisposable = status.scrollOffset
                 .throttleLast(400, TimeUnit.MILLISECONDS)
