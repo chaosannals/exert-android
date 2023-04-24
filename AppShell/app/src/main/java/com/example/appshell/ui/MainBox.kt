@@ -1,6 +1,8 @@
 package com.example.appshell.ui
 
 
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.LocalOverscrollConfiguration
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -14,6 +16,7 @@ import java.util.concurrent.TimeUnit
 import kotlin.time.DurationUnit
 import kotlin.time.toDuration
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun MainBox() {
     AppShellTheme {
@@ -70,6 +73,8 @@ fun MainBox() {
         }
 
         CompositionLocalProvider(
+            // https://developer.android.com/about/versions/12/behavior-changes-all?hl=zh-cn#overscroll
+            LocalOverscrollConfiguration provides null, // 关闭 Overscroll Effect （拉伸滚动效果），安卓 12 （SDK 31 以上）嵌套滚动错误。
             LocalTotalStatus provides status,
             LocalRouteStatus provides routeStatus,
             LocalX5ScaffoldStatus provides scaffoldStatus,

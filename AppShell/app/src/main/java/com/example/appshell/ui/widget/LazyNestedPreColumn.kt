@@ -79,9 +79,9 @@ fun LazyNestedPreColumn(
                 available: Offset,
                 source: NestedScrollSource
             ): Offset {
-                val r = super.onPostScroll(consumed, available, source)
+//                val r = super.onPostScroll(consumed, available, source)
 //                Log.d("lazy-nested-pre-column", "post r: ${r}")
-                return r
+                return Offset.Zero
             }
 
             // 结束开始
