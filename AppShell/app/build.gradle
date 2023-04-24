@@ -12,6 +12,15 @@ android {
     namespace 'com.example.appshell'
     compileSdk 33
 
+    signingConfigs {
+        release {
+            storeFile file("../appshell.jks")
+            storePassword "123456"
+            keyAlias "key0"
+            keyPassword "123456"
+        }
+    }
+
     defaultConfig {
         applicationId "com.example.appshell"
         minSdk 26
@@ -48,9 +57,9 @@ android {
             resValue("string", "app_name", "AppShell 正式版")
             resValue("bool", "http_allow", "false")
 
+            buildConfigField("int", "APP_TX_APP_ID", "1400805216")
 
-
-            signingConfig signingConfigs.debug
+            signingConfig signingConfigs.release
         }
 
         // debug 允许 http
@@ -61,15 +70,20 @@ android {
             resValue("string", "app_name", "AppShell 调试版")
             resValue("bool", "http_allow", "true")
 
+            buildConfigField("int", "APP_TX_APP_ID", "1400805216")
+
             signingConfig signingConfigs.debug
         }
     }
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_11
-        targetCompatibility JavaVersion.VERSION_11
+//        sourceCompatibility JavaVersion.VERSION_11
+//        targetCompatibility JavaVersion.VERSION_11
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
     }
     kotlinOptions {
-        jvmTarget = '11'
+        jvmTarget = '1.8'
+//        jvmTarget = '11'
     }
     buildFeatures {
         compose true

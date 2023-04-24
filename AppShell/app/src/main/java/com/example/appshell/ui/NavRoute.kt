@@ -72,6 +72,12 @@ fun NavGraphBuilder.routeDemoGraph() {
         composable("tip-message-page") {
             TipMessagePage()
         }
+        composable("tx-im-login-page") {
+            TxIMLoginPage()
+        }
+        composable("tx-im-page") {
+            TxIMPage()
+        }
     }
 }
 

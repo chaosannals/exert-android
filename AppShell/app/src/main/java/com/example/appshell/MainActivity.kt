@@ -8,6 +8,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.core.view.WindowCompat
 import com.example.appshell.TxIM.initTxIMSDK
+import com.example.appshell.TxIM.unInitTxIMSDK
 import com.example.appshell.ui.MainBox
 import com.example.appshell.ui.widget.form.FormContext
 import com.example.appshell.ui.widget.initX5WebShell
@@ -35,7 +36,7 @@ class MainActivity : ComponentActivity() {
         initX5WebShell()
 
         // 初始化 TxIM
-        initTxIMSDK(1400805216)
+        initTxIMSDK(BuildConfig.APP_TX_APP_ID)
 
         WindowCompat.setDecorFitsSystemWindows(window, false)
         window.statusBarColor = Color.Transparent.toArgb()
@@ -43,5 +44,10 @@ class MainActivity : ComponentActivity() {
         setContent {
             MainBox()
         }
+    }
+
+    override fun onDestroy() {
+        unInitTxIMSDK()
+        super.onDestroy()
     }
 }

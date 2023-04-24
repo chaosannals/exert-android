@@ -46,6 +46,7 @@ fun DemoPage() {
         DemoRouteButton("Pull Refresh", "pull-refresh-page")
         DemoRouteButton("Swipe Refresh", "swipe-refresh-page")
         DemoRouteButton("Tip Message", "tip-message-page")
+        DemoRouteButton("TxIM", "tx-im-login-page")
     }
 }
 

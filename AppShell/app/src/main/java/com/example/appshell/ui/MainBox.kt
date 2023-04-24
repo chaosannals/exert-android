@@ -33,6 +33,7 @@ fun MainBox() {
                         color = when (it.logLevel) {
                             0 -> Color.Red
                             1 -> Color.Yellow
+                            444 -> Color.Red
                             in 900..999 -> Color.Blue
                             else -> Color.Green
                         },
@@ -84,7 +85,7 @@ fun MainBox() {
                         NavHost(
                             navController = status.router,
 //                    startDestination = routeStatus.startRoute,
-                            startDestination = "home-page",
+                            startDestination = "demo-page",
                         ) {
                             routeRootGraph()
                             routeDemoGraph()
