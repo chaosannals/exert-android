@@ -97,7 +97,7 @@ fun TipMessageToast(
     }
 }
 
-// 1.x 为一种实现，此方案需要独立的协程作用域。
+// 1.x 为一种实现，（此方案需要独立的协程作用域，或使用 rememberUpdateState 传递 lambda 使得 lambda 不被取消）
 // 2.x 为另一种实现，此方案没有 1 及时，因为复用了 LaunchedEffect 的协程作用域和条件调度（LaunchedEffect 的调度不及时）
 @Composable
 fun TipMessageBox(
