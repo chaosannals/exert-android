@@ -4,6 +4,7 @@ import android.Manifest
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Message
 import android.util.Log
@@ -30,7 +31,8 @@ import com.tencent.smtt.sdk.*
 @Composable
 fun X5WebShell(
     conf: WebViewConf?,
-    onLoaded: ((WebView)->Unit)? = null,
+    onLoaded: ((WebView)->Unit)? = null, // 此处执行的 js 无法确保每个页面都有执行，会被重定向清掉状态。
+    onPageStarted: ((WebView)->Unit)? = null, // 每个页面开始。
 ) {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -57,6 +59,11 @@ fun X5WebShell(
         ) {
             handler?.proceed()
 //            super.onReceivedSslError(p0, p1, p2)
+        }
+
+        override fun onPageStarted(p0: WebView?, p1: String?, p2: Bitmap?) {
+            super.onPageStarted(p0, p1, p2)
+            p0?.let { onPageStarted?.invoke(it) }
         }
 
         override fun shouldOverrideUrlLoading(wv: WebView?, url: String?): Boolean {
