@@ -180,6 +180,9 @@ dependencies {
     // x5
     api 'com.tencent.tbs:tbssdk:44286'
 
+    // 微信 SDK
+    api 'com.tencent.mm.opensdk:wechat-sdk-android:6.8.24'
+
     // txim
 //    api 'com.tencent.imsdk:imsdk:5.1.66' // 基础版，啥都没有，就几个简单接口。。。而且很久没更新。
     api 'com.tencent.imsdk:imsdk-plus:7.1.3933'

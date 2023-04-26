@@ -131,7 +131,15 @@ ln -s "$FFMPEG_PATH" ffmpeg
 # 通过安卓自带工具查看证书信息，需要输入证书 key
 keytool -list -v -keystore jcm3demo.jks
 
+# 上面的指令 老版本加 -v 参数可以输出 MD5 指纹
+# 此版的证书 java8 带的 keytool 无法识别
+# 但是 MD5 被抛弃后，新版本加 -v 只有 SHA1 和 SHA256
+# 通过把 输出结果传递给 openssl 去取得 MD5
+# openssl 通过 msys2 使用。
+keytool -exportcert -alias key0 -keystore /c/path/to/key.jks | openssl dgst -md5 
+
 # 调试证书在用户目录  .android 下 debug.keystore 通过下面命令查看 SHA1
+# 密码: android
 keytool -list -v -keystore debug.keystore -storepass android -keypass android
 
 # 需要 Java JDK
