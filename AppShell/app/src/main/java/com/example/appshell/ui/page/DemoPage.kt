@@ -47,6 +47,7 @@ fun DemoPage() {
         DemoRouteButton("Swipe Refresh", "swipe-refresh-page")
         DemoRouteButton("Tip Message", "tip-message-page")
         DemoRouteButton("TxIM", "tx-im-login-page")
+        DemoRouteButton("Pdf Viewer", "pdf-view-page")
     }
 }
 

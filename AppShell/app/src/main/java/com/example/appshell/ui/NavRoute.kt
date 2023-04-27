@@ -78,6 +78,9 @@ fun NavGraphBuilder.routeDemoGraph() {
         composable("tx-im-page") {
             TxIMPage()
         }
+        composable("pdf-view-page") {
+            PdfViewPage()
+        }
     }
 }
 

@@ -124,6 +124,13 @@ android {
             dimension "platform"
         }
     }
+    sourceSets {
+        main {
+            assets {
+                srcDirs 'src\\main\\assets'
+            }
+        }
+    }
 
     // 遍历所有构造变量
     applicationVariants.all { variant ->
