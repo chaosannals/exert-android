@@ -155,3 +155,7 @@ fun ensurePermit(context: Activity, permission: String, code: Int = 1) {
         )
     }
 }
+
+fun ByteArray.toHex(): String = joinToString(separator = "") {
+    "%02x".format(it)
+}
