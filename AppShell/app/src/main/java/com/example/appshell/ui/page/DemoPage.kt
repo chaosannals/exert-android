@@ -48,6 +48,8 @@ fun DemoPage() {
         DemoRouteButton("Tip Message", "tip-message-page")
         DemoRouteButton("TxIM", "tx-im-login-page")
         DemoRouteButton("Pdf Viewer", "pdf-view-page")
+        DemoRouteButton("Reflection", "reflection-page")
+        DemoRouteButton("File", "file-page")
     }
 }
 

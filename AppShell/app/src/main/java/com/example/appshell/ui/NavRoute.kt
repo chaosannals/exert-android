@@ -27,9 +27,11 @@ val LocalRouteStatus = staticCompositionLocalOf<RouteStatus>{
 @Composable
 fun rememberRouteStatus(): RouteStatus {
     val status by rememberSaveable {
-        mutableStateOf(RouteStatus(
+        mutableStateOf(
+            RouteStatus(
             startRoute = "home-page",
-        ))
+        )
+        )
     }
     return status
 }
@@ -80,6 +82,15 @@ fun NavGraphBuilder.routeDemoGraph() {
         }
         composable("pdf-view-page") {
             PdfViewPage()
+        }
+        composable("reflection-page") {
+            ReflectionPage()
+        }
+        composable("regex-page") {
+            RegexPage()
+        }
+        composable("file-page") {
+            FilePage()
         }
     }
 }

@@ -152,6 +152,9 @@ dependencies {
     implementation 'androidx.activity:activity-compose:1.7.1'
     implementation 'androidx.appcompat:appcompat:1.6.1'
 
+    // kotlin 反射
+    implementation "org.jetbrains.kotlin:kotlin-reflect:1.8.21"
+
     // 扩展库
     api "com.google.accompanist:accompanist-insets:$accompanist_version"
     api "com.google.accompanist:accompanist-insets-ui:$accompanist_version"

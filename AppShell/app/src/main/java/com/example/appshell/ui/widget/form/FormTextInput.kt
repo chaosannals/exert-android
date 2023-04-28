@@ -36,12 +36,14 @@ fun FormTextInput(
         mutableStateOf(adaptText(value, isTrim, isNullable, maxLength))
     }
     var validateResult: String? by remember {
-        mutableStateOf(validateFormText(
+        mutableStateOf(
+            validateFormText(
             text,
             isRequired,
             isNullable,
             onValidate,
-        ))
+        )
+        )
     }
 
     LaunchedEffect(value) {
