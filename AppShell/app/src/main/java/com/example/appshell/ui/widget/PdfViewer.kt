@@ -64,7 +64,7 @@ fun PdfViewer(
                         val cachedBitmap = context.imageLoader.memoryCache?.get(cacheKey)
 
                         Log.d("pdf-viewer", "cache bitmap: $cachedBitmap")
-                        cachedBitmap ?: {
+                        if (cachedBitmap != null) cachedBitmap else {
                             val bitmap = Bitmap.createBitmap(
                                 width,
                                 height,
@@ -79,7 +79,7 @@ fun PdfViewer(
                                 }
                             }
                             bitmap
-                        }()
+                        }
                     }
 
                     Log.d("pdf-viewer", "bitmap: $bitmap")
@@ -109,6 +109,8 @@ fun PdfViewer(
 fun PdfViewerPreview() {
     val context = LocalContext.current
     val cache = File("${context.cacheDir}/ffffff")
+
+    // 只有 webview 可以使用 file:///android_asset/file_name 形式
     context.assets.open("xl2409.pdf").use {input ->
         context.contentResolver.openOutputStream(Uri.fromFile(cache))?.use {
             it.write(input.readBytes())
