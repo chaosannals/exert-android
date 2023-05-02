@@ -2,6 +2,7 @@ package com.example.appshell.ui.page.demo
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
@@ -23,6 +24,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.example.appshell.ui.sdp
 import com.example.appshell.ui.widget.DesignPreview
 
+@OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun AnimationPage() {
     LazyColumn(
@@ -90,6 +92,36 @@ fun AnimationPage() {
                                 .background(Color.Red)
                         )
                     }
+                }
+            }
+        }
+
+        item {
+            var visible by remember { mutableStateOf(false) }
+            Button(onClick = { visible = !visible }) {
+                Text("切换3.1")
+            }
+            AnimatedVisibility(
+                visible = visible,
+//                enter = fadeIn(),
+                enter = EnterTransition.None,
+                exit = fadeOut(),
+            ) {
+                Box(
+                    modifier = Modifier
+                        .size(100.sdp, 200.sdp)
+                        .background(Color.White),
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .align(Alignment.BottomCenter)
+                            .animateEnterExit( // 实验性 API
+                                enter = slideInVertically(initialOffsetY = { it }),
+                                exit = slideOutVertically(targetOffsetY = { it }),
+                            )
+                            .size(100.sdp)
+                            .background(Color.Red)
+                    )
                 }
             }
         }
