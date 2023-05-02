@@ -38,6 +38,9 @@ fun rememberRouteStatus(): RouteStatus {
 
 fun NavGraphBuilder.routeDemoGraph() {
     navigation("lazy-page", "demo") {
+        composable("animation-page") {
+            AnimationPage()
+        }
         composable("coil-photo-page") {
             CoilPhotoPage()
         }

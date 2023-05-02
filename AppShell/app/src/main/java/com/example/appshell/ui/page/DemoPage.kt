@@ -34,6 +34,7 @@ fun DemoPage() {
         modifier = Modifier
             .statusBarsPadding(),
     ) {
+        DemoRouteButton("Animation", "animation-page")
         DemoRouteButton("Coil Photo", "coil-photo-page")
         DemoRouteButton("Http Client", "http-client-page")
         DemoRouteButton("Lazy Drag", "lazy-drag-page")

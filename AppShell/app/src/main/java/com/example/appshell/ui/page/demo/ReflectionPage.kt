@@ -2,7 +2,7 @@ package com.example.appshell.ui.page.demo
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material.Text
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.appshell.ui.widget.DesignPreview
 import kotlin.reflect.full.declaredMemberProperties
@@ -28,6 +28,20 @@ fun ReflectionPage() {
             m.isAccessible = true // 开放访问权限
             Text("${m.returnType} ${m.name} = ${m.getter.call(rk)}")
         }
+
+        val replaceText by remember {
+            derivedStateOf {
+                var result = "{d1} {i1}"
+                for (m in rk::class.declaredMemberProperties) {
+                    val v = m.getter.call(rk)
+                    if (v != null) {
+                        result = result.replace("{${m.name}}", v.toString())
+                    }
+                }
+                result
+            }
+        }
+        Text(text = replaceText)
     }
 }
 
