@@ -51,6 +51,8 @@ fun DemoPage() {
         DemoRouteButton("Pdf Viewer", "pdf-view-page")
         DemoRouteButton("Reflection", "reflection-page")
         DemoRouteButton("File", "file-page")
+        DemoRouteButton("Video Display", "video-display-page")
+        DemoRouteButton("Video Display 2", "video-display-2-page")
     }
 }
 

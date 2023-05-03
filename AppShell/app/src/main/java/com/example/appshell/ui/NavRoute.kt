@@ -95,6 +95,12 @@ fun NavGraphBuilder.routeDemoGraph() {
         composable("file-page") {
             FilePage()
         }
+        composable("video-display-page") {
+            VideoDisplayPage()
+        }
+        composable("video-display-2-page") {
+            VideoDisplay2Page()
+        }
     }
 }
 
