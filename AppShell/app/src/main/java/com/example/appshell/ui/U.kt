@@ -16,6 +16,7 @@ import androidx.compose.ui.unit.sp
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import kotlin.math.floor
+import kotlin.math.log10
 
 object U {
     val density: Float by lazy {
@@ -158,4 +159,15 @@ fun ensurePermit(context: Activity, permission: String, code: Int = 1) {
 
 fun ByteArray.toHex(): String = joinToString(separator = "") {
     "%02x".format(it)
+}
+
+fun Int.sizeText(): String {
+    val lv = log10(this.toFloat())
+    return when (lv) {
+        in 0f..3f -> "${this}B"
+        in 3f..6f -> "${this / 1000f}KB"
+        in 6f..9f -> "${this / 1000000f}MB"
+        in 9f..12f -> "${this / 1000000000f}GB"
+        else -> "NaN"
+    }
 }

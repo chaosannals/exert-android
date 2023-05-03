@@ -95,6 +95,12 @@ fun NavGraphBuilder.routeDemoGraph() {
         composable("file-page") {
             FilePage()
         }
+        composable("file-custom-pick-page") {
+            FileCustomPickPage()
+        }
+        composable("image-pick-page") {
+            ImagePickPage()
+        }
         composable("video-display-page") {
             VideoDisplayPage()
         }
