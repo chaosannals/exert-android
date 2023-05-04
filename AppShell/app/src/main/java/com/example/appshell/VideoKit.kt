@@ -57,9 +57,9 @@ object VideoKit {
         }
     }
 
-    fun StyledPlayerView.init(exoPlayer: ExoPlayer?) {
+    fun StyledPlayerView.init(exoPlayer: ExoPlayer?, useControl: Boolean=false) {
         player = exoPlayer
-        useController = false
+        useController = useControl
         layoutParams = LinearLayout.LayoutParams(
             ViewGroup.LayoutParams.MATCH_PARENT,
             ViewGroup.LayoutParams.WRAP_CONTENT

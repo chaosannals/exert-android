@@ -7,6 +7,8 @@ import android.os.Build
 import android.provider.MediaStore
 import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -115,6 +117,13 @@ fun ImagePicker(
         mutableStateListOf<ImagePickerItem>()
     }
 
+    var viewItem: ImagePickerItem? by remember {
+        mutableStateOf(null)
+    }
+    val viewUri: Uri? by remember {
+        derivedStateOf { viewItem?.uri }
+    }
+
     val update by rememberUpdatedState() {
         itemsList.loadImageItems(context)
     }
@@ -125,141 +134,182 @@ fun ImagePicker(
 
     AnimatedVisibility(
         visible = visible,
+        enter= fadeIn(),
+        exit= fadeOut(),
+        modifier = Modifier
+            .fillMaxSize(),
     ) {
-        Column(
+        Box(
             modifier = Modifier
                 .background(Color.Black)
-                .fillMaxSize()
+                .fillMaxSize(),
         ) {
-            Row(
-                horizontalArrangement=Arrangement.Start,
-                verticalAlignment=Alignment.CenterVertically,
+            ImageDialog(
+                imageUri = viewUri,
+                onClose = {viewItem = null},
                 modifier = Modifier
-                    .fillMaxWidth()
+                    .zIndex(10f)
+            )
+            Column(
+                modifier = Modifier
+                    .zIndex(1f)
+                    .background(Color.Black)
+                    .fillMaxSize()
             ) {
                 Row(
-                    horizontalArrangement=Arrangement.Start,
-                    verticalAlignment=Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Start,
+                    verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier
-                        .weight(1f)
+                        .fillMaxWidth()
                 ) {
-                    val tip = when (pickCount) {
-                        1 -> "请选择一张图片"
-                        Int.MAX_VALUE -> "请选择图片，已选中：${selectedList.size} "
-                        else -> "已选中：${selectedList.size}/${pickCount}"
-                    }
-                    Text(
-                        text = tip,
-                        color = Color(0xFF4499DD),
-                        fontSize = 14.ssp,
-                    )
-                }
-
-                Box(
-                    modifier = Modifier
-                        .padding(4.sdp)
-                        .background(Color.Cyan)
-                        .clickable
-                        {
-                            onConfirm?.invoke(true, selectedList)
-                            selectedList.clear()
-                        },
-                ) {
-                    Text(
-                        text = "确定",
-                        color=Color.White,
-                        fontSize = 14.ssp,
-                    )
-                }
-                Box(
-                    modifier = Modifier
-                        .padding(4.sdp)
-                        .background(Color.Gray)
-                        .clickable
-                        {
-                            onConfirm?.invoke(false, listOf())
-                            selectedList.clear()
-                        },
-                ) {
-                    Text(
-                        text = "取消",
-                        color=Color.White,
-                        fontSize = 14.ssp,
-                    )
-                }
-            }
-            LazyVerticalGrid(
-                columns = GridCells.Fixed(rowItemCount),
-                modifier = modifier
-                    .fillMaxSize()
-                    .background(Color.White)
-            ) {
-                itemsIndexed(itemsList) { i, item ->
-                    val selectIndex: Int = selectedList.indexOf(item)
-                    Log.d("image-picker", "render ${i} ${selectIndex}")
-                    Box(
-                        contentAlignment = Alignment.Center,
+                    Row(
+                        horizontalArrangement = Arrangement.Start,
+                        verticalAlignment = Alignment.CenterVertically,
                         modifier = Modifier
-                            .padding(1.sdp)
-                            .fillMaxSize()
-                            .background(Color.Black)
-                            .border(1.sdp, Color.White)
-                            .clickable {
-                                if (selectIndex >= 0) {
-                                    selectedList.remove(item)
-                                } else {
-                                    if (selectedList.size < pickCount) {
-                                        selectedList.add(item)
+                            .weight(1f)
+                    ) {
+                        val tip = when (pickCount) {
+                            1 -> "请选择一张图片"
+                            Int.MAX_VALUE -> "请选择图片，已选中：${selectedList.size} "
+                            else -> "已选中：${selectedList.size}/${pickCount}"
+                        }
+                        Text(
+                            text = tip,
+                            color = Color(0xFF4499DD),
+                            fontSize = 14.ssp,
+                        )
+                    }
+
+                    if (pickCount > 1) {
+                        Box(
+                            modifier = Modifier
+                                .padding(4.sdp)
+                                .background(Color.Cyan)
+                                .clickable
+                                {
+                                    onConfirm?.invoke(true, selectedList)
+                                    selectedList.clear()
+                                },
+                        ) {
+                            Text(
+                                text = "确定",
+                                color = Color.White,
+                                fontSize = 14.ssp,
+                            )
+                        }
+                    }
+                    Box(
+                        modifier = Modifier
+                            .padding(4.sdp)
+                            .background(Color.Gray)
+                            .clickable
+                            {
+                                onConfirm?.invoke(false, listOf())
+                                selectedList.clear()
+                            },
+                    ) {
+                        Text(
+                            text = "取消",
+                            color = Color.White,
+                            fontSize = 14.ssp,
+                        )
+                    }
+                }
+                LazyVerticalGrid(
+                    columns = GridCells.Fixed(rowItemCount),
+                    modifier = modifier
+                        .fillMaxSize()
+                        .background(Color.White)
+                ) {
+                    itemsIndexed(itemsList) { i, item ->
+                        val selectIndex: Int = selectedList.indexOf(item)
+                        Log.d("image-picker", "render ${i} ${selectIndex}")
+                        Box(
+                            contentAlignment = Alignment.Center,
+                            modifier = Modifier
+                                .padding(1.sdp)
+                                .fillMaxSize()
+                                .background(Color.Black)
+                                .border(1.sdp, Color.White)
+                                .clickable {
+                                    if (pickCount > 1) {
+                                        if (selectIndex >= 0) {
+                                            selectedList.remove(item)
+                                        } else {
+                                            if (selectedList.size < pickCount) {
+                                                selectedList.add(item)
+                                            }
+                                        }
+                                    } else {
+                                        onConfirm?.invoke(true, listOf(item))
                                     }
                                 }
+                        ) {
+                            if (selectIndex >= 0) {
+                                Box(
+                                    contentAlignment = Alignment.Center,
+                                    modifier = Modifier
+                                        .zIndex(10f)
+                                        .align(Alignment.TopEnd)
+                                        .size(24.sdp, 14.sdp)
+                                        .background(
+                                            Color.Cyan,
+                                            RoundedCornerShape(bottomStart = 10.sdp)
+                                        )
+                                ) {
+                                    Text(
+                                        text = "${selectIndex + 1}",
+                                        color = Color.White,
+                                        fontSize = 12.ssp,
+                                    )
+                                }
                             }
-                    ) {
-                        if (selectIndex >= 0) {
+
                             Box(
-                                contentAlignment = Alignment.Center,
+                                contentAlignment=Alignment.Center,
                                 modifier = Modifier
                                     .zIndex(10f)
-                                    .align(Alignment.TopEnd)
-                                    .size(24.sdp, 14.sdp)
-                                    .background(
-                                        Color.Cyan,
-                                        RoundedCornerShape(bottomStart = 10.sdp)
-                                    )
+                                    .align(Alignment.BottomEnd)
+                                    .size(34.sdp, 24.sdp)
+                                    .background(Color(0x44FFFFFF))
+                                    .clickable {
+                                        viewItem = item
+                                    },
                             ) {
                                 Text(
-                                    text = "${selectIndex + 1}",
+                                    text = "查看",
+                                    color = Color.White,
+                                    fontSize = 14.ssp,
+                                )
+                            }
+
+                            Column(
+                                modifier = Modifier
+                                    .zIndex(1f)
+                                    .fillMaxSize()
+                            ) {
+                                AsyncImage(
+                                    model = item.uri,
+                                    contentDescription = "图片",
+                                    alignment = Alignment.Center,
+                                    contentScale = ContentScale.Fit,
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .aspectRatio(1f)
+                                )
+                                Text(
+                                    text = item.name,
+                                    color = Color.White,
+                                    fontSize = 12.ssp,
+                                    overflow = TextOverflow.Ellipsis,
+                                    softWrap = false,
+                                )
+                                Text(
+                                    text = item.size.sizeText(),
                                     color = Color.White,
                                     fontSize = 12.ssp,
                                 )
                             }
-                        }
-
-                        Column(
-                            modifier = Modifier
-                                .zIndex(1f)
-                                .fillMaxSize()
-                        ) {
-                            AsyncImage(
-                                model = item.uri,
-                                contentDescription = "图片",
-                                alignment = Alignment.Center,
-                                contentScale = ContentScale.Fit,
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .aspectRatio(1f)
-                            )
-                            Text(
-                                text = item.name,
-                                color = Color.White,
-                                fontSize = 12.ssp,
-                                overflow = TextOverflow.Ellipsis,
-                                softWrap = false,
-                            )
-                            Text(
-                                text = item.size.sizeText(),
-                                color = Color.White,
-                                fontSize = 12.ssp,
-                            )
                         }
                     }
                 }
@@ -283,6 +333,17 @@ fun ImagePickerPreview2() {
         ImagePicker(
             true,
             pickCount = 9
+        )
+    }
+}
+
+@Preview
+@Composable
+fun ImagePickerPreview3() {
+    DesignPreview {
+        ImagePicker(
+            true,
+            pickCount = 1
         )
     }
 }

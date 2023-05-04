@@ -1,7 +1,6 @@
 package com.example.appshell.ui.widget
 
 
-import android.media.MediaMetadataRetriever
 import android.net.Uri
 import android.util.Log
 import androidx.compose.foundation.BorderStroke
@@ -26,7 +25,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
@@ -46,6 +44,7 @@ import java.util.UUID
 @Composable
 fun VideoBox(
     videoUrl: Uri?,
+    modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
     var player: ExoPlayer? by remember {
@@ -61,9 +60,9 @@ fun VideoBox(
     var isStartedPlay by remember(videoUrl, currentVideoId) {
         mutableStateOf(false)
     }
-    val isCurrentPause by remember(currentVideoId, videoId) {
+    val isCurrent by remember(currentVideoId, videoId) {
         derivedStateOf {
-            currentVideoId == videoId // && isStartedPlay
+            currentVideoId == videoId
         }
     }
     val playView: StyledPlayerView by remember(videoUrl) {
@@ -84,9 +83,9 @@ fun VideoBox(
         })
     }
 
-    LaunchedEffect(isCurrentPause) {
-        Log.d("video-box", "isCurrentPause $isCurrentPause")
-        if (isCurrentPause) {
+    LaunchedEffect(isCurrent) {
+        Log.d("video-box", "isCurrentPause $isCurrent")
+        if (isCurrent) {
             playView.player = player
         } else {
             playView.player = null
@@ -109,7 +108,7 @@ fun VideoBox(
 
     val shape = RoundedCornerShape(10.sdp)
     Column(
-        modifier = Modifier
+        modifier = modifier
             .padding(10.sdp)
             .clip(shape)
             .border(BorderStroke(1.sdp, Color.Gray), shape)

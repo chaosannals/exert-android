@@ -7,6 +7,8 @@ import android.os.Build
 import android.provider.MediaStore
 import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -28,12 +30,7 @@ import androidx.compose.material.Icon
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Warning
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.*
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -44,7 +41,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.zIndex
-import coil.compose.AsyncImage
 import com.example.appshell.VideoKit.loadVideoThumb
 import com.example.appshell.ui.sdp
 import com.example.appshell.ui.sizeText
@@ -115,7 +111,7 @@ private fun SnapshotStateList<VideoPickerItem>.loadVideoItems(context: Context) 
                 VideoPickerItem(
                     id=id,
                     name=name,
-                    duration=duration.toDuration(DurationUnit.SECONDS),
+                    duration=duration.toDuration(DurationUnit.MILLISECONDS),
                     size=size,
                     uri=uri,
                     thumb=context.loadVideoThumb(uri),
@@ -131,6 +127,7 @@ fun VideoPicker(
     visible: Boolean,
     modifier: Modifier = Modifier,
     pickCount: Int = Int.MAX_VALUE,
+    videoMaxDuration: Duration? = null,
     rowItemCount: Int=4,
     onConfirm: ((Boolean, List<VideoPickerItem>) -> Unit)? = null,
 ) {
@@ -146,162 +143,220 @@ fun VideoPicker(
         itemsList.loadVideoItems(context)
     }
 
+    val tip by remember(pickCount, videoMaxDuration, selectedList) {
+        derivedStateOf {
+            "请选择视频" + when (pickCount) {
+                1 -> ""
+                Int.MAX_VALUE -> "，已选中：${selectedList.size} "
+                else -> "，已选中：${selectedList.size}/${pickCount}"
+            } + when (videoMaxDuration) {
+                null -> ""
+                else -> "，最大时长：${videoMaxDuration}"
+            }
+        }
+    }
+
+    var viewItem: VideoPickerItem? by remember {
+        mutableStateOf(null)
+    }
+    val viewUri: Uri? by remember(viewItem) {
+        derivedStateOf { viewItem?.uri }
+    }
+
     LaunchedEffect(visible) {
         update()
     }
 
     AnimatedVisibility(
         visible = visible,
+        enter=fadeIn(),
+        exit=fadeOut(),
     ) {
-        Column(
+        VideoDialog(
+            videoUrl = viewUri,
+            onClose = { viewItem = null },
             modifier = Modifier
+                .zIndex(999f)
+        )
+
+        Box(
+            modifier = Modifier
+                .zIndex(1f)
                 .background(Color.Black)
                 .fillMaxSize()
         ) {
-            Row(
-                horizontalArrangement= Arrangement.Start,
-                verticalAlignment= Alignment.CenterVertically,
+            Column(
                 modifier = Modifier
-                    .fillMaxWidth()
+                    .fillMaxSize()
             ) {
                 Row(
-                    horizontalArrangement= Arrangement.Start,
-                    verticalAlignment= Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Start,
+                    verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier
-                        .weight(1f)
+                        .fillMaxWidth()
                 ) {
-                    val tip = when (pickCount) {
-                        1 -> "请选择一个视频"
-                        Int.MAX_VALUE -> "请选择视频，已选中：${selectedList.size} "
-                        else -> "已选中：${selectedList.size}/${pickCount}"
-                    }
-                    Text(
-                        text = tip,
-                        color = Color(0xFF4499DD),
-                        fontSize = 14.ssp,
-                    )
-                }
-
-                Box(
-                    modifier = Modifier
-                        .padding(4.sdp)
-                        .background(Color.Cyan)
-                        .clickable
-                        {
-                            onConfirm?.invoke(true, selectedList)
-                            selectedList.clear()
-                        },
-                ) {
-                    Text(
-                        text = "确定",
-                        color= Color.White,
-                        fontSize = 14.ssp,
-                    )
-                }
-                Box(
-                    modifier = Modifier
-                        .padding(4.sdp)
-                        .background(Color.Gray)
-                        .clickable
-                        {
-                            onConfirm?.invoke(false, listOf())
-                            selectedList.clear()
-                        },
-                ) {
-                    Text(
-                        text = "取消",
-                        color= Color.White,
-                        fontSize = 14.ssp,
-                    )
-                }
-            }
-            LazyVerticalGrid(
-                columns = GridCells.Fixed(rowItemCount),
-                modifier = modifier
-                    .fillMaxSize()
-                    .background(Color.White)
-            ) {
-                itemsIndexed(itemsList) { i, item ->
-                    val selectIndex: Int = selectedList.indexOf(item)
-                    Log.d("video-picker", "render ${i} ${selectIndex}")
-                    Box(
-                        contentAlignment = Alignment.Center,
+                    Row(
+                        horizontalArrangement = Arrangement.Start,
+                        verticalAlignment = Alignment.CenterVertically,
                         modifier = Modifier
-                            .padding(1.sdp)
-                            .fillMaxSize()
-                            .background(Color.Black)
-                            .border(1.sdp, Color.White)
-                            .clickable {
-                                if (selectIndex >= 0) {
-                                    selectedList.remove(item)
-                                } else {
-                                    if (selectedList.size < pickCount) {
-                                        selectedList.add(item)
+                            .weight(1f)
+                    ) {
+                        Text(
+                            text = tip,
+                            color = Color(0xFF4499DD),
+                            fontSize = 14.ssp,
+                        )
+                    }
+
+                    Box(
+                        modifier = Modifier
+                            .padding(4.sdp)
+                            .background(Color.Cyan)
+                            .clickable
+                            {
+                                onConfirm?.invoke(true, selectedList)
+                                selectedList.clear()
+                            },
+                    ) {
+                        Text(
+                            text = "确定",
+                            color = Color.White,
+                            fontSize = 14.ssp,
+                        )
+                    }
+                    Box(
+                        modifier = Modifier
+                            .padding(4.sdp)
+                            .background(Color.Gray)
+                            .clickable
+                            {
+                                onConfirm?.invoke(false, listOf())
+                                selectedList.clear()
+                            },
+                    ) {
+                        Text(
+                            text = "取消",
+                            color = Color.White,
+                            fontSize = 14.ssp,
+                        )
+                    }
+                }
+                LazyVerticalGrid(
+                    columns = GridCells.Fixed(rowItemCount),
+                    modifier = modifier
+                        .fillMaxSize()
+                        .background(Color.White)
+                ) {
+                    itemsIndexed(itemsList) { i, item ->
+                        val selectIndex: Int = selectedList.indexOf(item)
+                        val isLessMaxDuration =
+                            if (videoMaxDuration != null) videoMaxDuration >= item.duration else true
+                        Log.d("video-picker", "render ${i} ${selectIndex}")
+                        Box(
+                            contentAlignment = Alignment.Center,
+                            modifier = Modifier
+                                .padding(1.sdp)
+                                .fillMaxSize()
+                                .background(Color.Black)
+                                .border(1.sdp, Color.White)
+                                .clickable(enabled = isLessMaxDuration) {
+                                    if (selectIndex >= 0) {
+                                        selectedList.remove(item)
+                                    } else {
+                                        if (selectedList.size < pickCount) {
+                                            selectedList.add(item)
+                                        }
                                     }
                                 }
+                        ) {
+                            if (selectIndex >= 0) {
+                                Box(
+                                    contentAlignment = Alignment.Center,
+                                    modifier = Modifier
+                                        .zIndex(10f)
+                                        .align(Alignment.TopEnd)
+                                        .size(24.sdp, 14.sdp)
+                                        .background(
+                                            Color.Cyan,
+                                            RoundedCornerShape(bottomStart = 10.sdp)
+                                        )
+                                ) {
+                                    Text(
+                                        text = "${selectIndex + 1}",
+                                        color = Color.White,
+                                        fontSize = 12.ssp,
+                                    )
+                                }
                             }
-                    ) {
-                        if (selectIndex >= 0) {
+
                             Box(
-                                contentAlignment = Alignment.Center,
+                                contentAlignment=Alignment.Center,
                                 modifier = Modifier
                                     .zIndex(10f)
-                                    .align(Alignment.TopEnd)
-                                    .size(24.sdp, 14.sdp)
-                                    .background(
-                                        Color.Cyan,
-                                        RoundedCornerShape(bottomStart = 10.sdp)
-                                    )
+                                    .align(Alignment.BottomEnd)
+                                    .size(34.sdp, 24.sdp)
+                                    .background(Color(0x44FFFFFF))
+                                    .clickable {
+                                               viewItem = item
+                                    },
                             ) {
                                 Text(
-                                    text = "${selectIndex + 1}",
+                                    text = "查看",
+                                    color = Color.White,
+                                    fontSize = 14.ssp,
+                                )
+                            }
+
+                            Column(
+                                modifier = Modifier
+                                    .zIndex(1f)
+                                    .fillMaxSize()
+                            ) {
+                                if (item.thumb != null) {
+                                    Image(
+                                        bitmap = item.thumb,
+                                        contentDescription = "视频",
+                                        alignment = Alignment.Center,
+                                        contentScale = ContentScale.Fit,
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .aspectRatio(1f)
+                                    )
+                                } else {
+                                    Box(
+                                        contentAlignment = Alignment.Center,
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .aspectRatio(1f)
+                                            .background(Color.Gray)
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Default.Warning,
+                                            tint = Color.White,
+                                            contentDescription = "无缩略图",
+                                            modifier = Modifier
+                                                .size(24.sdp)
+                                        )
+                                    }
+                                }
+                                Text(
+                                    text = item.name,
+                                    color = Color.White,
+                                    fontSize = 12.ssp,
+                                    overflow = TextOverflow.Ellipsis,
+                                    softWrap = false,
+                                )
+                                Text(
+                                    text = item.size.sizeText(),
+                                    color = Color.White,
+                                    fontSize = 12.ssp,
+                                )
+                                Text(
+                                    text = "${item.duration}",
                                     color = Color.White,
                                     fontSize = 12.ssp,
                                 )
                             }
-                        }
-
-                        Column(
-                            modifier = Modifier
-                                .zIndex(1f)
-                                .fillMaxSize()
-                        ) {
-                            if (item.thumb != null) {
-                                Image(
-                                    bitmap = item.thumb,
-                                    contentDescription = "视频",
-                                    alignment = Alignment.Center,
-                                    contentScale = ContentScale.Fit,
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .aspectRatio(1f)
-                                )
-                            } else {
-                                Box(
-                                    contentAlignment = Alignment.Center,
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .aspectRatio(1f)
-                                        .background(Color.Gray)
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.Default.Warning,
-                                        contentDescription = "无缩略图",
-                                    )
-                                }
-                            }
-                            Text(
-                                text = item.name,
-                                color = Color.White,
-                                fontSize = 12.ssp,
-                                overflow = TextOverflow.Ellipsis,
-                                softWrap = false,
-                            )
-                            Text(
-                                text = item.size.sizeText(),
-                                color = Color.White,
-                                fontSize = 12.ssp,
-                            )
                         }
                     }
                 }

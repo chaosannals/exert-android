@@ -12,9 +12,11 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.Button
 import androidx.compose.material.Text
+import androidx.compose.material.TextField
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.zIndex
 import coil.compose.AsyncImage
@@ -22,6 +24,7 @@ import com.example.appshell.ui.widget.DesignPreview
 import com.example.appshell.ui.widget.ImagePicker
 import com.example.appshell.ui.widget.ImagePickerItem
 
+private val INT_PATTERN = Regex("[0-9]+")
 
 @Composable
 fun ImagePickPage() {
@@ -31,6 +34,13 @@ fun ImagePickPage() {
 
     val images = remember {
         mutableStateListOf<ImagePickerItem>()
+    }
+
+    var pickField by remember {
+        mutableStateOf(TextFieldValue())
+    }
+    var pickCount by remember {
+        mutableStateOf(Int.MAX_VALUE)
     }
 
     Box(
@@ -45,6 +55,20 @@ fun ImagePickPage() {
             modifier = Modifier
                 .fillMaxSize()
         ) {
+            TextField(
+                value = pickField,
+                onValueChange =
+                {
+                    pickField = it
+                    if (it.text.isEmpty()) {
+                        pickCount = Int.MAX_VALUE
+                    } else {
+                        if (pickField.text.matches(INT_PATTERN)) {
+                            pickCount = pickField.text.toInt()
+                        }
+                    }
+                },
+            )
             Button(
                 onClick = { isShowPicker = true },
             ) {
@@ -69,7 +93,7 @@ fun ImagePickPage() {
         }
         ImagePicker(
             visible = isShowPicker,
-            pickCount = 9,
+            pickCount = pickCount,
             modifier = Modifier
                 .zIndex(100f),
             onConfirm = { yes, items ->

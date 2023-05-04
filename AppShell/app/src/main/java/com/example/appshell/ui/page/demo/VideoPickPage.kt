@@ -28,6 +28,8 @@ import com.example.appshell.ui.widget.DesignPreview
 import com.example.appshell.ui.widget.VideoBox
 import com.example.appshell.ui.widget.VideoPicker
 import com.example.appshell.ui.widget.VideoPickerItem
+import kotlin.time.DurationUnit
+import kotlin.time.toDuration
 
 @Composable
 fun VideoPickPage() {
@@ -91,6 +93,7 @@ fun VideoPickPage() {
         VideoPicker(
             visible = isShowPicker,
             pickCount = 9,
+            videoMaxDuration = 30.toDuration(DurationUnit.SECONDS),
             modifier = Modifier
                 .zIndex(100f),
             onConfirm = { yes, items ->
