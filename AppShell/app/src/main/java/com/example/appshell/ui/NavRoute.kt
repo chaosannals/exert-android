@@ -101,6 +101,9 @@ fun NavGraphBuilder.routeDemoGraph() {
         composable("image-pick-page") {
             ImagePickPage()
         }
+        composable("video-pick-page") {
+            VideoPickPage()
+        }
         composable("video-display-page") {
             VideoDisplayPage()
         }

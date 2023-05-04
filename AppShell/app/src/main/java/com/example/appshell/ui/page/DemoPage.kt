@@ -53,6 +53,7 @@ fun DemoPage() {
         DemoRouteButton("File", "file-page")
         DemoRouteButton("File Custom Pick Page", "file-custom-pick-page")
         DemoRouteButton("Image Pick Page", "image-pick-page")
+        DemoRouteButton("Video Pick Page", "video-pick-page")
         DemoRouteButton("Video Display", "video-display-page")
         DemoRouteButton("Video Display 2", "video-display-2-page")
     }
