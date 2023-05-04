@@ -36,6 +36,7 @@ import com.example.appshell.VideoKit
 import com.example.appshell.ui.sdp
 import com.example.appshell.ui.ssp
 import com.example.appshell.VideoKit.init
+import com.example.appshell.VideoKit.loadVideoThumb
 import com.example.appshell.VideoKit.pauseUnique
 import com.example.appshell.VideoKit.playUnique
 import com.google.android.exoplayer2.ExoPlayer
@@ -73,11 +74,7 @@ fun VideoBox(
         mutableStateOf(currentVideoId == videoId)
     }
     val thumb = remember(videoUrl) {
-        videoUrl?.let {
-            val mmr = MediaMetadataRetriever()
-            mmr.setDataSource(context, videoUrl)
-            mmr.getFrameAtTime(1)?.asImageBitmap()
-        }
+        context.loadVideoThumb(videoUrl)
     }
     val ratio by remember(thumb) {
         mutableStateOf(if (thumb != null) {
@@ -135,16 +132,18 @@ fun VideoBox(
                     .clickable {
                         Log.d("video-box", "box click $isPlaying")
 
-                        isPlaying = !isPlaying
+                        if (videoUrl != null) {
+                            isPlaying = !isPlaying
 
-                        if (!isStartedPlay) {
-                            isStartedPlay = true
-                        }
+                            if (!isStartedPlay) {
+                                isStartedPlay = true
+                            }
 
-                        if (isPlaying) {
-                            player?.playUnique(videoUrl, videoId)
-                        } else {
-                            player?.pauseUnique(videoUrl, videoId)
+                            if (isPlaying) {
+                                player?.playUnique(videoUrl, videoId)
+                            } else {
+                                player?.pauseUnique(videoUrl, videoId)
+                            }
                         }
                     },
             ) {
@@ -178,16 +177,18 @@ fun VideoBox(
                 }
             }
 
-            AndroidView(
-                {
-                    playView
-                },
-                modifier = Modifier
-                    .zIndex(1.0f)
-                    .fillMaxSize(),
-            ) {
-                playView.init(player)
-                Log.d("video-box", "android view reset ")
+            if (videoUrl != null) {
+                AndroidView(
+                    {
+                        playView
+                    },
+                    modifier = Modifier
+                        .zIndex(1.0f)
+                        .fillMaxSize(),
+                ) {
+                    playView.init(player)
+                    Log.d("video-box", "android view reset ")
+                }
             }
         }
     }

@@ -33,6 +33,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.zIndex
 import coil.compose.AsyncImage
 import com.example.appshell.ui.sdp
@@ -113,11 +114,6 @@ fun ImagePicker(
     val selectedList = remember(pickCount) {
         mutableStateListOf<ImagePickerItem>()
     }
-    val isShowCount by remember(pickCount) {
-        derivedStateOf {
-            pickCount != Int.MAX_VALUE || pickCount != 1
-        }
-    }
 
     val update by rememberUpdatedState() {
         itemsList.loadImageItems(context)
@@ -141,20 +137,24 @@ fun ImagePicker(
                 modifier = Modifier
                     .fillMaxWidth()
             ) {
-                if (isShowCount) {
-                    Row(
-                        horizontalArrangement=Arrangement.Start,
-                        verticalAlignment=Alignment.CenterVertically,
-                        modifier = Modifier
-                            .weight(1f)
-                    ) {
-                        Text(
-                            text = "已选：${selectedList.size} / ${pickCount}",
-                            color = Color(0xFF4499DD),
-                            fontSize = 14.ssp,
-                        )
+                Row(
+                    horizontalArrangement=Arrangement.Start,
+                    verticalAlignment=Alignment.CenterVertically,
+                    modifier = Modifier
+                        .weight(1f)
+                ) {
+                    val tip = when (pickCount) {
+                        1 -> "请选择一张图片"
+                        Int.MAX_VALUE -> "请选择图片，已选中：${selectedList.size} "
+                        else -> "已选中：${selectedList.size}/${pickCount}"
                     }
+                    Text(
+                        text = tip,
+                        color = Color(0xFF4499DD),
+                        fontSize = 14.ssp,
+                    )
                 }
+
                 Box(
                     modifier = Modifier
                         .padding(4.sdp)
@@ -265,5 +265,24 @@ fun ImagePicker(
                 }
             }
         }
+    }
+}
+
+@Preview
+@Composable
+fun ImagePickerPreview() {
+    DesignPreview {
+        ImagePicker(true)
+    }
+}
+
+@Preview
+@Composable
+fun ImagePickerPreview2() {
+    DesignPreview {
+        ImagePicker(
+            true,
+            pickCount = 9
+        )
     }
 }

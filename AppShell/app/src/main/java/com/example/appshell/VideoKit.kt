@@ -1,10 +1,13 @@
 package com.example.appshell
 
 import android.content.Context
+import android.media.MediaMetadataRetriever
 import android.net.Uri
 import android.util.Log
 import android.view.ViewGroup
 import android.widget.LinearLayout
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.asImageBitmap
 import com.google.android.exoplayer2.DefaultRenderersFactory
 import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.MediaItem
@@ -61,5 +64,13 @@ object VideoKit {
             ViewGroup.LayoutParams.MATCH_PARENT,
             ViewGroup.LayoutParams.WRAP_CONTENT
         )
+    }
+
+    fun Context.loadVideoThumb(videoUrl: Uri?):  ImageBitmap? {
+        return videoUrl?.let {
+            val mmr = MediaMetadataRetriever()
+            mmr.setDataSource(this, videoUrl)
+            mmr.getFrameAtTime(1)?.asImageBitmap()
+        }
     }
 }
