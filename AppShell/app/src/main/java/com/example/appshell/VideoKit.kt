@@ -15,7 +15,7 @@ import com.google.android.exoplayer2.ui.StyledPlayerView
 import io.reactivex.rxjava3.subjects.BehaviorSubject
 
 object VideoKit {
-    val exoPlayer: BehaviorSubject<ExoPlayer> = BehaviorSubject.create()
+    val exoPlayer: BehaviorSubject<ExoPlayer> = BehaviorSubject.create() // seekTo 移动到指定时间
     val currentId: BehaviorSubject<String> = BehaviorSubject.create()
 
     fun Context.initVideoPlayer() {
@@ -67,10 +67,15 @@ object VideoKit {
     }
 
     fun Context.loadVideoThumb(videoUrl: Uri?):  ImageBitmap? {
-        return videoUrl?.let {
-            val mmr = MediaMetadataRetriever()
-            mmr.setDataSource(this, videoUrl)
-            mmr.getFrameAtTime(1)?.asImageBitmap()
+        try {
+            return videoUrl?.let {
+                val mmr = MediaMetadataRetriever()
+                mmr.setDataSource(this, videoUrl)
+                mmr.getFrameAtTime(1)?.asImageBitmap()
+            }
+        } catch (t: Throwable) {
+
         }
+        return null
     }
 }

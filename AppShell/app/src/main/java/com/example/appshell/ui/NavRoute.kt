@@ -110,6 +110,9 @@ fun NavGraphBuilder.routeDemoGraph() {
         composable("video-display-2-page") {
             VideoDisplay2Page()
         }
+        composable("null-page") {
+            NullPage()
+        }
     }
 }
 

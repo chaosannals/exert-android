@@ -35,7 +35,8 @@ private val animateSpec = spring(
 @Composable
 fun LazyNestedPreColumn(
     modifier: Modifier = Modifier,
-    content: LazyListScope.() -> Unit
+
+    content: LazyListScope.() -> Unit,
 ) {
     val totalStatus = LocalTotalStatus.current
     val density = LocalDensity.current
@@ -94,6 +95,7 @@ fun LazyNestedPreColumn(
             // 结束
             override suspend fun onPostFling(consumed: Velocity, available: Velocity): Velocity {
 //                Log.d("lazy-nested-pre-column", "post fling")
+                Log.d("lazy-nested-pre-column", "post fling: ${topPx.value}, ${bottomPx.value}")
                 topPx.animateTo(0f, animateSpec)
                 bottomPx.animateTo(0f, animateSpec)
                 return super.onPostFling(consumed, available)

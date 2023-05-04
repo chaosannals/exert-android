@@ -56,6 +56,7 @@ fun DemoPage() {
         DemoRouteButton("Video Pick Page", "video-pick-page")
         DemoRouteButton("Video Display", "video-display-page")
         DemoRouteButton("Video Display 2", "video-display-2-page")
+        DemoRouteButton("Null", "null-page")
     }
 }
 
