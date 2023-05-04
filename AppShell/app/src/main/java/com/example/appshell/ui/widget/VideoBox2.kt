@@ -40,15 +40,17 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.zIndex
 import com.example.appshell.ui.sdp
 import com.example.appshell.ui.ssp
+import com.example.appshell.ui.widget.VideoPlayer2.playFromUri
 import com.google.android.exoplayer2.DefaultRenderersFactory
 import com.google.android.exoplayer2.ExoPlayer
+import com.google.android.exoplayer2.MediaItem
 import com.google.android.exoplayer2.PlaybackException
 import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.ui.StyledPlayerView
 import io.reactivex.rxjava3.subjects.BehaviorSubject
 import java.util.UUID
 
-// TODO 暂停有问题。
+// TODO 第二种实现，使用 CompositionLocalProvider
 
 enum class Video2Mode {
     IsLoaded,
@@ -92,6 +94,14 @@ object VideoPlayer2 {
 
         return exoPlayer.value!!
     }
+
+    fun ExoPlayer.playFromUri(uri: Uri) {
+        val mi = MediaItem.fromUri(uri)
+        this.clearMediaItems()
+        this.setMediaItem(mi)
+        this.prepare()
+        this.play()
+    }
 }
 
 @Composable
@@ -120,7 +130,7 @@ fun VideoBox2(
 
     val listener by remember(videoUrl) {
         mutableStateOf(
-            object : VideoPlayerListener {
+            object : VideoPlayer2Listener {
                 override fun getId(): String {
                     return videoId
                 }
@@ -128,7 +138,7 @@ fun VideoBox2(
                 }
                 override fun onIsPlayingChanged(isPlaying: Boolean) {
                     Log.d("video-box", "onIsPlayingChanged $mode => $isPlaying")
-                    mode = if (isPlaying) Video2Mode.IsPlaying else Video2Mode.IsPause
+//                    mode = if (isPlaying) Video2Mode.IsPlaying else Video2Mode.IsPause
                 }
 
                 override fun onBeReplaced() {
@@ -170,7 +180,7 @@ fun VideoBox2(
                         .fillMaxSize(),
                 ) {
                     Log.d("video-box", "android view reset ")
-                    val ep = VideoPlayer.ensure(context, listener)
+                    val ep = VideoPlayer2.ensure(context, listener)
                     it.player = ep
                     it.useController = false
                     it.layoutParams = LinearLayout.LayoutParams(
@@ -182,18 +192,18 @@ fun VideoBox2(
                     }
                 }
 
-                VideoPauseBox(
-                    isPause=mode == Video2Mode.IsPause,
-                    onClick = {
-                        Log.d("video-box", "video-pause-box: click $mode")
-                        mode = if (mode == Video2Mode.IsPause) Video2Mode.IsPlaying else Video2Mode.IsPause
-                        if (mode == Video2Mode.IsPause) {
-                            VideoPlayer.pause()
-                        } else {
-                            VideoPlayer.play()
-                        }
-                    }
-                )
+//                VideoPauseBox(
+//                    isPause=mode == Video2Mode.IsPause,
+//                    onClick = {
+//                        Log.d("video-box", "video-pause-box: click $mode")
+//                        mode = if (mode == Video2Mode.IsPause) Video2Mode.IsPlaying else Video2Mode.IsPause
+//                        if (mode == Video2Mode.IsPause) {
+//                            VideoPlayer.pause()
+//                        } else {
+//                            VideoPlayer.play()
+//                        }
+//                    }
+//                )
             } else if (thumb != null) {
                 Image(
                     bitmap = thumb,

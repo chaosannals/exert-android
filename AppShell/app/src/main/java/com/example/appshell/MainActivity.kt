@@ -10,6 +10,7 @@ import androidx.core.view.WindowCompat
 import com.example.appshell.TxIM.initTxIMSDK
 import com.example.appshell.TxIM.unInitTxIMSDK
 import com.example.appshell.ui.MainBox
+import com.example.appshell.VideoKit.initVideoPlayer
 import com.example.appshell.ui.widget.form.FormContext
 import com.example.appshell.ui.widget.initX5WebShell
 
@@ -30,13 +31,16 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // 初始化
+        // 初始化 ==============================
 
         // 初始化 X5
         initX5WebShell()
 
         // 初始化 TxIM
         initTxIMSDK(BuildConfig.APP_TX_APP_ID)
+
+        // 初始化视频
+        initVideoPlayer()
 
         WindowCompat.setDecorFitsSystemWindows(window, false)
         window.statusBarColor = Color.Transparent.toArgb()

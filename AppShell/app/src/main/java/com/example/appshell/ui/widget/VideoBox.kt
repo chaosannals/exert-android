@@ -1,11 +1,9 @@
 package com.example.appshell.ui.widget
 
-import android.content.Context
+
 import android.media.MediaMetadataRetriever
 import android.net.Uri
 import android.util.Log
-import android.view.ViewGroup
-import android.widget.LinearLayout
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
@@ -19,12 +17,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Icon
-import androidx.compose.material.IconButton
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -36,121 +32,45 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.zIndex
+import com.example.appshell.VideoKit
 import com.example.appshell.ui.sdp
 import com.example.appshell.ui.ssp
-import com.google.android.exoplayer2.DefaultRenderersFactory
-import com.google.android.exoplayer2.DefaultRenderersFactory.EXTENSION_RENDERER_MODE_PREFER
+import com.example.appshell.VideoKit.init
+import com.example.appshell.VideoKit.pauseUnique
+import com.example.appshell.VideoKit.playUnique
 import com.google.android.exoplayer2.ExoPlayer
-import com.google.android.exoplayer2.MediaItem
-import com.google.android.exoplayer2.PlaybackException
-import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.ui.StyledPlayerView
 import java.util.UUID
-
-// TODO 暂停有问题。
-
-interface VideoPlayerListener : Player.Listener {
-    fun getId() : String
-    fun onBeReplaced()
-//    fun onEnsured() {}
-}
-
-object VideoPlayer {
-    private var exoPlayer: ExoPlayer? = null
-    private var exoListener: VideoPlayerListener? = null
-
-    fun ensure(context: Context, listener: VideoPlayerListener): ExoPlayer {
-        Log.d("video-box", "ensure")
-
-        if (exoPlayer == null) {
-            val drf = DefaultRenderersFactory(context)
-                .setExtensionRendererMode(EXTENSION_RENDERER_MODE_PREFER)
-            exoPlayer = ExoPlayer.Builder(context, drf).build().apply {
-                addListener(listener)
-                playWhenReady = false
-            }
-            exoListener = listener
-        } else {
-            exoPlayer!!.stop()
-            exoPlayer!!.clearMediaItems()
-            exoListener?.let {
-                exoPlayer!!.removeListener(it)
-                Log.d("video-box", "before onBeReplaced ${listener.getId()} => ${it.getId()}")
-                if (listener.getId() != it.getId()) {
-                    it.onBeReplaced()
-                }
-            }
-            exoPlayer!!.addListener(listener)
-            exoListener = listener
-        }
-
-//        listener.onEnsured()
-        return exoPlayer!!
-    }
-
-    fun pause() {
-        exoPlayer?.pause()
-    }
-
-    fun play() {
-        exoPlayer?.play()
-    }
-}
-
-fun ExoPlayer.playFromUri(uri: Uri) {
-    val mi = MediaItem.fromUri(uri)
-    this.clearMediaItems()
-    this.setMediaItem(mi)
-    this.prepare()
-    this.play()
-}
-
-@Composable
-fun VideoPauseBox(
-    isPause: Boolean,
-    onClick: (() -> Unit)? = null,
-) {
-
-    Box(
-        modifier = Modifier
-            .zIndex(2.0f)
-            .clickable {
-                onClick?.invoke()
-            }
-            .fillMaxSize(),
-        contentAlignment = Alignment.Center,
-    ) {
-        if (isPause) {
-            Icon(
-                imageVector = Icons.Default.Close,
-                contentDescription = "播放（暂停）",
-                tint = Color.Cyan,
-                modifier = Modifier.fillMaxSize(0.6f),
-            )
-        }
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun VideoPauseBoxPreview() {
-    VideoPauseBox(true)
-}
 
 @Composable
 fun VideoBox(
     videoUrl: Uri?,
 ) {
     val context = LocalContext.current
-    var isPlaying by remember(videoUrl) { mutableStateOf(false) }
-    var isPause by remember(videoUrl) { mutableStateOf(false) }
-
-//    val viewId by remember {
-//        mutableStateOf(UUID.randomUUID().toString())
-//    }
-
+    var player: ExoPlayer? by remember {
+        mutableStateOf(VideoKit.exoPlayer.value)
+    }
+    var currentVideoId: String? by remember {
+        mutableStateOf(VideoKit.currentId.value)
+    }
     val videoId by remember(videoUrl) {
         mutableStateOf(UUID.randomUUID().toString())
+    }
+
+    var isStartedPlay by remember(videoUrl, currentVideoId) {
+        mutableStateOf(false)
+    }
+    val isCurrentPause by remember(currentVideoId, videoId) {
+        derivedStateOf {
+            currentVideoId == videoId // && isStartedPlay
+        }
+    }
+    val playView: StyledPlayerView by remember(videoUrl) {
+        mutableStateOf(StyledPlayerView(context))
+    }
+
+    var isPlaying by remember(videoUrl, currentVideoId) {
+        mutableStateOf(currentVideoId == videoId)
     }
     val thumb = remember(videoUrl) {
         videoUrl?.let {
@@ -167,33 +87,27 @@ fun VideoBox(
         })
     }
 
-    val listener by remember(videoUrl) {
-        mutableStateOf(
-            object : VideoPlayerListener {
-                override fun getId(): String {
-//            return videoUrl.toString()
-                    return videoId
-                }
-                override fun onRenderedFirstFrame() {
-                }
-                override fun onIsPlayingChanged(isplaying: Boolean) {
-                    Log.d("video-box", "onIsPlayingChanged $isPlaying => $isplaying")
-                    if (!isPause) {
-                        isPlaying = isplaying
-                    }
-                }
+    LaunchedEffect(isCurrentPause) {
+        Log.d("video-box", "isCurrentPause $isCurrentPause")
+        if (isCurrentPause) {
+            playView.player = player
+        } else {
+            playView.player = null
+        }
+    }
 
-                override fun onBeReplaced() {
-                    Log.d("video-box", "onBeReplaced $isPlaying")
-                    isPause = false
-                    isPlaying = false
-                }
-
-                override fun onPlayerError(error: PlaybackException) {
-
-                }
-            }
-        )
+    Log.d("video-box", "disposable effect before $isPlaying $videoUrl($videoId)")
+    DisposableEffect(Unit) {
+        val playerDisposable = VideoKit.exoPlayer.subscribe {
+            player = it
+        }
+        val currentVedioIdDisposable = VideoKit.currentId.subscribe {
+            currentVideoId = it
+        }
+        onDispose {
+            playerDisposable.dispose()
+            currentVedioIdDisposable.dispose()
+        }
     }
 
     val shape = RoundedCornerShape(10.sdp)
@@ -212,71 +126,80 @@ fun VideoBox(
                 .aspectRatio(ratio),
             contentAlignment = Alignment.Center,
         ) {
-            Log.d("video-box", "android-view before $isPlaying")
-            if (isPlaying) {
-                AndroidView(
-                    {
-                        StyledPlayerView(it)
-                    },
-                    modifier = Modifier
-                        .zIndex(1.0f)
-                        .fillMaxSize(),
-                ) {
-                    Log.d("video-box", "android view reset ")
-                    val ep = VideoPlayer.ensure(context, listener)
-                    it.player = ep
-                    it.useController = false
-                    it.layoutParams = LinearLayout.LayoutParams(
-                        ViewGroup.LayoutParams.MATCH_PARENT,
-                        ViewGroup.LayoutParams.WRAP_CONTENT
-                    )
-                    videoUrl?.let {
-                        ep.playFromUri(it)
-                    }
-                }
+//            Log.d("video-box", "android-view before $isPlaying")
+            Box(
+                contentAlignment = Alignment.Center,
+                modifier = Modifier
+                    .zIndex(10.0f)
+                    .fillMaxSize()
+                    .clickable {
+                        Log.d("video-box", "box click $isPlaying")
 
-                VideoPauseBox(
-                    isPause=isPause,
-                    onClick = {
-                        Log.d("video-box", "video-pause-box: click $isPause")
-                        isPause = !isPause
-                        if (isPause) {
-                            VideoPlayer.pause()
-                        } else {
-                            VideoPlayer.play()
+                        isPlaying = !isPlaying
+
+                        if (!isStartedPlay) {
+                            isStartedPlay = true
                         }
-                    }
-                )
-            } else if (thumb != null) {
-                Image(
-                    bitmap = thumb,
-                    contentDescription = "图片",
-                    contentScale = ContentScale.Fit,
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .zIndex(1.0f),
-                )
-                IconButton(
-                    modifier = Modifier.zIndex(2.0f),
-                    onClick = {
-                        Log.d("video-box", "thumb click")
-                        isPlaying = true
+
+                        if (isPlaying) {
+                            player?.playUnique(videoUrl, videoId)
+                        } else {
+                            player?.pauseUnique(videoUrl, videoId)
+                        }
                     },
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.PlayArrow,
-                        contentDescription = "播放",
-                        tint = Color.White,
-                        modifier = Modifier.fillMaxSize(0.6f),
-                    )
+            ) {
+                if (!isPlaying) {
+                    if (thumb != null) {
+                        if (!isStartedPlay) {
+                            Image(
+                                bitmap = thumb,
+                                contentDescription = "图片",
+                                contentScale = ContentScale.Fit,
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .zIndex(1.0f),
+                            )
+                        }
+                        Icon(
+                            imageVector = Icons.Default.PlayArrow,
+                            contentDescription = "播放",
+                            tint = Color.White,
+                            modifier = Modifier
+                                .fillMaxSize(0.6f)
+                                .zIndex(2.0f),
+                        )
+                    } else {
+                        Icon(
+                            imageVector = Icons.Default.Warning,
+                            contentDescription = "加载失败",
+                            modifier = Modifier.size(300.sdp),
+                        )
+                    }
                 }
-            } else {
-                Icon(
-                    imageVector = Icons.Default.Notifications,
-                    contentDescription="加载失败",
-                    modifier = Modifier.size(300.sdp),
-                )
+            }
+
+            AndroidView(
+                {
+                    playView
+                },
+                modifier = Modifier
+                    .zIndex(1.0f)
+                    .fillMaxSize(),
+            ) {
+                playView.init(player)
+                Log.d("video-box", "android view reset ")
             }
         }
+    }
+}
+
+@Preview
+@Composable
+fun VideoBoxPreview() {
+    DesignPreview() {
+        VideoBox(
+//            videoUrl = Uri.parse("https://www.w3school.com.cn/example/html5/mov_bbb.mp4"),
+            videoUrl = null,
+        )
     }
 }
