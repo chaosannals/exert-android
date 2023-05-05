@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContract
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -19,6 +20,16 @@ import com.example.appshell.guessSuffix
 import com.example.appshell.ui.widget.DesignPreview
 import java.io.File
 import java.util.UUID
+
+class CustomMimeContracts(
+    val accepts: Array<String>,
+): ActivityResultContracts.GetMultipleContents()
+{
+    override fun createIntent(context: Context, input: String): Intent {
+        return super.createIntent(context, input)
+            .putExtra(Intent.EXTRA_MIME_TYPES, accepts)
+    }
+}
 
 @Composable
 fun FilePage() {
@@ -84,6 +95,7 @@ fun FilePage() {
         }
     }
 
+    // （使用的模拟器）此时图片不会显示缩略图，都是以文件列，这个视系统文件管理器而定。
     val multiOpenDocsLoader  = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.OpenMultipleDocuments(),
     ) {
@@ -103,6 +115,18 @@ fun FilePage() {
         }
     }
 
+    // 此种方式无效。多类型 MIME 使用 OpenMultipleDocuments，
+    var customContracts by remember {
+        mutableStateOf(CustomMimeContracts(arrayOf("image/*")))
+    }
+    val customList = remember {
+        mutableStateListOf<Uri>()
+    }
+    val customLoader  = rememberLauncherForActivityResult(
+        contract = customContracts,
+    ) {
+        customList.addAll(it)
+    }
     Column (
         modifier = Modifier
             .fillMaxSize()
@@ -134,11 +158,24 @@ fun FilePage() {
             Text("多选文档")
         }
 
+        Button(
+            onClick =
+            {
+                customLoader.launch("video/*") //
+            },
+        ) {
+            Text("自定义mime")
+        }
+
         LazyColumn(
             modifier = Modifier
                 .weight(1f)
         ) {
             itemsIndexed(mutliList) {i, it ->
+                Text(text = "${i} $it")
+            }
+
+            itemsIndexed(customList) {i, it ->
                 Text(text = "${i} $it")
             }
         }
