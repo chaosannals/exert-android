@@ -95,7 +95,7 @@ fun MainBox() {
                         ) {
                             routeRootGraph()
                             routeDemoGraph()
-                            routeStateGraph()
+                            routeStateGraph(this@X5Scaffold)
                         }
                     }
                 }

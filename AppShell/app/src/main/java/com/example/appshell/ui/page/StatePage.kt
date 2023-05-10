@@ -45,6 +45,8 @@ fun StatePage() {
                 StateRouteButton("Only Flow Page", "only-flow-page")
                 StateRouteButton("Only LiveData Page", "only-live-data-page")
                 StateRouteButton("Only ViewModel Page", "only-view-model-page")
+                StateRouteButton("Only RxJava2 Page", "only-rx-java2-page")
+                StateRouteButton("Only RxJava3 Page", "only-rx-java3-page")
                 StateRouteButton("Save Parcelize Page", "save-parcelize-page")
             }
         }

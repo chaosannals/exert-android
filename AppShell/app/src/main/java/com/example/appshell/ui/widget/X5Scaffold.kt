@@ -2,6 +2,7 @@ package com.example.appshell.ui.widget
 
 import android.annotation.SuppressLint
 import android.os.Parcelable
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectDragGestures
@@ -42,7 +43,9 @@ data class X5ScaffoldStatus(
     var isShowNavbar: Boolean = true,
     var isShowLoadingPane: Boolean = false,
 
-) : Parcelable
+) : Parcelable {
+
+}
 
 
 //    , X5ScaffoldStatable
@@ -86,18 +89,22 @@ fun rememberX5ScaffoldRxSubject(): BehaviorSubject<X5ScaffoldStatus> {
     return subject
 }
 
+class X5ScaffoldScope(
+    val setShowNavbar: (Boolean) -> Unit,
+)
+
 @Composable
 fun X5Scaffold(
     modifier: Modifier = Modifier,
-    content: @Composable () -> Unit,
+    content: @Composable X5ScaffoldScope.() -> Unit,
 ) {
     val totalStatus = LocalTotalStatus.current
     var status = LocalX5ScaffoldStatus.current
-    val coroutineScope = rememberCoroutineScope()
+//    val coroutineScope = rememberCoroutineScope()
 
-    val isShowNavbar by remember {
-        derivedStateOf { status.isShowNavbar }
-    }
+//    val isShowNavbar by remember {
+//        derivedStateOf { status.isShowNavbar }
+//    }
 //    val isShowLoadingPaneDS by remember {
 //        derivedStateOf { status.isShowLoadingPane }
 //    }
@@ -110,11 +117,24 @@ fun X5Scaffold(
     var offsetY by remember { mutableStateOf(0f) }
 
     var isShowLoadingPane by remember { mutableStateOf(false) }
+    var isShowNavbar by remember { mutableStateOf(false) }
     val subject = rememberX5ScaffoldRxSubject()
+
+    val scope by remember {
+        mutableStateOf(
+            X5ScaffoldScope(
+                setShowNavbar = {
+                    Log.d("x5scaffold", "setShowNavbar $it")
+                    isShowNavbar = it
+                }
+            )
+        )
+    }
 
     DisposableEffect(subject) {
         val s = subject.subscribe {
             isShowLoadingPane = it.isShowLoadingPane
+            isShowNavbar = it.isShowNavbar
         }
         onDispose {
             s.dispose()
@@ -136,7 +156,7 @@ fun X5Scaffold(
                 Box(
                     modifier = Modifier.weight(1f),
                 ) {
-                    content()
+                    scope.content()
                 }
                 if (isShowNavbar) {
                     Navbar(

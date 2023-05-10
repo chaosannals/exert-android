@@ -6,7 +6,10 @@ import android.util.Log
 import android.widget.Toast
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.navigation.NamedNavArgument
+import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
+import androidx.navigation.NavDeepLink
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
@@ -19,10 +22,16 @@ import com.example.appshell.ui.page.state.OnlyLiveDataLv2Page
 import com.example.appshell.ui.page.state.OnlyLiveDataPage
 import com.example.appshell.ui.page.state.OnlyRememberLv2Page
 import com.example.appshell.ui.page.state.OnlyRememberPage
+import com.example.appshell.ui.page.state.OnlyRxJava2Lv2Page
+import com.example.appshell.ui.page.state.OnlyRxJava2Page
+import com.example.appshell.ui.page.state.OnlyRxJava3Lv2Page
+import com.example.appshell.ui.page.state.OnlyRxJava3Page
 import com.example.appshell.ui.page.state.OnlyViewModelLv2Page
 import com.example.appshell.ui.page.state.OnlyViewModelPage
 import com.example.appshell.ui.page.state.SaveParcelizeLv2Page
 import com.example.appshell.ui.page.state.SaveParcelizePage
+import com.example.appshell.ui.widget.LocalX5ScaffoldRxSubject
+import com.example.appshell.ui.widget.X5ScaffoldScope
 import kotlinx.parcelize.Parcelize
 
 @Parcelize
@@ -32,6 +41,23 @@ data class RouteStatus(
 
 val LocalRouteStatus = staticCompositionLocalOf<RouteStatus>{
     error("No Route Status")
+}
+
+fun NavGraphBuilder.composableScaffold(
+    route: String,
+    arguments: List<NamedNavArgument> = emptyList(),
+    deepLinks: List<NavDeepLink> = emptyList(),
+    isShowNavbar: Boolean = true,
+    content: @Composable (NavBackStackEntry) -> Unit
+) {
+    composable(route, arguments, deepLinks) {
+        val scaffold = LocalX5ScaffoldRxSubject.current
+        LaunchedEffect(scaffold) {
+            Log.d("x5scaffold", "composableScaffold isShowNavbar=$isShowNavbar")
+            scaffold.onNext(scaffold.value!!.copy(isShowNavbar = isShowNavbar))
+        }
+        content(it)
+    }
 }
 
 @Composable
@@ -129,7 +155,7 @@ fun NavGraphBuilder.routeDemoGraph() {
     }
 }
 
-fun NavGraphBuilder.routeStateGraph() {
+fun NavGraphBuilder.routeStateGraph(scaffoldScope: X5ScaffoldScope) {
     navigation("state-page", "state") { // route 不能和其他composable 重名
         composable("state-page") {
             StatePage()
@@ -177,6 +203,26 @@ fun NavGraphBuilder.routeStateGraph() {
             }
             composable("only-view-model-lv2-page") {
                 OnlyViewModelLv2Page()
+            }
+        }
+
+        navigation("only-rx-java2-page", "only-rx") {
+            composableScaffold("only-rx-java2-page", isShowNavbar = true) {
+                OnlyRxJava2Page()
+            }
+
+            composableScaffold("only-rx-java2-lv2-page", isShowNavbar = false) {
+                OnlyRxJava2Lv2Page()
+            }
+
+            composable("only-rx-java3-page") {
+                scaffoldScope.setShowNavbar(true)
+                OnlyRxJava3Page()
+            }
+
+            composable("only-rx-java3-lv2-page") {
+                scaffoldScope.setShowNavbar(false)
+                OnlyRxJava3Lv2Page()
             }
         }
     }
