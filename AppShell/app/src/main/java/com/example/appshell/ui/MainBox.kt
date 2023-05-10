@@ -90,10 +90,11 @@ fun MainBox() {
                         NavHost(
                             navController = status.router,
 //                    startDestination = routeStatus.startRoute,
-                            startDestination = "demo-page",
+                            startDestination = "demo",
                         ) {
                             routeRootGraph()
                             routeDemoGraph()
+                            routeStateGraph()
                         }
                     }
                 }

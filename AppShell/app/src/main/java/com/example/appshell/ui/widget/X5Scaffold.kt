@@ -168,7 +168,14 @@ fun X5Scaffold(
                             imageVector = Icons.Default.List,
                             onClicked =
                             {
-                                totalStatus.router.routeTop("demo-page")
+                                totalStatus.router.routeTop("demo")
+                            },
+                        )
+                        NavbarButton(
+                            imageVector = Icons.Default.Star,
+                            onClicked =
+                            {
+                                totalStatus.router.routeTop("state")
                             },
                         )
                     }

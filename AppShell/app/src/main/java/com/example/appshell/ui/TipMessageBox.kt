@@ -107,6 +107,11 @@ fun TipMessageBox(
     val items = remember {
         mutableStateListOf<TipItem>()
     }
+    val itemsSize = remember {
+        derivedStateOf {
+            items.size
+        }
+    }
     // 1.1
 //    val coroutineScope = rememberCoroutineScope()
 
@@ -146,7 +151,7 @@ fun TipMessageBox(
 
     // 2.2 首次触发 items.size = 0 currentItem = null
     // Launched 条件触发会杀死协程重启一条，但是不是马上，所以 items.removeFirst 调用后会有一些伴生现象
-    LaunchedEffect(items.size) {
+    LaunchedEffect(itemsSize) {
         val now = Clock.System.now()
         if (currentItem == null) {
             Log.d("tip-message-box", "remove 1 （${items.size}）")

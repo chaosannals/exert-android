@@ -13,6 +13,16 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navigation
 import com.example.appshell.ui.page.*
 import com.example.appshell.ui.page.demo.*
+import com.example.appshell.ui.page.state.OnlyFlowLv2Page
+import com.example.appshell.ui.page.state.OnlyFlowPage
+import com.example.appshell.ui.page.state.OnlyLiveDataLv2Page
+import com.example.appshell.ui.page.state.OnlyLiveDataPage
+import com.example.appshell.ui.page.state.OnlyRememberLv2Page
+import com.example.appshell.ui.page.state.OnlyRememberPage
+import com.example.appshell.ui.page.state.OnlyViewModelLv2Page
+import com.example.appshell.ui.page.state.OnlyViewModelPage
+import com.example.appshell.ui.page.state.SaveParcelizeLv2Page
+import com.example.appshell.ui.page.state.SaveParcelizePage
 import kotlinx.parcelize.Parcelize
 
 @Parcelize
@@ -29,15 +39,18 @@ fun rememberRouteStatus(): RouteStatus {
     val status by rememberSaveable {
         mutableStateOf(
             RouteStatus(
-            startRoute = "home-page",
-        )
+                startRoute = "home-page",
+            )
         )
     }
     return status
 }
 
 fun NavGraphBuilder.routeDemoGraph() {
-    navigation("lazy-page", "demo") {
+    navigation("demo-page", "demo") {// startDestination 必须是子 composable
+        composable("demo-page") {
+            DemoPage()
+        }
         composable("animation-page") {
             AnimationPage()
         }
@@ -116,6 +129,59 @@ fun NavGraphBuilder.routeDemoGraph() {
     }
 }
 
+fun NavGraphBuilder.routeStateGraph() {
+    navigation("state-page", "state") { // route 不能和其他composable 重名
+        composable("state-page") {
+            StatePage()
+        }
+
+        navigation("only-remember-page", "only-remember") {
+            composable("only-remember-page") {
+                OnlyRememberPage()
+            }
+            composable("only-remember-lv2-page") {
+                OnlyRememberLv2Page()
+            }
+        }
+
+        navigation("save-parcelize-page", "save-parcelize") {
+            composable("save-parcelize-page") {
+                SaveParcelizePage()
+            }
+            composable("save-parcelize-lv2-page") {
+                SaveParcelizeLv2Page()
+            }
+        }
+
+        navigation("only-flow-page", "only-flow") {
+            composable("only-flow-page") {
+                OnlyFlowPage()
+            }
+            composable("only-flow-lv2-page") {
+                OnlyFlowLv2Page()
+            }
+        }
+
+        navigation("only-live-data-page", "only-live-data") {
+            composable("only-live-data-page") {
+                OnlyLiveDataPage()
+            }
+            composable("only-live-data-lv2-page") {
+                OnlyLiveDataLv2Page()
+            }
+        }
+
+        navigation("only-view-model-page", "only-view-model") {
+            composable("only-view-model-page") {
+                OnlyViewModelPage()
+            }
+            composable("only-view-model-lv2-page") {
+                OnlyViewModelLv2Page()
+            }
+        }
+    }
+}
+
 fun NavGraphBuilder.routeRootGraph() {
     composable("home-page") {
         HomePage()
@@ -125,9 +191,6 @@ fun NavGraphBuilder.routeRootGraph() {
     }
     composable("conf-page") {
         ConfPage()
-    }
-    composable("demo-page") {
-        DemoPage()
     }
 }
 

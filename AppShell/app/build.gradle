@@ -152,6 +152,12 @@ dependencies {
     implementation 'androidx.activity:activity-compose:1.7.1'
     implementation 'androidx.appcompat:appcompat:1.6.1'
 
+    // live-data
+    implementation "androidx.compose.runtime:runtime-livedata:1.4.3"
+
+    // view-model
+    implementation "androidx.lifecycle:lifecycle-viewmodel-compose:2.6.1"
+
     // kotlin 反射
     implementation "org.jetbrains.kotlin:kotlin-reflect:1.8.21"
 
