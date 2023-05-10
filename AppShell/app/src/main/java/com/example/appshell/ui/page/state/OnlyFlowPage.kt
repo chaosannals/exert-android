@@ -60,9 +60,7 @@ fun OnlyFlowPage() {
 
 //    val intValue by OnlyFlowState.intFlow.collectAsState(initial = 100)
     var intValue by rememberSaveable() { mutableStateOf(0) }
-    val intHistory = rememberSaveable() {
-        mutableStateListOf<Int>()
-    }
+    val intHistory = rememberMutableStateListOf<Int>()
     val totalStatus = LocalTotalStatus.current
     val coroutineScope = rememberCoroutineScope()
 
@@ -102,7 +100,7 @@ fun OnlyFlowPage() {
             {
                 // update 只能给可变的状态流，一般这个是做封装，不像这里直接暴露。直接暴露 itemState 就没有意义了。
                 OnlyFlowState.itemFlow.update {
-                    it.copy(intValue = 1)
+                    it.copy(intValue = it.intValue + 1)
                 }
             },
         ) {
