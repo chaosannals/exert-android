@@ -7,8 +7,11 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.Button
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.appshell.LocalTotalStatus
@@ -26,6 +29,9 @@ data class OnlyViewModelState(
 class OnlyViewModel: ViewModel() {
     val state = MutableStateFlow(OnlyViewModelState())
     val uiState: StateFlow<OnlyViewModelState> = state.asStateFlow()
+
+    val intState = MutableLiveData<Int>()
+    val uiIntState: LiveData<Int> = intState
 }
 
 @Composable
@@ -35,7 +41,7 @@ fun OnlyViewModelPage(
     val totalStatus = LocalTotalStatus.current
     val coroutineScope = rememberCoroutineScope()
     val state by vm.uiState.collectAsState()
-
+    val intValue by vm.uiIntState.observeAsState()
 
     LazyColumn(
         modifier = Modifier
@@ -70,6 +76,17 @@ fun OnlyViewModelPage(
                 },
             ) {
                 Text("时间戳")
+            }
+        }
+
+        item {
+            Button(
+                onClick =
+                {
+                    vm.intState.value = (vm.intState.value ?: 0) + 1
+                },
+            ) {
+                Text(text="${intValue}")
             }
         }
     }

@@ -13,20 +13,28 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.yield
+import kotlinx.coroutines.flow.update
+
+data class OnlyFlowItem (
+    val intValue: Int = 0,
+)
 
 // android 官方实现的类似 Rx 的数据流类库
 // emit 相关方法类似 Rx 的 onNext ;
 // 一般的 Flow 现在在 生成器函数 里面才有 emit ;
 // MutableSharedFlow 暴露 emit 给外部 类似 Rx PublishSubject 没有获取当前值的方法
-// 没有类似 Rx 的 BehaviorSubject 这种东西，建议是使用 LiveData
+// MutableStateFlow 是提供给 Compose 带的 State 包装的 类似 Rx 的 BehaviorSubject 有 value ，Java 应用建议是使用 LiveData
 // collect 相关方法类似 Rx 的 subject
 object OnlyFlowState {
     val stringFlow: Flow<String> = flow {
@@ -38,12 +46,17 @@ object OnlyFlowState {
         }
     }.flowOn(Dispatchers.IO)
     val intFlow: MutableSharedFlow<Int> = MutableSharedFlow<Int>()
+
+    val itemFlow: MutableStateFlow<OnlyFlowItem> = MutableStateFlow(OnlyFlowItem()) // 一般私有，可变的状态流。
+    val itemState: StateFlow<OnlyFlowItem> = itemFlow.asStateFlow() // 暴露的不可变引用
 }
 
 @Composable
 fun OnlyFlowPage() {
     // collectAsState 一些列官方给 Compose 提供的函数都会随 Compose 周期重新调用 生成器 其内部是 remember 封装不是 rememberSaveable。
     val text by OnlyFlowState.stringFlow.collectAsState(initial = "字符0")
+
+    val itemValue by OnlyFlowState.itemState.collectAsState()
 
 //    val intValue by OnlyFlowState.intFlow.collectAsState(initial = 100)
     var intValue by rememberSaveable() { mutableStateOf(0) }
@@ -75,12 +88,25 @@ fun OnlyFlowPage() {
         Button(
             onClick =
             {
+
                 coroutineScope.launch {
                     OnlyFlowState.intFlow.emit(intValue + 1)
                 }
             },
         ) {
             Text(text = "$intValue")
+        }
+
+        Button(
+            onClick =
+            {
+                // update 只能给可变的状态流，一般这个是做封装，不像这里直接暴露。直接暴露 itemState 就没有意义了。
+                OnlyFlowState.itemFlow.update {
+                    it.copy(intValue = 1)
+                }
+            },
+        ) {
+            Text("item: ${itemValue.intValue}")
         }
         intHistory.forEach {
             Text(text = "$it")
