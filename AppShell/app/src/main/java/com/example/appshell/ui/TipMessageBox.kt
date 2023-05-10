@@ -97,8 +97,10 @@ fun TipMessageToast(
     }
 }
 
-// 1.x 为一种实现，（此方案需要独立的协程作用域，或使用 rememberUpdateState 传递 lambda 使得 lambda 不被取消）
+// 1.x 为一种实现，（此方案需要独立的协程作用域，或使用 rememberUpdatedState 传递 lambda 使得 lambda 不被取消）
+// 1.x 如果改用 rememberUpdatedState 需要定义额外的方法获取 lambda 自身，因为 kotlin 语法上 lambda 要递归时获取不到 lambda 本身引用
 // 2.x 为另一种实现，此方案没有 1 及时，因为复用了 LaunchedEffect 的协程作用域和条件调度（LaunchedEffect 的调度不及时）
+// 2.x 的实现第一次 remove 1 阶段会不触发 launch 的问题，之后的都会。
 @Composable
 fun TipMessageBox(
     content: @Composable BoxScope.() -> Unit,
@@ -107,78 +109,79 @@ fun TipMessageBox(
     val items = remember {
         mutableStateListOf<TipItem>()
     }
-    val itemsSize = remember {
+    val itemsSize by remember {
         derivedStateOf {
             items.size
         }
     }
-    // 1.1
-//    val coroutineScope = rememberCoroutineScope()
-
-    // 2.1
-    var currentStart by remember {
-        mutableStateOf(Clock.System.now())
-    }
-
     var currentItem: TipItem? by remember {
         mutableStateOf(null)
     }
 
-    // 1.2
-//    suspend fun updateCurrent() {
-//        if (currentItem == null && items.isNotEmpty()) {
-//            Log.d("tip-message-page", "empty")
-//            currentItem = items.removeFirst()
-//            val now = currentItem
-//            withContext(Dispatchers.IO) {
-//                delay(currentItem!!.duration.toLong(DurationUnit.MILLISECONDS))
-//                withContext(Dispatchers.Main) {
-//                    if (now == currentItem) {
-//                        currentItem = null
-//                    }
-//                    updateCurrent()
-//                    Log.d("tip-message-page", "loop")
-//                }
-//            }
-//        }
+    // 1.1
+    val coroutineScope = rememberCoroutineScope()
+
+    // 2.1
+//    var currentStart by remember {
+//        mutableStateOf(Clock.System.now())
 //    }
 
+    // 1.2
+    suspend fun updateCurrent() {
+        if (currentItem == null && items.isNotEmpty()) {
+            Log.d("tip-message-page", "empty")
+            currentItem = items.removeFirst()
+            val now = currentItem
+            withContext(Dispatchers.IO) {
+                delay(currentItem!!.duration.toLong(DurationUnit.MILLISECONDS))
+                withContext(Dispatchers.Main) {
+                    if (now == currentItem) {
+                        currentItem = null
+                    }
+                    updateCurrent()
+                    Log.d("tip-message-page", "loop")
+                }
+            }
+        }
+    }
+
     // 1.3
-//    LaunchedEffect(currentItem, items.size) {
-//        Log.d("tip-message-page", "launch")
-//        coroutineScope.launch { updateCurrent() }
-//    }
+    LaunchedEffect(currentItem, items.size) {
+        Log.d("tip-message-page", "launch")
+        coroutineScope.launch { updateCurrent() }
+    }
 
     // 2.2 首次触发 items.size = 0 currentItem = null
     // Launched 条件触发会杀死协程重启一条，但是不是马上，所以 items.removeFirst 调用后会有一些伴生现象
-    LaunchedEffect(itemsSize) {
-        val now = Clock.System.now()
-        if (currentItem == null) {
-            Log.d("tip-message-box", "remove 1 （${items.size}）")
-            currentStart = now
-            currentItem = if (items.isNotEmpty()) items.removeFirst() else null
-        } else {
-            Log.d("tip-message-box", "start 2 ${currentItem == null} （${items.size}）")
-            val d = now.minus(currentStart)
-            val l = currentItem!!.duration - d
-            Log.d("tip-message-box", "duration: （${l.toDouble(DurationUnit.SECONDS)}）")
-            if (l.isNegative()) {
-                Log.d("tip-message-box", "remove 2 （${items.size}）")
-                currentStart = now
-                currentItem = if (items.isNotEmpty()) items.removeFirst() else null
-            }
-            Log.d("tip-message-box", "start 3 ${currentItem == null} （${items.size}）")
-            launch(Dispatchers.IO) {
-                delay(l)
-                Log.d("tip-message-box", "remove 3 （${items.size}）")
-                currentStart = Clock.System.now()
-                currentItem = if (items.isNotEmpty()) items.removeFirst() else null
-            }
-        }
-        // 除了 start 和 remove 3 外其他分支都同步执行了 items.removeFirst，
-        // 然而，执行了此句便证明了触发条件后协程不是立马关闭而是会执行一段时间。
-        Log.d("tip-message-box", "final ${currentItem == null} （${items.size}）")
-    }
+//    LaunchedEffect(itemsSize) {
+//        val now = Clock.System.now()
+//        if (currentItem == null) {
+//            Log.d("tip-message-box", "remove 1 （${items.size}）")
+//            currentStart = now
+//            currentItem = if (items.isNotEmpty()) items.removeFirst() else null
+//            // Q: 此处修改了 items 导致大小变动却不触发 LaunchedEffect
+//        } else {
+//            Log.d("tip-message-box", "start 2 ;is null=${currentItem == null} ; （${items.size}）")
+//            val d = now.minus(currentStart)
+//            val l = currentItem!!.duration - d
+//            Log.d("tip-message-box", "duration: （${l.toDouble(DurationUnit.SECONDS)}）")
+//            if (l.isNegative()) {
+//                Log.d("tip-message-box", "remove 2 （${items.size}）")
+//                currentStart = now
+//                currentItem = if (items.isNotEmpty()) items.removeFirst() else null
+//            }
+//            Log.d("tip-message-box", "start 3 ${currentItem == null} （${items.size}）")
+//            launch(Dispatchers.IO) {
+//                delay(l)
+//                Log.d("tip-message-box", "remove 3 （${items.size}）")
+//                currentStart = Clock.System.now()
+//                currentItem = if (items.isNotEmpty()) items.removeFirst() else null
+//            }
+//        }
+//        // 除了 start 和 remove 3 外其他分支都同步执行了 items.removeFirst，
+//        // 然而，执行了此句便证明了触发条件后协程不是立马关闭而是会执行一段时间。
+//        Log.d("tip-message-box", "final ${currentItem == null} （${items.size}）")
+//    }
 
     DisposableEffect(queue) {
         val subject = queue
