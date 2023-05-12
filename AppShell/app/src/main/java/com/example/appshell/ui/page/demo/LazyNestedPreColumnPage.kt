@@ -19,7 +19,7 @@ private val INT_PATTERN = Regex("[0-9]+")
 @Composable
 fun LazyNestedPreColumnPage() {
     var countField by remember {
-        mutableStateOf(TextFieldValue(text="44444"))
+        mutableStateOf(TextFieldValue(text="4444"))
     }
     val count by remember(countField) {
         derivedStateOf {

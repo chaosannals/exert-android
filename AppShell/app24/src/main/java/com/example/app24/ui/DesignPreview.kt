@@ -1,12 +1,8 @@
-package com.example.appshell.ui
+package com.example.app24.ui
 
-import android.app.Activity
-import android.content.pm.PackageManager
 import android.content.res.Resources
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Color
@@ -17,26 +13,15 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
 import kotlin.math.floor
-import kotlin.math.log10
 
-object U {
+object Design {
     val density: Float by lazy {
         Resources.getSystem().displayMetrics.density
     }
 
     val displayWidth: Int by lazy {
         Resources.getSystem().displayMetrics.widthPixels
-    }
-
-    val displayHeight: Int by lazy {
-        Resources.getSystem().displayMetrics.heightPixels
-    }
-
-    val displayHdp: Dp by lazy {
-        floor(displayHeight / density).dp
     }
 
     val displayDp: Dp by lazy {
@@ -48,68 +33,69 @@ object U {
     val ratio: Float = displayDp / designDp
 }
 
+
 inline val Int.sdp : Dp
     get() = run {
-    return (this.toFloat() * U.ratio).dp
-}
+        return (this.toFloat() * Design.ratio).dp
+    }
 
 inline val Float.sdp : Dp
     get() = run {
-    return (this * U.ratio).dp
-}
+        return (this * Design.ratio).dp
+    }
 
 inline val Double.sdp : Dp
     get() = run {
-    return (this.toFloat() * U.ratio).dp
-}
+        return (this.toFloat() * Design.ratio).dp
+    }
 
 inline val Int.ssp : TextUnit
     get() = run {
-        return (this * U.ratio).sp
+        return (this * Design.ratio).sp
     }
 
 inline val Float.ssp : TextUnit
     get() = run {
-        return (this * U.ratio).sp
+        return (this * Design.ratio).sp
     }
 
 inline val Double.ssp : TextUnit
     get() = run {
-        return (this * U.ratio).sp
+        return (this * Design.ratio).sp
     }
 
 inline val Int.si : Int get() = run {
-    return (this * U.ratio * U.density).toInt()
+    return (this * Design.ratio * Design.density).toInt()
 }
 
 inline val Float.sf : Float get() = run {
-    return this * U.ratio * U.density
+    return this * Design.ratio * Design.density
 }
 
 inline val Double.sd : Double get() = run {
-    return this * U.ratio * U.density
+    return this * Design.ratio * Design.density
 }
 
 inline val Int.dp2px : Float get() = run {
-    return this * U.ratio * U.density
+    return this * Design.ratio * Design.density
 }
 
 inline val Float.dp2px : Float get() = run {
-    return this * U.ratio * U.density
+    return this * Design.ratio * Design.density
 }
 
 inline val Double.dp2px : Float get() = run {
-    return (this * U.ratio * U.density).toFloat()
+    return (this * Design.ratio * Design.density).toFloat()
 }
 
 inline val Int.px2dp: Dp get() = run {
-    return (this / U.density / U.ratio).dp
+    return (this / Design.density / Design.ratio).dp
 }
 inline val Float.px2dp: Dp get() = run {
-    return (this / U.density / U.ratio).dp
+    return (this / Design.density / Design.ratio).dp
 }
 inline val Double.px2dp: Dp get() = run {
-    return (this / U.density / U.ratio).dp
+    return (this / Design.density / Design.ratio).dp
 }
 
 fun Modifier.shadow2(
@@ -146,39 +132,11 @@ fun Modifier.shadow2(
     }
 }
 
-// 检查权限，无则申请。
-fun ensurePermit(context: Activity, permission: String, code: Int = 1) {
-    val sp = ContextCompat.checkSelfPermission(
-        context,
-        permission
-    )
-    if (sp != PackageManager.PERMISSION_GRANTED) {
-        ActivityCompat.requestPermissions(
-            context,
-            arrayOf(permission),
-            code // 自定标识
-        )
-    }
-}
-
-fun ByteArray.toHex(): String = joinToString(separator = "") {
-    "%02x".format(it)
-}
-
-fun Int.sizeText(): String {
-    val lv = log10(this.toFloat())
-    return when (lv) {
-        in 0f..3f -> "${this}B"
-        in 3f..6f -> "${this / 1000f}KB"
-        in 6f..9f -> "${this / 1000000f}MB"
-        in 9f..12f -> "${this / 1000000000f}GB"
-        else -> "NaN"
-    }
-}
-
 @Composable
-fun Modifier.click(onClick: () -> Unit) = clickable(
-    indication = null,
-    interactionSource = remember { MutableInteractionSource() },
-    onClick =  onClick,
-)
+fun DesignPreview(
+    content: @Composable ()->Unit
+) {
+    CompositionLocalProvider() {
+        content()
+    }
+}

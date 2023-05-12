@@ -2,12 +2,10 @@ package com.example.appshell.ui.widget
 
 import android.util.Log
 import androidx.compose.animation.core.*
-import androidx.compose.foundation.gestures.Orientation
-import androidx.compose.foundation.gestures.draggable
-import androidx.compose.foundation.gestures.rememberDraggableState
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
@@ -35,15 +33,14 @@ private val animateSpec = spring(
 @Composable
 fun LazyNestedPreColumn(
     modifier: Modifier = Modifier,
-
+    status: LazyListState = rememberLazyListState(),
     content: LazyListScope.() -> Unit,
 ) {
     val totalStatus = LocalTotalStatus.current
     val density = LocalDensity.current
-    val spaceMaxHeight = 84.dp
+    val spaceMaxHeight = 124.dp
     val spaceMaxHeightPx = with(density) { spaceMaxHeight.roundToPx().toFloat() }
     val coroutineScope = rememberCoroutineScope()
-    val status = rememberLazyListState()
 
     val topPx = remember {
         Animatable(
@@ -57,6 +54,12 @@ fun LazyNestedPreColumn(
             visibilityThreshold = 1f,
         )
     }
+    // 类似 vue computed
+    val index by remember {
+        derivedStateOf {
+            status.firstVisibleItemIndex
+        }
+    }
 
     val nestedScrollConnection = remember {
         object : NestedScrollConnection {
@@ -65,8 +68,18 @@ fun LazyNestedPreColumn(
                 source: NestedScrollSource
             ): Offset {
                 val delta = available.y
-                val topOffset = topPx.value + delta
-                val bottomOffset = bottomPx.value + delta
+                val endIndex = status.layoutInfo.totalItemsCount - index - status.layoutInfo.visibleItemsInfo.size
+                val topOffset = if (index == 0) topPx.value + delta else 0f
+                val bottomOffset = if (endIndex == 0) {
+                    val veOffset = status.layoutInfo.viewportEndOffset
+                    val ei = status.layoutInfo.visibleItemsInfo.last()
+                    val eiOffset = ei.offset
+                    val eiHeight = ei.size
+                    val eiButtom = ei.offset + ei.size
+                    Log.d("lazy-nested-pre-column", "veo: $veOffset eio: $eiOffset eih: $eiHeight")
+                    bottomPx.value + delta
+                } else 0f
+
                 coroutineScope.launch {
                     topPx.snapTo(topOffset.coerceIn(0f, spaceMaxHeightPx))
                     bottomPx.snapTo(bottomOffset.coerceIn(-spaceMaxHeightPx, 0f))
@@ -103,21 +116,13 @@ fun LazyNestedPreColumn(
         }
     }
 
-    // 类似 vue computed
-    val index by remember {
-        derivedStateOf {
-            status.firstVisibleItemIndex
-        }
-    }
-
-
     LaunchedEffect(index) {
 //        val h = status.layoutInfo.visibleItemsInfo.map { it.size }.reduce { a, b -> a + b }
 //        val t = status.layoutInfo.visibleItemsInfo.map { it.index }.max()
         val c = status.layoutInfo.visibleItemsInfo.size
         val t = status.layoutInfo.totalItemsCount
         val v = (index.toFloat() / max(t - c,1)) * 100f
-        Log.d("lazy-nested-pre-column", "index: ${index} ; c: ${c} ; t: ${t} ; ${v}%")
+        Log.d("lazy-nested-pre-column", "index: ${index} ; c: ${c} ; t: ${t} ; ${v}% ; ")
         totalStatus.scrollOffset.onNext(v)
     }
 

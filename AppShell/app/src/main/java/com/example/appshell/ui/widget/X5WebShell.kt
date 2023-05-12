@@ -244,20 +244,38 @@ fun X5WebShellPreview() {
 }
 
 fun Context.initX5WebShell() {
-    // 初始化 X5
-    QbSdk.initX5Environment(this, object: QbSdk.PreInitCallback {
-        override fun onCoreInitFinished() {
-
-        }
-
-        override fun onViewInitFinished(p0: Boolean) {
-
-        }
-    })
     val tbss = mapOf(
         TbsCoreSettings.TBS_SETTINGS_USE_SPEEDY_CLASSLOADER to true,
         TbsCoreSettings.TBS_SETTINGS_USE_DEXLOADER_SERVICE to true,
     )
     QbSdk.initTbsSettings(tbss)
     QbSdk.setDownloadWithoutWifi(true)
+    QbSdk.disableAutoCreateX5Webview()
+    QbSdk.setTbsListener(object: TbsListener {
+        override fun onDownloadFinish(p0: Int) {
+            Log.d("x5webview", "onDownloadFinish -->下载X5内核完成：$p0")
+        }
+
+        override fun onInstallFinish(p0: Int) {
+            Log.d("x5webview", "onInstallFinish -->安装X5内核进度：$p0")
+        }
+
+        override fun onDownloadProgress(p0: Int) {
+            Log.d("x5webview", "onDownloadProgress -->下载X5内核进度：$p0")
+        }
+    })
+
+    // 初始化 X5
+    QbSdk.initX5Environment(this, object: QbSdk.PreInitCallback {
+        override fun onCoreInitFinished() {
+            Log.d("x5webview", "onCoreInitFinished")
+        }
+
+        override fun onViewInitFinished(p0: Boolean) {
+            Log.d("x5webview", "onViewInitFinished $p0")
+            if (!p0) {
+                TbsDownloader.startDownload(this@initX5WebShell)
+            }
+        }
+    })
 }

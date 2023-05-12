@@ -14,3 +14,4 @@ dependencyResolutionManagement {
 }
 rootProject.name = "AppShell"
 include ':app'
+include ':app24'
