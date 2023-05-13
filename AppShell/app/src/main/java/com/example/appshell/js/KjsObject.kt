@@ -12,6 +12,10 @@ class KjsObject(
     @JavascriptInterface
     fun Say():String { return "Hello" }
 
+    // 这种写法无效，只能暴露方法，get不行。
+    @get:JavascriptInterface
+    val aaa: String get() = run { "123456" }
+
     @JavascriptInterface
     fun Toast(text: String): Unit {
         OnToast(text)

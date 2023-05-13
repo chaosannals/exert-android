@@ -37,6 +37,23 @@ fun HomePage() {
             X5WebShell(c) {
                 it.evaluateJavascript("""
                     javascript:
+                    console.log('aaa', ${c.valName}.aaa, JSON.stringify(${c.valName})); // get 无效
+                    console.log('say', ${c.valName}.Say, ${c.valName}.say); // 函数可以被识别
+                    
+                    var t = document.createElement('script');
+                    t.src = "/test.js";
+                    // 此刻居然 body 还是 null......
+                    setTimeout(() => {
+                        document.body.appendChild(t);
+                        console.log('ttt', 'load test.js');
+                    }, 1000);
+                """.trimIndent()) {
+                    Log.d("x5demo", "call ${it}")
+                }
+
+                // 异步执行，此类初始化的数据不能保证每次都是最先。
+                it.evaluateJavascript("""
+                    javascript:
                     ${c.valName}.tabbarHeight = ${49.si};
                     ${c.valName}.statusbarHeight = ${sbt - sbb};
                     ${c.valName}.token = "${c.token}";

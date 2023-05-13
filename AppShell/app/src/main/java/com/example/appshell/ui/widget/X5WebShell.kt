@@ -27,6 +27,7 @@ import com.example.appshell.ui.ensurePermit
 import com.tencent.smtt.export.external.TbsCoreSettings
 import com.tencent.smtt.export.external.interfaces.*
 import com.tencent.smtt.sdk.*
+import java.io.ByteArrayInputStream
 
 @Composable
 fun X5WebShell(
@@ -86,6 +87,32 @@ fun X5WebShell(
             return super.shouldOverrideUrlLoading(wv, url)
         }
 
+        override fun shouldInterceptRequest(
+            p0: WebView?,
+            p1: WebResourceRequest?
+        ): WebResourceResponse? {
+            val path = p1?.url?.path ?: ""
+
+            // <script> 是同步加载，可以强制页面初始化加载，达到初始化确定先后的目的。
+            // 钉钉 微信 公众号都使用此类方式，要求加载各自的 JSSDK 文件。
+
+            if (path == "/test.js") {
+                return WebResourceResponse(
+                    "application/js",
+                    "utf-8",
+                    200,
+                    "Ok",
+                    mapOf (
+                        "Cache-Control" to "no-cache",
+                    ),
+                    """
+                        console.log('tttt', 'i'm test.js');
+                    """.trimIndent().byteInputStream(),
+                )
+            }
+            return super.shouldInterceptRequest(p0, p1)
+        }
+
         override fun onReceivedError(p0: WebView?, p1: WebResourceRequest?, p2: WebResourceError?) {
             Log.e("webview x5", "${p1}  ${p2}")
 //            super.onReceivedError(p0, p1, p2)
@@ -104,6 +131,11 @@ fun X5WebShell(
         override fun onProgressChanged(wv: WebView?, newProgress: Int) {
             progress = newProgress
             super.onProgressChanged(wv, newProgress)
+        }
+
+        override fun onConsoleMessage(p0: ConsoleMessage?): Boolean {
+            Log.d("webview x5", "[${p0?.messageLevel()}] ${p0?.sourceId()}, ${p0?.lineNumber()} ${p0?.message()}")
+            return true
         }
 
         override fun onCreateWindow(wv: WebView?, isDialog: Boolean, isUserGesture: Boolean, resultMsg: Message?): Boolean {
@@ -222,6 +254,7 @@ fun X5WebShell(
         }
 
         conf?.let {c ->
+            // 此种可以确保每个页面最先注入，该对象的接口只能是函数。
             it.addJavascriptInterface(kjso, c.valName)
             it.loadUrl(c.startUrl)
         }
