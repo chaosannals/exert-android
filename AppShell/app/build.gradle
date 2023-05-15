@@ -228,6 +228,14 @@ dependencies {
     api "io.ktor:ktor-serialization-kotlinx-json:$ktor_version"
     api "io.ktor:ktor-client-content-negotiation:$ktor_version"
 
+    // PDF
+//    api 'com.github.barteksc:android-pdf-viewer:3.2.0-beta.1' // 没下载源，有人复制了这个版本重新发布。组名变成了 com.github.mhiew
+//    api 'com.github.barteksc:android-pdf-viewer:2.8.2' // 没下载源，老版本没库了。
+    api 'com.github.mhiew:android-pdf-viewer:3.2.0-beta.3' // 好像还更新了。
+
+    // PDF VIEW 此库比较老，模拟器只提供了 x86 的 so ，x86_64 模拟器 没有 so 不能调试。
+    api 'com.joanzapata.pdfview:android-pdfview:1.0.4@aar'
+
     testImplementation 'junit:junit:4.13.2'
     // optional - Test helpers
     testImplementation "androidx.room:room-testing:$room_version"

@@ -125,6 +125,12 @@ fun NavGraphBuilder.routeDemoGraph() {
         composable("pdf-view-page") {
             PdfViewPage()
         }
+        composable("pdf-view-2-page") {
+            PdfView2Page()
+        }
+        composable("pdf-view-3-page") {
+            PdfView3Page()
+        }
         composable("reflection-page") {
             ReflectionPage()
         }
@@ -151,6 +157,9 @@ fun NavGraphBuilder.routeDemoGraph() {
         }
         composable("null-page") {
             NullPage()
+        }
+        composable("url-query-string-make-page") {
+            UrlQueryStringMakePage()
         }
     }
 }

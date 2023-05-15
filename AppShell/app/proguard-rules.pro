@@ -34,3 +34,5 @@
 }
 
 -keep class com.tencent.imsdk.** { *; }
+
+-keep class com.shockwave.**

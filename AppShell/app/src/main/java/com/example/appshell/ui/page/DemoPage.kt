@@ -49,6 +49,8 @@ fun DemoPage() {
         DemoRouteButton("Tip Message", "tip-message-page")
         DemoRouteButton("TxIM", "tx-im-login-page")
         DemoRouteButton("Pdf Viewer", "pdf-view-page")
+        DemoRouteButton("Pdf 2 Viewer", "pdf-view-2-page")
+        DemoRouteButton("Pdf 3 Viewer", "pdf-view-3-page")
         DemoRouteButton("Reflection", "reflection-page")
         DemoRouteButton("File", "file-page")
         DemoRouteButton("File Custom Pick Page", "file-custom-pick-page")
@@ -57,6 +59,7 @@ fun DemoPage() {
         DemoRouteButton("Video Display", "video-display-page")
         DemoRouteButton("Video Display 2", "video-display-2-page")
         DemoRouteButton("Null", "null-page")
+        DemoRouteButton("Url QueryString Make Page", "url-query-string-make-page")
     }
 }
 
