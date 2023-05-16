@@ -13,6 +13,7 @@ import com.example.appshell.ui.MainBox
 import com.example.appshell.VideoKit.initVideoPlayer
 import com.example.appshell.ui.widget.form.FormContext
 import com.example.appshell.ui.widget.initX5WebShell
+import com.jakewharton.threetenabp.AndroidThreeTen
 
 
 val LocalFormContext = staticCompositionLocalOf<FormContext> {
@@ -41,6 +42,10 @@ class MainActivity : ComponentActivity() {
 
         // 初始化视频
         initVideoPlayer()
+
+        // 初始化 JSR310
+        AndroidThreeTen.init(this)
+
 
         WindowCompat.setDecorFitsSystemWindows(window, false)
         window.statusBarColor = Color.Transparent.toArgb()

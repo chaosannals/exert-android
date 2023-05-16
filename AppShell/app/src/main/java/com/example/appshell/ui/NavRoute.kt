@@ -161,6 +161,9 @@ fun NavGraphBuilder.routeDemoGraph() {
         composable("url-query-string-make-page") {
             UrlQueryStringMakePage()
         }
+        composable("date-310-page") {
+            Date310Page()
+        }
     }
 }
 

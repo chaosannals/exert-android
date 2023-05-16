@@ -60,6 +60,7 @@ fun DemoPage() {
         DemoRouteButton("Video Display 2", "video-display-2-page")
         DemoRouteButton("Null", "null-page")
         DemoRouteButton("Url QueryString Make Page", "url-query-string-make-page")
+        DemoRouteButton("Date 310 Page", "date-310-page")
     }
 }
 

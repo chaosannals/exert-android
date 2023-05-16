@@ -42,6 +42,7 @@ fun PdfView2Page() {
 //            it.fromAsset("bare.pdf")
 //            it.fromAsset("text.pdf")
             it.fromAsset("text_image.pdf")
+//            it.fromAsset("text_image_link.pdf") // 这个库不支持链接
 //                .pages(0, 2, 1)
                 .defaultPage(1)
                 .swipeVertical(true)
