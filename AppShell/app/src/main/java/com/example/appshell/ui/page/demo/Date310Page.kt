@@ -19,6 +19,8 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.DropdownMenu
 import androidx.compose.material.DropdownMenuItem
 import androidx.compose.material.Text
+import androidx.compose.material.TextField
+import androidx.compose.material.TextFieldColors
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -133,6 +135,13 @@ fun Date310Page() {
                                 .background(Color.White)
                                 .padding(4.sdp)
                         ) {
+                            var input by remember { mutableStateOf("") }
+                            TextField(
+                                label= { Text("输入")},
+                                value = input,
+                                onValueChange = {input = it},
+                            )
+
                             formatters.forEachIndexed { i, it ->
                                 Text(
                                     text = "${i} ${it.first}",
