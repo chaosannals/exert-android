@@ -5,9 +5,9 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.*
+import androidx.compose.runtime.rxjava3.subscribeAsState
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.app24.ScaffoldKit
@@ -16,6 +16,7 @@ import com.example.app24.ui.DesignPreview
 
 @Composable
 fun WebFirstPage() {
+    val url by X5WebViewKit.lastUrl.subscribeAsState(initial = "")
 
     Column (
         modifier = Modifier
@@ -25,14 +26,16 @@ fun WebFirstPage() {
         Text("web-first-page")
     }
 
-    DisposableEffect(Unit) {
-        if (X5WebViewKit.isInited.value == true) {
-            X5WebViewKit.webView.loadUrl("https://m.bilibili.com")
+    DisposableEffect(url) {
+        if (X5WebViewKit.isInited.value == true && url != "https://m.bilibili.com") {
+            Log.d("app24", "web-1-load ${url}")
+            X5WebViewKit.loadUrl("https://m.bilibili.com")
         } else {
             Log.d("app24", "webView isInited == false")
         }
         ScaffoldKit.isShowWebView.onNext(true)
         onDispose {
+            Log.d("app24", "web-1-dispose")
             ScaffoldKit.isShowWebView.onNext(false)
         }
     }

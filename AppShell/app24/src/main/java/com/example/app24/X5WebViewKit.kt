@@ -42,7 +42,13 @@ object X5WebViewKit: QbSdk.PreInitCallback {
     val onLoadedPublisher: PublishSubject<WebViewPageStartedEvent> = PublishSubject.create()
     val onShowFileChooserPublisher: PublishSubject<WebViewOpenFileChooserEvent> = PublishSubject.create()
     val isInited: BehaviorSubject<Boolean> = BehaviorSubject.create()
+    val lastUrl: BehaviorSubject<String> = BehaviorSubject.create()
     val progress: BehaviorSubject<Int> = BehaviorSubject.create()
+
+    fun loadUrl(url: String) {
+        lastUrl.onNext(url)
+        webView.loadUrl(url)
+    }
 
     val webViewClient = object: WebViewClient() {
         override fun onReceivedSslError(
