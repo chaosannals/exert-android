@@ -13,6 +13,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.compose.rememberNavController
 import kotlin.math.floor
 
 object Design {
@@ -136,7 +137,9 @@ fun Modifier.shadow2(
 fun DesignPreview(
     content: @Composable ()->Unit
 ) {
-    CompositionLocalProvider() {
+    CompositionLocalProvider(
+        LocalNavController provides rememberNavController()
+    ) {
         content()
     }
 }

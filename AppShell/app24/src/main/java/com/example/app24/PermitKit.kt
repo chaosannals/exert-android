@@ -7,14 +7,14 @@ import androidx.core.content.ContextCompat
 
 
 // 检查权限，无则申请。
-fun ensurePermit(context: Activity, permission: String, code: Int = 1) {
+fun Activity.ensurePermit(permission: String, code: Int = 1) {
     val sp = ContextCompat.checkSelfPermission(
-        context,
+        this,
         permission
     )
     if (sp != PackageManager.PERMISSION_GRANTED) {
         ActivityCompat.requestPermissions(
-            context,
+            this,
             arrayOf(permission),
             code // 自定标识
         )
