@@ -58,6 +58,14 @@ object X5WebViewKit: QbSdk.PreInitCallback {
         lastUrl.onNext(url)
     }
 
+    fun loadUrlWithClear(url: String) {
+        loadUrl(url)
+        webView.value?.run {
+            clearHistory()
+            logHistory()
+        }
+    }
+
 
     fun Context.reloadUrl(url: String) {
         val now = WebView(this)

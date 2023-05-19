@@ -2,6 +2,7 @@ package com.example.app24.ui.widget
 
 import android.util.Log
 import android.webkit.WebSettings
+import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
 import androidx.compose.runtime.*
 import androidx.compose.runtime.rxjava3.subscribeAsState
 import androidx.compose.ui.Modifier
@@ -15,6 +16,8 @@ fun X5WebView(
 
     val webView by X5WebViewKit.webView.subscribeAsState(initial = X5WebViewKit.webView.value!!)
     val lastUrl by X5WebViewKit.lastUrl.subscribeAsState(initial = null)
+    val dispatcher = LocalOnBackPressedDispatcherOwner.current
+
 
     LaunchedEffect(webView, lastUrl) {
         Log.d("app24", "webView Compose lastUrl: ${lastUrl}")
@@ -64,8 +67,6 @@ fun X5WebView(
                 mixedContentMode = WebSettings.MIXED_CONTENT_ALWAYS_ALLOW
             }
             //        it.addJavascriptInterface(jsSdk, jssdkName)
-    //        it.loadUrl(startUrl)
-    //        webview = it
 
             X5WebViewKit.isInited.onNext(true)
         }

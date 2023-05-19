@@ -50,6 +50,13 @@ fun FloatMenu(
                     }
             )
             Text(
+                text="重定向到（清理历史） baidu",
+                modifier = Modifier
+                    .clickable {
+                        X5WebViewKit.loadUrlWithClear("https://m.baidu.com")
+                    }
+            )
+            Text(
                 text="重创建到 baidu",
                 modifier = Modifier
                     .clickable {
@@ -61,6 +68,13 @@ fun FloatMenu(
                 modifier = Modifier
                     .clickable {
                         X5WebViewKit.loadUrl("https://m.bilibili.com")
+                    }
+            )
+            Text(
+                text="重定向到（清理历史） bilibili",
+                modifier = Modifier
+                    .clickable {
+                        X5WebViewKit.loadUrlWithClear("https://m.bilibili.com")
                     }
             )
             Text(
