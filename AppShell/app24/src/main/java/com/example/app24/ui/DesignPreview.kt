@@ -1,6 +1,8 @@
 package com.example.app24.ui
 
 import android.content.res.Resources
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
@@ -23,6 +25,10 @@ object Design {
 
     val displayWidth: Int by lazy {
         Resources.getSystem().displayMetrics.widthPixels
+    }
+
+    val displayHeight: Int by lazy {
+        Resources.getSystem().displayMetrics.heightPixels
     }
 
     val displayDp: Dp by lazy {
@@ -103,7 +109,7 @@ fun Modifier.shadow2(
     color: Color = Color(0xFFF2F7FA),
     alpha: Float = 1f,
     cornersRadius: Dp = 0.dp,
-    shadowBlurRadius: Dp = 0.dp,
+    shadowBlurRadius: Dp = 0.5.dp,
     offsetY: Dp = 0.dp,
     offsetX: Dp = 0.dp
 ) = drawBehind {
@@ -135,11 +141,14 @@ fun Modifier.shadow2(
 
 @Composable
 fun DesignPreview(
-    content: @Composable ()->Unit
+    modifier: Modifier=Modifier,
+    content: @Composable BoxScope.()->Unit
 ) {
     CompositionLocalProvider(
         LocalNavController provides rememberNavController()
     ) {
-        content()
+        Box(modifier = modifier) {
+            content()
+        }
     }
 }
