@@ -1,23 +1,38 @@
 package com.example.app24.ui.widget
 
+import android.app.Activity
 import android.util.Log
 import android.webkit.WebSettings
+import androidx.activity.OnBackPressedCallback
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
 import androidx.compose.runtime.*
 import androidx.compose.runtime.rxjava3.subscribeAsState
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.viewinterop.AndroidView
 import com.example.app24.X5WebViewKit
+import com.example.app24.ui.LocalNavController
 
 @Composable
 fun X5WebView(
     modifier: Modifier = Modifier,
 ) {
-
+    val context = LocalContext.current
+    val navController = LocalNavController.current
     val webView by X5WebViewKit.webView.subscribeAsState(initial = X5WebViewKit.webView.value!!)
     val lastUrl by X5WebViewKit.lastUrl.subscribeAsState(initial = null)
-    val dispatcher = LocalOnBackPressedDispatcherOwner.current
-
+    
+    BackHandler(true) {
+        Log.d("app24", "webView Compose Dispose onBack Handler")
+        if (webView.canGoBack()) {
+            webView.goBack()
+        } else if (navController.backQueue.isEmpty()) {
+            (context as? Activity)?.finish()
+        } else {
+            navController.popBackStack()
+        }
+    }
 
     LaunchedEffect(webView, lastUrl) {
         Log.d("app24", "webView Compose lastUrl: ${lastUrl}")
