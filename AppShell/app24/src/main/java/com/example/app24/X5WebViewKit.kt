@@ -25,8 +25,6 @@ object X5WebViewKit: QbSdk.PreInitCallback {
 
     val jssdkName = "testjssdk"
 
-    lateinit var webView: WebView
-
     data class WebViewPageStartedEvent(
         val p0: WebView?,
         val p1: String?,
@@ -44,10 +42,28 @@ object X5WebViewKit: QbSdk.PreInitCallback {
     val isInited: BehaviorSubject<Boolean> = BehaviorSubject.create()
     val lastUrl: BehaviorSubject<String> = BehaviorSubject.create()
     val progress: BehaviorSubject<Int> = BehaviorSubject.create()
+    val webView: BehaviorSubject<WebView> = BehaviorSubject.create()
+
+    fun WebView.logHistory() {
+        val bfl = copyBackForwardList()
+        Log.d("app24", "WebView History Size: ${bfl.size}")
+        Log.d("app24", "WebView History Current: ${bfl.currentItem?.url}")
+        for (i in 0 until bfl.size) {
+            Log.d("app24", "WebView History: ${bfl.getItemAtIndex(i)?.url}")
+        }
+    }
 
     fun loadUrl(url: String) {
+        webView.value?.logHistory()
         lastUrl.onNext(url)
-        webView.loadUrl(url)
+    }
+
+
+    fun Context.reloadUrl(url: String) {
+        val now = WebView(this)
+        loadUrl(url)
+        webView.onNext(now)
+        now.logHistory()
     }
 
     val webViewClient = object: WebViewClient() {
@@ -111,7 +127,7 @@ object X5WebViewKit: QbSdk.PreInitCallback {
         }
 
         override fun onCreateWindow(wv: WebView?, isDialog: Boolean, isUserGesture: Boolean, resultMsg: Message?): Boolean {
-            (resultMsg?.obj as? WebView.WebViewTransport)?.webView = webView // 唯一窗口，多窗口需要创建。
+            (resultMsg?.obj as? WebView.WebViewTransport)?.webView = webView.value!! // 唯一窗口，多窗口需要创建。
             resultMsg?.sendToTarget()
             return true
         }
@@ -139,7 +155,7 @@ object X5WebViewKit: QbSdk.PreInitCallback {
     }
 
     fun Context.initX5() {
-        webView = WebView(this)
+        webView.onNext(WebView(this))
         val tbss = mapOf(
             TbsCoreSettings.TBS_SETTINGS_USE_SPEEDY_CLASSLOADER to true,
             TbsCoreSettings.TBS_SETTINGS_USE_DEXLOADER_SERVICE to true,

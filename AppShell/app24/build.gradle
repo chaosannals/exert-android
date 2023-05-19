@@ -69,6 +69,9 @@ dependencies {
     // x5
     api 'com.tencent.tbs:tbssdk:44286'
 
+    // 用低版本 API 模拟了 JSR-310 引入的 java.time.* 标准库
+    implementation 'com.jakewharton.threetenabp:threetenabp:1.4.6'
+
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'

@@ -14,6 +14,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.window.PopupProperties
 import com.example.app24.ScaffoldKit
 import com.example.app24.X5WebViewKit
+import com.example.app24.X5WebViewKit.reloadUrl
 import com.example.app24.ui.DesignPreview
 
 @Composable
@@ -49,10 +50,24 @@ fun FloatMenu(
                     }
             )
             Text(
+                text="重创建到 baidu",
+                modifier = Modifier
+                    .clickable {
+                        context.reloadUrl("https://m.baidu.com")
+                    }
+            )
+            Text(
                 text="重定向到 bilibili",
                 modifier = Modifier
                     .clickable {
                         X5WebViewKit.loadUrl("https://m.bilibili.com")
+                    }
+            )
+            Text(
+                text="重创建到 bilibili",
+                modifier = Modifier
+                    .clickable {
+                        context.reloadUrl("https://m.bilibili.com")
                     }
             )
         }
