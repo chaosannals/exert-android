@@ -10,6 +10,8 @@ import com.example.app24.ui.page.DemoPage
 import com.example.app24.ui.page.HomePage
 import com.example.app24.ui.page.demo.ThreeTenABPPage
 import com.example.app24.ui.page.demo.WebFirstPage
+import com.example.app24.ui.page.demo.WebNewFirstPage
+import com.example.app24.ui.page.demo.WebNewSecondPage
 import com.example.app24.ui.page.demo.WebSecondPage
 
 val LocalNavController = staticCompositionLocalOf<NavHostController> {
@@ -38,6 +40,12 @@ fun NavGraphBuilder.demoGraph() {
         }
         composable("web-second-page") {
             WebSecondPage()
+        }
+        composable("web-new-first-page") {
+            WebNewFirstPage()
+        }
+        composable("web-new-second-page") {
+            WebNewSecondPage()
         }
     }
 }

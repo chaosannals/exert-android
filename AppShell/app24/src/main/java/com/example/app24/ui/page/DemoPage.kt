@@ -48,6 +48,12 @@ fun DemoPage() {
         item {
             DemoLinkButton("web-2", "web-second-page")
         }
+        item {
+            DemoLinkButton("web-new-1", "web-new-first-page")
+        }
+        item {
+            DemoLinkButton("web-new-2", "web-new-second-page")
+        }
     }
 }
 
