@@ -14,6 +14,7 @@ import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.view.children
+import com.example.app24.X5WebViewKit.downloadVideo
 import com.example.app24.X5WebViewKit.saveVideo
 import com.tencent.smtt.export.external.TbsCoreSettings
 import com.tencent.smtt.export.external.interfaces.ConsoleMessage
@@ -39,6 +40,10 @@ import io.reactivex.rxjava3.subjects.PublishSubject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import org.threeten.bp.LocalDateTime
+import org.threeten.bp.OffsetDateTime
+import org.threeten.bp.ZoneOffset
+import org.threeten.bp.format.DateTimeFormatter
 import kotlin.coroutines.EmptyCoroutineContext
 
 object X5WebViewKit: QbSdk.PreInitCallback {
@@ -128,7 +133,7 @@ object X5WebViewKit: QbSdk.PreInitCallback {
             // 生成返回 JSSDK
             if (req?.url?.scheme == "testjssdk") {
                 return WebResourceResponse(
-                    "application/js",
+                    "application/javascript",
                     "utf-8",
                     200,
                     "Ok",
@@ -222,13 +227,7 @@ object X5WebViewKit: QbSdk.PreInitCallback {
         wv.setDownloadListener { url, userAgent, s3, mimeType, contentLength ->
             Log.d("app24", "webView Tap Download: s: $url, s2: $userAgent s3: $s3 s4: $mimeType, l: $contentLength")
             if (mimeType.startsWith("video")) {
-                httpScope.launch(Dispatchers.IO) {
-                    val r = httpClient.get(url)
-                    if (r.status.value in 200..299) {
-                        val videoData = r.readBytes()
-                        contentResolver.saveVideo(videoData, mimeType)
-                    }
-                }
+                downloadVideo(url, mimeType)
             }
         }
 //        wv.setOnTouchListener { view, motionEvent ->
@@ -256,13 +255,23 @@ object X5WebViewKit: QbSdk.PreInitCallback {
 
     }
 
+    fun Context.downloadVideo(url: String, mimeType: String) {
+        httpScope.launch(Dispatchers.IO) {
+            val r = httpClient.get(url)
+            if (r.status.value in 200..299) {
+                val videoData = r.readBytes()
+                contentResolver.saveVideo(videoData, mimeType)
+            }
+        }
+    }
+
     fun Context.downloadPicture(url: String) {
         httpScope.launch(Dispatchers.IO) {
             val r = httpClient.get(url)
             if (r.status.value in 200..299) {
                 val imageData = r.readBytes()
                 val mimeType = r.contentType()?.toString() ?: "image/jpeg"
-                // 
+                //
                 Log.d("app24", "download Picture mime: $mimeType")
                 contentResolver.savePicture(imageData, mimeType)
             }
@@ -273,13 +282,13 @@ object X5WebViewKit: QbSdk.PreInitCallback {
         data: ByteArray,
         mime: String,
     ) : Uri? {
-        val now = System.currentTimeMillis()
-        val name = SimpleDateFormat("yyyy-MM-dd-HH-mm-ss-SSS")
+        val now = OffsetDateTime.now()
+        val name = DateTimeFormatter.ofPattern("yyyy-MM-dd-HH-mm-ss-SSS")
             .format(now)
         val contentValues = ContentValues().apply {
             put(MediaStore.MediaColumns.DISPLAY_NAME, name)
             put(MediaStore.MediaColumns.MIME_TYPE, mime)
-            put(MediaStore.MediaColumns.DATE_MODIFIED, now / 1000)
+            put(MediaStore.MediaColumns.DATE_MODIFIED, now.toEpochSecond())
             put(MediaStore.MediaColumns.SIZE, data.size)
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
                 put(MediaStore.MediaColumns.IS_DOWNLOAD, true)
