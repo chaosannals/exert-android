@@ -6,21 +6,35 @@ import android.webkit.WebSettings
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.runtime.rxjava3.subscribeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.IntRect
+import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.compose.ui.window.Popup
+import androidx.compose.ui.window.PopupPositionProvider
 import androidx.compose.ui.window.PopupProperties
 import com.example.app24.X5WebViewKit
+import com.example.app24.X5WebViewKit.downloadPicture
 import com.example.app24.ui.LocalNavController
+import com.example.app24.ui.sdp
 
 @Composable
 fun X5WebView(
@@ -30,7 +44,10 @@ fun X5WebView(
     val navController = LocalNavController.current
     val webView by X5WebViewKit.webView.subscribeAsState(initial = X5WebViewKit.webView.value!!)
     val lastUrl by X5WebViewKit.lastUrl.subscribeAsState(initial = null)
-    val longClickImage by X5WebViewKit.onLongClickImagePublisher.subscribeAsState(initial = null)
+//    val longClickImage by X5WebViewKit.onLongClickImagePublisher.subscribeAsState(initial = null)
+    var longClickImage by remember {
+        mutableStateOf<X5WebViewKit.WebViewLongClickImageEvent?>(null)
+    }
     var isShowBottomMenu by remember { mutableStateOf(false) }
     
     BackHandler(true) {
@@ -44,8 +61,23 @@ fun X5WebView(
         }
     }
 
-    LaunchedEffect(longClickImage) {
-        isShowBottomMenu = longClickImage != null
+    // longClickImage 联动有问题，改用 DisposableEffect
+//    LaunchedEffect(longClickImage) {
+//        isShowBottomMenu = longClickImage != null
+//        Log.d("app24", "longClickImage change")
+//    }
+
+    DisposableEffect(Unit) {
+        Log.d("app24", "webView Disposable Start")
+        val longClickImageDisposable = X5WebViewKit.onLongClickImagePublisher.subscribe {
+            isShowBottomMenu = longClickImage != null
+            longClickImage = it
+            Log.d("app24", "webView Disposable longClick call.")
+        }
+        onDispose {
+            longClickImageDisposable.dispose()
+            Log.d("app24", "webView Disposable dispose")
+        }
     }
 
     LaunchedEffect(webView, lastUrl) {
@@ -106,19 +138,49 @@ fun X5WebView(
         }
 
         // 底部菜单
-        Column (
-            modifier = Modifier
-                .align(Alignment.BottomCenter)
-                .fillMaxWidth()
-        ){
-            DropdownMenu(
-                expanded = isShowBottomMenu,
-                onDismissRequest = { isShowBottomMenu = false },
-                properties= PopupProperties(
+        if (isShowBottomMenu) {
+            Popup(
+                onDismissRequest =
+                {
+                    isShowBottomMenu = false
+                },
+                popupPositionProvider = object : PopupPositionProvider {
+                    override fun calculatePosition(
+                        anchorBounds: IntRect,
+                        windowSize: IntSize,
+                        layoutDirection: LayoutDirection,
+                        popupContentSize: IntSize
+                    ): IntOffset {
+                        val x = 0
+                        val y = anchorBounds.height - popupContentSize.height
+                        return IntOffset(x, y)
+                    }
+                },
+                properties = PopupProperties(
                     focusable = true,
                 ),
             ) {
-                Text(text = "Url: ${longClickImage?.url}")
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(
+                            Color.White,
+                            RoundedCornerShape(topEnd = 10.sdp, topStart = 10.sdp)
+                        )
+                        .border(1.sdp, Color.Cyan, RoundedCornerShape(topEnd = 10.sdp, topStart = 10.sdp))
+                        .padding(10.sdp)
+                ) {
+                    Text(
+                        text = "下载图片",
+                        modifier = Modifier
+                            .clickable {
+                                longClickImage?.url?.let {
+                                    context.downloadPicture(it)
+                                }
+                                isShowBottomMenu = false
+                            }
+                    )
+                }
             }
         }
     }

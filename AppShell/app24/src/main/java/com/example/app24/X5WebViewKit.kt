@@ -14,6 +14,7 @@ import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.view.children
+import com.example.app24.X5WebViewKit.saveVideo
 import com.tencent.smtt.export.external.TbsCoreSettings
 import com.tencent.smtt.export.external.interfaces.ConsoleMessage
 import com.tencent.smtt.export.external.interfaces.SslError
@@ -31,6 +32,7 @@ import io.ktor.client.engine.android.Android
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.request.get
 import io.ktor.client.statement.readBytes
+import io.ktor.http.contentType
 import io.ktor.serialization.kotlinx.json.json
 import io.reactivex.rxjava3.subjects.BehaviorSubject
 import io.reactivex.rxjava3.subjects.PublishSubject
@@ -64,7 +66,7 @@ object X5WebViewKit: QbSdk.PreInitCallback {
     )
 
     data class WebViewLongClickImageEvent(
-        val url: String,
+        val url: String?,
     )
 
     val onLoadedPublisher: PublishSubject<WebViewPageStartedEvent> = PublishSubject.create()
@@ -223,8 +225,8 @@ object X5WebViewKit: QbSdk.PreInitCallback {
                 httpScope.launch(Dispatchers.IO) {
                     val r = httpClient.get(url)
                     if (r.status.value in 200..299) {
-                        val vedioData = r.readBytes()
-                        contentResolver.saveVideo(vedioData, mimeType)
+                        val videoData = r.readBytes()
+                        contentResolver.saveVideo(videoData, mimeType)
                     }
                 }
             }
@@ -252,6 +254,19 @@ object X5WebViewKit: QbSdk.PreInitCallback {
 
     override fun onViewInitFinished(p0: Boolean) {
 
+    }
+
+    fun Context.downloadPicture(url: String) {
+        httpScope.launch(Dispatchers.IO) {
+            val r = httpClient.get(url)
+            if (r.status.value in 200..299) {
+                val imageData = r.readBytes()
+                val mimeType = r.contentType()?.toString() ?: "image/jpeg"
+                // 
+                Log.d("app24", "download Picture mime: $mimeType")
+                contentResolver.savePicture(imageData, mimeType)
+            }
+        }
     }
 
     fun ContentResolver.savePicture(

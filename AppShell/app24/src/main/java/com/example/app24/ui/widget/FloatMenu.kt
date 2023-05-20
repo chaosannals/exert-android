@@ -86,7 +86,15 @@ fun FloatMenu(
             )
 
             Text(
-                text="重定向到 mdn",
+                text="重定向到 mdn 图片",
+                modifier = Modifier
+                    .clickable {
+                        X5WebViewKit.loadUrl("https://developer.mozilla.org/en-US/docs/Web/HTML/Element/img")
+                    }
+            )
+
+            Text(
+                text="重定向到 mdn 视频",
                 modifier = Modifier
                     .clickable {
                         X5WebViewKit.loadUrl("https://developer.mozilla.org/en-US/docs/Web/HTML/Element/video")
