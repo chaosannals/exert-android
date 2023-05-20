@@ -160,3 +160,18 @@ LocationClient.setAgreePrivacy(true)
 
 
 开发调试时鉴权失败，直接复制 SHA1 去填开发 SHA1。或者 debug.keystore 的。
+
+
+## 深度链接 Deep Link
+
+```bash
+# 通过 URL Intent 唤起 app24
+adb shell am start -W -a android.intent.action.VIEW -d "http://www.example.com/app24" com.example.app24
+
+# 因为注册了多种，所以以下也是可以的。
+adb shell am start -W -a android.intent.action.VIEW -d "app1://www.example1.com/path1" com.example.app24
+adb shell am start -W -a android.intent.action.VIEW -d "app2://www.example2.com/path2" com.example.app24
+
+# AndroidManifest.xml 注册的 intent-filter 的 data 是混合过滤的。
+adb shell am start -W -a android.intent.action.VIEW -d "app2://www.example1.com/path2" com.example.app24
+```

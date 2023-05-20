@@ -2,6 +2,7 @@ package com.example.app24
 
 import android.Manifest
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.fillMaxSize
@@ -18,6 +19,12 @@ import com.example.app24.ui.theme.AppShellTheme
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // 通过 URL Intent 获取的数据
+        val action = intent?.action
+        val data = intent?.data
+
+        Log.d("app24", "URL Intent action: $action data url: $data")
 
         ensurePermit(Manifest.permission.INTERNET)
         ensurePermit(Manifest.permission.ACCESS_NETWORK_STATE)

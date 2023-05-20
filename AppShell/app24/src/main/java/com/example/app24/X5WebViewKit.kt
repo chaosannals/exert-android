@@ -163,7 +163,13 @@ object X5WebViewKit: QbSdk.PreInitCallback {
     }
 
     fun Context.initX5() {
-        webView.onNext(WebView(this))
+        val wv = WebView(this)
+        wv.setOnLongClickListener {
+            Log.d("app24", "webView Long Tap ${it.javaClass.name}")
+            true
+        }
+        webView.onNext(wv)
+
         val tbss = mapOf(
             TbsCoreSettings.TBS_SETTINGS_USE_SPEEDY_CLASSLOADER to true,
             TbsCoreSettings.TBS_SETTINGS_USE_DEXLOADER_SERVICE to true,
