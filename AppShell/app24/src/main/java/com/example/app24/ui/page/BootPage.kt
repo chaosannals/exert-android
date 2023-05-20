@@ -28,7 +28,7 @@ fun BootPage() {
     val navController = LocalNavController.current
 
     LaunchedEffect(Unit) {
-        delay(1400)
+        delay(400)
         navController.navigate("home-page")
     }
 

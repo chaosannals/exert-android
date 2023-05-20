@@ -84,6 +84,14 @@ fun FloatMenu(
                         context.reloadUrl("https://m.bilibili.com")
                     }
             )
+
+            Text(
+                text="重定向到 mdn",
+                modifier = Modifier
+                    .clickable {
+                        X5WebViewKit.loadUrl("https://developer.mozilla.org/en-US/docs/Web/HTML/Element/video")
+                    }
+            )
         }
     }
 }

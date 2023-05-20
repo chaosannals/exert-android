@@ -28,6 +28,8 @@ class MainActivity : ComponentActivity() {
 
         ensurePermit(Manifest.permission.INTERNET)
         ensurePermit(Manifest.permission.ACCESS_NETWORK_STATE)
+        ensurePermit(Manifest.permission.READ_EXTERNAL_STORAGE)
+        ensurePermit(Manifest.permission.WRITE_EXTERNAL_STORAGE)
 
         initX5()
 
