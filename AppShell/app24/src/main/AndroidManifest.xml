@@ -34,6 +34,7 @@
                 <category android:name="android.intent.category.DEFAULT"/>
 
                 <category android:name="android.intent.category.BROWSABLE"/>
+                <!-- HTTP 协议 Intent 不指定 applicationId 会默认打开浏览器         -->
                 <data android:scheme="http" android:host="www.example.com" android:pathPrefix="/app24"/>
             </intent-filter>
             <intent-filter>

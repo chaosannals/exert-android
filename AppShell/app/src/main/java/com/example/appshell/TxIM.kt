@@ -170,22 +170,40 @@ object TxIM {
         sendC2C(this, toUserId, onSuccess)
     }
 
+    fun newText(content: String): V2TIMMessage {
+        return V2TIMManager
+            .getMessageManager()
+            .createTextMessage(content).apply {
+                isNeedReadReceipt = true
+            }
+    }
+
     fun newImage(path: String): V2TIMMessage {
         Log.d("tx-im", "path: $path")
         return V2TIMManager
             .getMessageManager()
-            .createImageMessage(path)
+            .createImageMessage(path).apply {
+                isNeedReadReceipt = true
+            }
     }
 
     inline fun <reified T> newCustomJson(content: T): V2TIMMessage {
         val bytes = Json.encodeToString(content).toByteArray()
-        return V2TIMManager.getMessageManager().createCustomMessage(bytes)
+        return V2TIMManager
+            .getMessageManager()
+            .createCustomMessage(bytes)
+            .apply {
+                isNeedReadReceipt = true
+            }
     }
 
     fun newSound(path: String, duration: Int): V2TIMMessage {
         return V2TIMManager
             .getMessageManager()
-            .createSoundMessage(path, duration);
+            .createSoundMessage(path, duration)
+            .apply {
+                isNeedReadReceipt = true
+            }
     }
 
     fun newVideo(
@@ -197,6 +215,9 @@ object TxIM {
         return V2TIMManager
             .getMessageManager()
             .createVideoMessage(path, type, duration, snapshotPath)
+            .apply {
+                isNeedReadReceipt = true
+            }
     }
 
     fun newFile(
@@ -206,6 +227,9 @@ object TxIM {
         return V2TIMManager
             .getMessageManager()
             .createFileMessage(path, name)
+            .apply {
+                isNeedReadReceipt = true
+            }
     }
 
     fun newLocation(
@@ -216,6 +240,9 @@ object TxIM {
         return V2TIMManager
             .getMessageManager()
             .createLocationMessage(info, latitude, longitude)
+            .apply {
+                isNeedReadReceipt = true
+            }
     }
 
     fun newFace(
@@ -225,6 +252,9 @@ object TxIM {
         return V2TIMManager
             .getMessageManager()
             .createFaceMessage(code, data)
+            .apply {
+                isNeedReadReceipt = true
+            }
     }
 
     fun listen(listener: V2TIMAdvancedMsgListener) {

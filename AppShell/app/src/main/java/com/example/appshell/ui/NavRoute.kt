@@ -131,6 +131,9 @@ fun NavGraphBuilder.routeDemoGraph() {
         composable("pdf-view-3-page") {
             PdfView3Page()
         }
+        composable("pdf-view-web-page") {
+            PdfViewWebPage()
+        }
         composable("reflection-page") {
             ReflectionPage()
         }

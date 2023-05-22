@@ -71,7 +71,8 @@ fun X5WebShell(
             if(null == url) return false
             try {
                 if (!url.startsWith("http://")
-                    && !url.startsWith("https://")) {
+                    && !url.startsWith("https://")
+                    && !url.startsWith("file://")) {
                     //处理非http和https开头的链接地址
                     Intent(Intent.ACTION_VIEW, Uri.parse(url)).apply {
                         addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
@@ -246,6 +247,11 @@ fun X5WebShell(
             // 关闭同步加载
             blockNetworkImage = false
             blockNetworkLoads = false
+
+            setAllowFileAccessFromFileURLs(true)
+            setAllowUniversalAccessFromFileURLs(true)
+            allowContentAccess=true
+            allowFileAccess=true
 
             // http https 混合内容开启
             mixedContentMode = android.webkit.WebSettings.MIXED_CONTENT_ALWAYS_ALLOW

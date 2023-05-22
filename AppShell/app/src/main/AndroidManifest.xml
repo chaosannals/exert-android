@@ -33,6 +33,25 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+
+            <intent-filter android:label="@string/app_name">
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <!-- HTTP 协议 Intent 不指定 applicationId 会默认打开浏览器         -->
+                <data android:scheme="http" android:host="www.example.com" android:pathPrefix="/app24"/>
+            </intent-filter>
+
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <!-- 多条 data 以下会导致 3 * 2 种搭配   app2://www.example1.com/path2 这种也会触发          -->
+                <data android:scheme="app1" android:host="www.example1.com" android:pathPrefix="/path1"/>
+                <data android:scheme="app2" android:host="www.example2.com" android:pathPrefix="/path2"/>
+            </intent-filter>
         </activity>
         <service
             android:name="com.tencent.smtt.export.external.DexClassLoaderProviderService"

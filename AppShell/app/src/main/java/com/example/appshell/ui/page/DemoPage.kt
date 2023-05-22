@@ -51,6 +51,7 @@ fun DemoPage() {
         DemoRouteButton("Pdf Viewer", "pdf-view-page")
         DemoRouteButton("Pdf 2 Viewer", "pdf-view-2-page")
         DemoRouteButton("Pdf 3 Viewer", "pdf-view-3-page")
+        DemoRouteButton("Pdf Web Viewer", "pdf-view-web-page")
         DemoRouteButton("Reflection", "reflection-page")
         DemoRouteButton("File", "file-page")
         DemoRouteButton("File Custom Pick Page", "file-custom-pick-page")
