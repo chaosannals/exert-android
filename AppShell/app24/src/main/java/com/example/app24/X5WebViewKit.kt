@@ -14,8 +14,6 @@ import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.view.children
-import com.example.app24.X5WebViewKit.downloadVideo
-import com.example.app24.X5WebViewKit.saveVideo
 import com.tencent.smtt.export.external.TbsCoreSettings
 import com.tencent.smtt.export.external.interfaces.ConsoleMessage
 import com.tencent.smtt.export.external.interfaces.SslError
@@ -30,19 +28,15 @@ import com.tencent.smtt.sdk.WebView
 import com.tencent.smtt.sdk.WebViewClient
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.android.Android
-import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.request.get
 import io.ktor.client.statement.readBytes
 import io.ktor.http.contentType
-import io.ktor.serialization.kotlinx.json.json
 import io.reactivex.rxjava3.subjects.BehaviorSubject
 import io.reactivex.rxjava3.subjects.PublishSubject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import org.threeten.bp.LocalDateTime
 import org.threeten.bp.OffsetDateTime
-import org.threeten.bp.ZoneOffset
 import org.threeten.bp.format.DateTimeFormatter
 import kotlin.coroutines.EmptyCoroutineContext
 
@@ -56,7 +50,8 @@ object X5WebViewKit: QbSdk.PreInitCallback {
         CoroutineScope(EmptyCoroutineContext)
     }
 
-    val jssdkName = "testjssdk"
+    val jssdkName = "jssdk"
+    val jssdkScheme = "appsdk"
 
     data class WebViewPageStartedEvent(
         val p0: WebView?,
@@ -81,6 +76,27 @@ object X5WebViewKit: QbSdk.PreInitCallback {
     val lastUrl: BehaviorSubject<String> = BehaviorSubject.create()
     val progress: BehaviorSubject<Int> = BehaviorSubject.create()
     val webView: BehaviorSubject<WebView> = BehaviorSubject.create()
+
+    fun WebView.launchResolve(uuid: String, result: String) {
+        post {
+            evaluateJavascript("""
+                console.log('launchMap resolve', JSON.stringify(${jssdkName}.launchMap));
+                var resolve = ${jssdkName}.launchMap['$uuid'].resolve;
+                resolve($result);
+                delete ${jssdkName}.launchMap['$uuid'];
+            """.trimIndent()) {}
+        }
+    }
+    fun WebView.launchReject(uuid: String, error: String) {
+        post {
+            evaluateJavascript("""
+                console.log('launchMap reject', JSON.stringify(${jssdkName}.launchMap));
+                var reject = ${jssdkName}.launchMap['$uuid'].reject;
+                reject(Error('$error'));
+                delete ${jssdkName}.launchMap['$uuid'];
+            """.trimIndent()) {}
+        }
+    }
 
     fun WebView.logHistory() {
         val bfl = copyBackForwardList()
@@ -131,7 +147,7 @@ object X5WebViewKit: QbSdk.PreInitCallback {
             req: WebResourceRequest?
         ): WebResourceResponse? {
             // 生成返回 JSSDK
-            if (req?.url?.scheme == "testjssdk") {
+            if (req?.url?.scheme == jssdkScheme) {
                 return WebResourceResponse(
                     "application/javascript",
                     "utf-8",
@@ -141,7 +157,17 @@ object X5WebViewKit: QbSdk.PreInitCallback {
                         "Cache-Control" to "no-cache",
                     ),
                     """
-                        ${jssdkName}.taskQueue = {};
+                        ${jssdkName}.launchMap = {};
+                        ${jssdkName}.launch = (name, param) => {
+                            return new Promise((resolve, reject) => {
+                                var uuid = String(new Date().getTime());
+                                ${jssdkName}.launchMap[uuid] = {
+                                    resolve: resolve,
+                                    reject: reject,
+                                };
+                                ${jssdkName}.launchDispatch(uuid, name, param);
+                            });
+                        };
                     """.trimIndent().byteInputStream(),
                 )
             }

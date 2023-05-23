@@ -3,9 +3,7 @@ package com.example.app24.ui.widget
 import android.app.Activity
 import android.util.Log
 import android.webkit.WebSettings
-import androidx.activity.OnBackPressedCallback
 import androidx.activity.compose.BackHandler
-import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -15,11 +13,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.runtime.rxjava3.subscribeAsState
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -33,8 +29,15 @@ import androidx.compose.ui.window.PopupPositionProvider
 import androidx.compose.ui.window.PopupProperties
 import com.example.app24.X5WebViewKit
 import com.example.app24.X5WebViewKit.downloadPicture
+import com.example.app24.X5WebViewKit.jssdkName
+import com.example.app24.X5WebViewKit.launchReject
+import com.example.app24.X5WebViewKit.launchResolve
+import com.example.app24.js.JsSdk
 import com.example.app24.ui.LocalNavController
 import com.example.app24.ui.sdp
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @Composable
 fun X5WebView(
@@ -42,6 +45,7 @@ fun X5WebView(
 ) {
     val context = LocalContext.current
     val navController = LocalNavController.current
+    val scope = rememberCoroutineScope()
     val webView by X5WebViewKit.webView.subscribeAsState(initial = X5WebViewKit.webView.value!!)
     val lastUrl by X5WebViewKit.lastUrl.subscribeAsState(initial = null)
 //    val longClickImage by X5WebViewKit.onLongClickImagePublisher.subscribeAsState(initial = null)
@@ -89,6 +93,46 @@ fun X5WebView(
 
     Log.d("app24", "webView Compose")
 
+    val jsSdk = remember {
+        JsSdk(
+            onSyncCall =
+            { uuid, param ->
+                webView.launchResolve(uuid, "null")
+            },
+            onAsyncCall =
+            { uuid, param ->
+                scope.launch(Dispatchers.IO) {
+                    delay(10000)
+                    webView.launchResolve(uuid, "")
+                }
+            },
+            onResultCall =
+            { uuid, param ->
+                webView.launchResolve(uuid, """
+                    {
+                        v1: 123,
+                        v2: "12312"
+                    }
+                """.trimIndent())
+            },
+            onSyncFail =
+            {  uuid, param ->
+                webView.launchReject(uuid, "同步执行错误")
+            },
+            onAsyncFail =
+            {  uuid, param ->
+                scope.launch(Dispatchers.IO) {
+                    delay(10000)
+                    webView.launchReject(uuid, "异步执行错误")
+                }
+            },
+            onResultFail =
+            {  uuid, param ->
+                webView.launchReject(uuid, "带结果执行错误")
+            }
+        )
+    }
+
     Box(
         modifier = modifier,
     ) {
@@ -131,7 +175,7 @@ fun X5WebView(
                     // http https 混合内容开启
                     mixedContentMode = WebSettings.MIXED_CONTENT_ALWAYS_ALLOW
                 }
-                //        it.addJavascriptInterface(jsSdk, jssdkName)
+                it.addJavascriptInterface(jsSdk, jssdkName)
 
                 X5WebViewKit.isInited.onNext(true)
             }
@@ -167,7 +211,11 @@ fun X5WebView(
                             Color.White,
                             RoundedCornerShape(topEnd = 10.sdp, topStart = 10.sdp)
                         )
-                        .border(1.sdp, Color.Cyan, RoundedCornerShape(topEnd = 10.sdp, topStart = 10.sdp))
+                        .border(
+                            1.sdp,
+                            Color.Cyan,
+                            RoundedCornerShape(topEnd = 10.sdp, topStart = 10.sdp)
+                        )
                         .padding(10.sdp)
                 ) {
                     Text(

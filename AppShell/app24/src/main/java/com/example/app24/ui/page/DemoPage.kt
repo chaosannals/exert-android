@@ -54,6 +54,9 @@ fun DemoPage() {
         item {
             DemoLinkButton("web-new-2", "web-new-second-page")
         }
+        item {
+            DemoLinkButton("web-jssdk", "web-jssdk-page")
+        }
     }
 }
 

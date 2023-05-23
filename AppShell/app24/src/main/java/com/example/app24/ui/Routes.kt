@@ -10,6 +10,7 @@ import com.example.app24.ui.page.DemoPage
 import com.example.app24.ui.page.HomePage
 import com.example.app24.ui.page.demo.ThreeTenABPPage
 import com.example.app24.ui.page.demo.WebFirstPage
+import com.example.app24.ui.page.demo.WebJsSdkPage
 import com.example.app24.ui.page.demo.WebNewFirstPage
 import com.example.app24.ui.page.demo.WebNewSecondPage
 import com.example.app24.ui.page.demo.WebSecondPage
@@ -46,6 +47,9 @@ fun NavGraphBuilder.demoGraph() {
         }
         composable("web-new-second-page") {
             WebNewSecondPage()
+        }
+        composable("web-jssdk-page") {
+            WebJsSdkPage()
         }
     }
 }
