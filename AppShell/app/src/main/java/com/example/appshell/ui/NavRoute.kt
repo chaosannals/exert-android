@@ -167,6 +167,9 @@ fun NavGraphBuilder.routeDemoGraph() {
         composable("date-310-page") {
             Date310Page()
         }
+        composable("data-url-page") {
+            DataUrlPage()
+        }
     }
 }
 
