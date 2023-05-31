@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.content.ContentResolver
 import android.content.ContentValues
 import android.content.Context
+import android.content.pm.ApplicationInfo
 import android.graphics.Bitmap
 import android.icu.text.SimpleDateFormat
 import android.net.Uri
@@ -237,6 +238,13 @@ object X5WebViewKit: QbSdk.PreInitCallback {
 
     @SuppressLint("ClickableViewAccessibility")
     fun Context.initX5() {
+        // 这句在目标是 24 以上的可以不加。
+        //if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            // 判断 APP 是否是调试模式
+            //if (0 != (applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE)){
+                WebView.setWebContentsDebuggingEnabled(true)
+            //}
+        //}
         val wv = WebView(this)
         wv.setOnLongClickListener {
             val r = wv.hitTestResult

@@ -1,5 +1,15 @@
 # android
 
+## WebView chrome 远程调试
+
+PC 网页打开 chrome://inspect/#devices
+这个好像只能真机，模拟器能发现但是进不了 devtools 。
+
+```kotlin
+// 全局打开调试模式，连上设备，在 PC 的页面链接。
+WebView.setWebContentsDebuggingEnabled(true)
+```
+
 ## Kotlin Multiplatform Mobile
 
 KMM 目录结构类似 Futter ，但目前结构混乱，同样是以多平台目录配合公共目录的形式，公共目录里面居然混入了 iosMain 这种特定平台的东西。
@@ -137,6 +147,9 @@ keytool -list -v -keystore jcm3demo.jks
 # 通过把 输出结果传递给 openssl 去取得 MD5
 # openssl 通过 msys2 使用。
 keytool -exportcert -alias key0 -keystore /c/path/to/key.jks | openssl dgst -md5 
+
+# 默认的 Android Studio 生成的调试证书放在用户目录下，密码是 Android
+keytool -exportcert -alias androiddebugkey -keystore ~/.android/debug.keystore |  openssl dgst -md5 
 
 # 调试证书在用户目录  .android 下 debug.keystore 通过下面命令查看 SHA1
 # 密码: android
