@@ -8,6 +8,7 @@ import androidx.navigation.navigation
 import com.example.app24.ui.page.BootPage
 import com.example.app24.ui.page.DemoPage
 import com.example.app24.ui.page.HomePage
+import com.example.app24.ui.page.demo.RandomGraphPage
 import com.example.app24.ui.page.demo.ThreeTenABPPage
 import com.example.app24.ui.page.demo.WebFirstPage
 import com.example.app24.ui.page.demo.WebJsSdkPage
@@ -50,6 +51,9 @@ fun NavGraphBuilder.demoGraph() {
         }
         composable("web-jssdk-page") {
             WebJsSdkPage()
+        }
+        composable("random-graph-page") {
+            RandomGraphPage()
         }
     }
 }
