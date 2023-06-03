@@ -182,7 +182,6 @@ fun RandomGraph2Page() {
             for (line in lines) {
                 val start = canvasOffset + line.start.offset
                 val end = canvasOffset + line.end.offset
-                val k = rand.nextInt(0, 2)
 
                 p.moveTo(start.x, start.y)
                 when (line.kind) {
