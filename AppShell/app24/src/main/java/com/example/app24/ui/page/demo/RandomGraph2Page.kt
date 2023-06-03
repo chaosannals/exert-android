@@ -25,22 +25,55 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.StrokeJoin
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.text.drawText
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.IntOffset
 import com.example.app24.ui.DesignPreview
 import kotlin.math.ceil
+import kotlin.math.cos
 import kotlin.math.floor
+import kotlin.math.sin
 import kotlin.math.sqrt
 import kotlin.random.Random
 
 private data class Rg2Point(
     val offset: Offset,
     val color: Color,
+    val radius: Float,
 )
+
+private data class Rg2Line(
+    val start: Rg2Point,
+    val end: Rg2Point,
+    val kind: Int = 0,
+    val m1: Offset? = null,
+    val m2: Offset? = null,
+)
+
+private inline fun IntOffset.isIn(maxX: Int, maxY: Int) : Boolean {
+    return x in 0 until maxX && y in 0 until maxY
+}
+
+// Array<Array<Rg2Point>> 二级数组长度 必须等长
+private fun Array<Array<Rg2Point>>.getOrNull(x: Int, y: Int): Rg2Point? {
+    if (y in 0 until size && x in 0 until  this[0].size) {
+        return this[y][x]
+    }
+    return null
+}
+
+private fun Offset.ratote(a: Float): Offset {
+    val r = sqrt(x * x + y * y)
+    return Offset(r * cos(a), r * sin(a))
+}
 
 @OptIn(ExperimentalTextApi::class, ExperimentalMaterial3Api::class)
 @Composable
@@ -81,10 +114,47 @@ fun RandomGraph2Page() {
                 val x = i * areaSize.width + rand.nextFloat() * areaSize.width
                 val y = j * areaSize.height + rand.nextFloat() * areaSize.height
                 val c = Color(rand.nextFloat(), rand.nextFloat(), rand.nextFloat())
-                Rg2Point(Offset(x, y), c)
+                val r = pointRadius * 0.4f + rand.nextFloat() * pointRadius * 0.6f
+                Rg2Point(Offset(x, y), c, r)
             }
         }
         mutableStateOf(r)
+    }
+
+    val lines by remember(points) {
+        val r = mutableListOf<Rg2Line>()
+        for (j in 0 until points.size){
+            val row = points[j]
+            for (i in 0 until row.size) {
+                val cell = row[i]
+                // 东南方向扫，
+                points.getOrNull(i + 1, j)?.let {
+                    //
+                    val k = rand.nextInt(0, 2)
+                    val line = when (k) {
+                        0 -> Rg2Line(cell, it)
+                        else -> {
+                            val d = (it.offset - cell.offset) / 4f
+                            val m1 = cell.offset + d.ratote((rand.nextFloat() - 0.5f) * 0.4f)
+                            val m2 = it.offset - d.ratote((rand.nextFloat() - 0.5f) * 0.4f)
+                            Rg2Line(cell, it, k, m1, m2)
+                        }
+                    }
+                    r.add(line)
+                }
+                points.getOrNull(i, j + 1)?.let {
+                    r.add(Rg2Line(cell, it))
+                }
+                // 西北方向扫
+//                points.getOrNull(i, j - 1)?.let {
+//                    r.add(Rg2Line(cell, it))
+//                }
+//                points.getOrNull(i - 1, j)?.let {
+//                    r.add(Rg2Line(cell, it))
+//                }
+            }
+        }
+        mutableStateOf(r.toList())
     }
 
     Column(
@@ -108,14 +178,46 @@ fun RandomGraph2Page() {
                 canvasSize = size
             }
 
+            val p = Path()
+            for (line in lines) {
+                val start = canvasOffset + line.start.offset
+                val end = canvasOffset + line.end.offset
+                val k = rand.nextInt(0, 2)
+
+                p.moveTo(start.x, start.y)
+                when (line.kind) {
+                    0 -> {
+                        p.lineTo(end.x, end.y)
+                    }
+                    1 -> {
+                        val m1 = canvasOffset + line.m1!!
+                        val m2 = canvasOffset + line.m2!!
+                        p.cubicTo(m1.x, m1.y, m2.x, m2.y, end.x, end.y)
+                    }
+                }
+            }
+            drawPath(
+                path = p,
+                color=Color.Black,
+                style = Stroke(
+                    width = 4f,
+                    cap = StrokeCap.Round,
+                    join = StrokeJoin.Round,
+                )
+            )
+
             for (j in 0 until rowCount) {
                 for (i in 0 until columnCount) {
                     val p = points[j][i]
                     val index = j * rowCount + i
                     val offset = canvasOffset + p.offset
-                    val textOffset = offset - Offset(pointRadius, pointRadius) * 0.5f
-                    drawCircle(p.color, pointRadius, offset)
-                    Log.d("RandomGraph2", "textOffset: $textOffset")
+                    val textOffset = offset - Offset(p.radius, p.radius) * 0.5f
+                    // Log.d("RandomGraph2", "textOffset: $textOffset")
+
+                    if (offset.x in 0f .. size.width && offset.y in 0f .. size.height) {
+                        drawCircle(p.color, p.radius, offset)
+                    }
+
                     if (textOffset.x in 0f .. size.width && textOffset.y in 0f .. size.height) {
                         drawText(textMeasurer, "$index", textOffset)
                     }
