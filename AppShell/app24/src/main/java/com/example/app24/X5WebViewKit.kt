@@ -101,11 +101,26 @@ object X5WebViewKit: QbSdk.PreInitCallback {
 
     fun WebView.logHistory() {
         val bfl = copyBackForwardList()
+        // 有时候 size > 1 却 canGoBack=false 且 goBack 调用不起效。
+        Log.d("app24", "WebView History Size: ${canGoBack()}")
         Log.d("app24", "WebView History Size: ${bfl.size}")
         Log.d("app24", "WebView History Current: ${bfl.currentItem?.url}")
         for (i in 0 until bfl.size) {
             Log.d("app24", "WebView History: ${bfl.getItemAtIndex(i)?.url}")
         }
+    }
+
+    // 有时候 size > 1 却 canGoBack=false 且 goBack 调用不起效。
+    // 用此函数替代
+    fun WebView.canGoBack2(): Boolean {
+        val bfl = copyBackForwardList()
+        return bfl.size > 1
+    }
+
+    // 有时候 size > 1 却 canGoBack=false 且 goBack 调用不起效。
+    // 用此函数替代
+    fun WebView.goBack2() {
+        evaluateJavascript("history.back();") {}
     }
 
     fun loadUrl(url: String) {
