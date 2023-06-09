@@ -63,6 +63,9 @@ fun DemoPage() {
         item {
             DemoLinkButton("Random Graph 2", "random-graph-2-page")
         }
+        item {
+            DemoLinkButton("Line Graph", "line-graph-page")
+        }
     }
 }
 

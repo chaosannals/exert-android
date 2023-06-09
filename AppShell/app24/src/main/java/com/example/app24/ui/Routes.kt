@@ -8,6 +8,7 @@ import androidx.navigation.navigation
 import com.example.app24.ui.page.BootPage
 import com.example.app24.ui.page.DemoPage
 import com.example.app24.ui.page.HomePage
+import com.example.app24.ui.page.demo.LineGraphPage
 import com.example.app24.ui.page.demo.RandomGraph2Page
 import com.example.app24.ui.page.demo.RandomGraphPage
 import com.example.app24.ui.page.demo.ThreeTenABPPage
@@ -58,6 +59,9 @@ fun NavGraphBuilder.demoGraph() {
         }
         composable("random-graph-2-page") {
             RandomGraph2Page()
+        }
+        composable("line-graph-page") {
+            LineGraphPage()
         }
     }
 }

@@ -3,6 +3,7 @@ package com.example.app24.ui.page.demo
 import android.util.Log
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.gestures.detectDragGestures
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
@@ -157,6 +158,10 @@ fun RandomGraph2Page() {
         mutableStateOf(r.toList())
     }
 
+    var tapPoint: Offset? by remember {
+        mutableStateOf(null)
+    }
+
     Column(
         modifier = Modifier
             .statusBarsPadding()
@@ -172,6 +177,12 @@ fun RandomGraph2Page() {
             modifier = Modifier
                 .fillMaxWidth()
                 .aspectRatio(1f)
+                .pointerInput(Unit) {
+                    detectTapGestures {
+                        Log.d("RandomGraph2", "tap: $it")
+                        tapPoint = it
+                    }
+                }
                 .clip(RectangleShape),
         ) {
             if (canvasSize != size) {
@@ -212,6 +223,12 @@ fun RandomGraph2Page() {
                     val offset = canvasOffset + p.offset
                     val textOffset = offset - Offset(p.radius, p.radius) * 0.5f
                     // Log.d("RandomGraph2", "textOffset: $textOffset")
+
+                    tapPoint?.let { tp ->
+                        if ((offset - tp).getDistance() < p.radius) {
+                            drawCircle(Color.Yellow, p.radius + 4, offset)
+                        }
+                    }
 
                     if (offset.x in 0f .. size.width && offset.y in 0f .. size.height) {
                         drawCircle(p.color, p.radius, offset)
