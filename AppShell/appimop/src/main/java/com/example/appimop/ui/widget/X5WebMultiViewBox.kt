@@ -75,7 +75,7 @@ fun X5WebMultiViewBox(
         }
     }
 
-    // TODO 
+    // TODO
     // 此处不精确。全局保有的 webview 在此处不一定就会被回收。
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
@@ -230,20 +230,25 @@ fun X5WebMultiViewBox(
                 factory =
                 {
                     Log.d("web-multi-view", "android view factory start")
+                    // 路由是可以被重入的，重用 webView 需要确保其 parent 唯一。路由重入的时候清除上一个 AndroidView 挂载的 webView
                     webView.apply {
                         if (parent != null) {
                             val p = (parent as ViewGroup)
+                            // 以下 2 种方式都可行，感觉用 id 的可能出问题会小些。
+
                             // 第一种
 //                            val i = p.indexOfChild(this)
 //                            val n = WebView(it)
 //                            p.removeView(this)
 //                            p.addView(n, i)
+//                            Log.d("web-multi-view", "android view factory remove index: $i")
 
                             // 第二种
-                            val i = id
+                            val n = WebView(it)
+                            n.id = id
                             p.removeView(this)
-                            p.addView(WebView(it), i)
-                            Log.d("web-multi-view", "android view factory remove")
+                            p.addView(n)
+                            Log.d("web-multi-view", "android view factory remove ${n.id} $id")
                         }
                     }
                 },
