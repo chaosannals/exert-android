@@ -1,5 +1,6 @@
 package com.example.app24.ui
 
+import android.util.Log
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
@@ -24,6 +25,7 @@ val LocalNavController = staticCompositionLocalOf<NavHostController> {
 
 fun NavGraphBuilder.rootGraph() {
     composable("boot-page") {
+        Log.d("route info", "当前路由信息：${it.destination.route}")
         BootPage()
     }
     composable("demo-page") {

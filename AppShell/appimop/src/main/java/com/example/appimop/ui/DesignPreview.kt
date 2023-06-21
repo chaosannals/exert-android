@@ -1,4 +1,4 @@
-package com.example.app24.ui
+package com.example.appimop.ui
 
 import android.content.res.Resources
 import androidx.compose.foundation.layout.Box
@@ -98,13 +98,16 @@ inline val Double.dp2px : Float get() = run {
     return (this * Design.ratio * Design.density).toFloat()
 }
 
-inline val Int.px2dp: Dp get() = run {
+inline val Int.px2dp: Dp
+    get() = run {
     return (this / Design.density / Design.ratio).dp
 }
-inline val Float.px2dp: Dp get() = run {
+inline val Float.px2dp: Dp
+    get() = run {
     return (this / Design.density / Design.ratio).dp
 }
-inline val Double.px2dp: Dp get() = run {
+inline val Double.px2dp: Dp
+    get() = run {
     return (this / Design.density / Design.ratio).dp
 }
 
@@ -176,7 +179,7 @@ fun DrawScope.drawShadow(
 
 @Composable
 fun DesignPreview(
-    modifier: Modifier=Modifier,
+    modifier: Modifier = Modifier,
     content: @Composable BoxScope.()->Unit
 ) {
     CompositionLocalProvider(

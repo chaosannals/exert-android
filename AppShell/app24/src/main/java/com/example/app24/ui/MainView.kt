@@ -23,6 +23,7 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.zIndex
 import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.app24.ScaffoldKit
 import com.example.app24.ui.widget.BottomBar
@@ -34,6 +35,7 @@ import kotlin.math.roundToInt
 @Composable
 fun MainView() {
     val navController = rememberNavController()
+    val navEntry by navController.currentBackStackEntryAsState()
     val isShowWebView by ScaffoldKit.isShowWebView.subscribeAsState(initial = false)
     val isShowBottomBar by ScaffoldKit.isShowBottomBar.subscribeAsState(initial = true)
 
@@ -76,6 +78,13 @@ fun MainView() {
 
     // TODO 动画用到，找个好看的写法
     val scope = rememberCoroutineScope()
+
+    LaunchedEffect(navEntry) {
+        // navEntry 是个总体的对象，和路由控制器挂钩，每个路由的 compose 被调用时，参数也会获得一个表示该路由的描述。
+        // 这种设计使得 compose 不需要其他 UI 的 守卫回调 。通过状态获取当前信息。
+        // 不过这种又变相地使用了 Launched 边际效应，这种本质上也是一种回调。
+        Log.d("route info", "当前路由信息：${navEntry?.destination?.route}")
+    }
 
     CompositionLocalProvider(
         LocalNavController provides navController
@@ -149,7 +158,10 @@ fun MainView() {
                             onDragEnd =
                             {
                                 scope.launch {
-                                    Log.d("FloatBall", "FloatBall End ${floatX.value} $floatRight $size")
+                                    Log.d(
+                                        "FloatBall",
+                                        "FloatBall End ${floatX.value} $floatRight $size"
+                                    )
                                     if (floatX.value > (floatRight / 2)) {
                                         floatX.animateTo(floatRight)
                                     } else {
@@ -161,8 +173,18 @@ fun MainView() {
                                 Log.d("FloatBall", "$floatX $floatY")
                                 change.consume()
                                 scope.launch { // TODO 找一个好看的写法
-                                    floatX.snapTo((floatX.value + dragAmount.x).coerceIn(0f, floatRight))
-                                    floatY.snapTo((floatY.value + dragAmount.y).coerceIn(0f, floatBottom))
+                                    floatX.snapTo(
+                                        (floatX.value + dragAmount.x).coerceIn(
+                                            0f,
+                                            floatRight
+                                        )
+                                    )
+                                    floatY.snapTo(
+                                        (floatY.value + dragAmount.y).coerceIn(
+                                            0f,
+                                            floatBottom
+                                        )
+                                    )
                                 }
                             },
                         )

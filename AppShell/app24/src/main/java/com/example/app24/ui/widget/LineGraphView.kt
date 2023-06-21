@@ -9,8 +9,11 @@ import androidx.compose.animation.core.AnimationConstants
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.gestures.draggable
+import androidx.compose.foundation.gestures.rememberDraggableState
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
@@ -26,11 +29,12 @@ import androidx.compose.ui.focus.focusModifier
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.focusTarget
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.PathEffect
-import androidx.compose.ui.graphics.R
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.drawscope.Stroke
@@ -39,13 +43,22 @@ import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.ExperimentalTextApi
+import androidx.compose.ui.text.ParagraphStyle
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.drawText
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.app24.d2md
 import com.example.app24.dt
+import com.example.app24.ui.drawShadow
 import com.example.app24.ui.sdp
 import com.example.app24.ui.sf
+import com.example.app24.ui.ssp
 import java.util.Calendar
 import java.util.Date
 import kotlin.math.abs
@@ -53,6 +66,7 @@ import kotlin.math.ceil
 import kotlin.math.floor
 import kotlin.math.log10
 import kotlin.math.max
+import kotlin.math.min
 import kotlin.math.pow
 
 
@@ -117,6 +131,12 @@ private fun Date.subd(other: Date) : Long {
     return (time - other.time) / 86400000
 }
 
+data class DotLineData(
+    val offset: Offset,
+    val yValue: Float,
+)
+
+@OptIn(ExperimentalTextApi::class)
 @Composable
 fun LineGraphView(
     lines: List<LineGraph>,
@@ -152,10 +172,14 @@ fun LineGraphView(
     btPaint.textAlign = Paint.Align.CENTER
 
     var tapPoint: Offset? by remember {
-        mutableStateOf(null)
+//        mutableStateOf(null)
+        mutableStateOf(Offset.Zero)
     }
 
+    val textMeasurer = rememberTextMeasurer()
+
     var isShowed by remember { mutableStateOf(false) }
+//    var isShowed by remember { mutableStateOf(true) }
     val yPercentage by animateFloatAsState(
         targetValue = if (isShowed) 1f else 0f,
         animationSpec = tween(1000),
@@ -193,7 +217,11 @@ fun LineGraphView(
                 detectDragGestures(
                     onDragStart = { tapPoint = it },
                     onDrag = { change, dragAmount ->
-                        change.consume()
+                        change
+                            .copy(
+                                scrollDelta = change.scrollDelta.copy(y = 0f),
+                            )
+                            .consume()
                         tapPoint?.let {
                             tapPoint = it + dragAmount
                         }
@@ -266,12 +294,17 @@ fun LineGraphView(
 
             var lpx: Float? = null
             var lpy: Float? = null
-            val doffset = mutableListOf<Offset>()
+            val doffset = mutableListOf<DotLineData>()
             it.points.forEachIndexed { i, lp ->
                 val dx = columnStart + lp.xDate.subd(minDate) * deltaX
                 val dy = (areaB - (lp.yValue * yPercentage) * ratioY + 2f * j)
 
-                doffset.add(Offset(dx, dy))
+                doffset.add(
+                    DotLineData(
+                        offset=Offset(dx, dy),
+                        yValue = lp.yValue,
+                    )
+                )
 
                 if (i == 0) {
                     p.moveTo(dx, dy)
@@ -302,28 +335,89 @@ fun LineGraphView(
 
             tapPoint?.let { tp ->
                 val needed = doffset.reduce { a, n ->
-                    val ad = abs(tp.x - a.x)
-                    val nd = abs(tp.x - n.x)
+                    val ad = abs(tp.x - a.offset.x)
+                    val nd = abs(tp.x - n.offset.x)
                     if (ad < nd) a else n
                 }
 
                 drawCircle(
                     color = Color.White,
                     radius = 0.00725f * w,
-                    center = needed,
+                    center = needed.offset,
                 )
 
                 drawCircle(
                     color = it.color,
                     radius = 0.00725f * w,
-                    center = needed,
+                    center = needed.offset,
                     style = Stroke(
                         width = pathW
                     )
                 )
+
+                val textBoxSize = Size(90f.sf, 45.5f.sf)
+                val textBoxTopLeft = needed.offset.copy(
+                    x = min(needed.offset.x, areaR - textBoxSize.width),
+                    y = min(needed.offset.y, areaB - textBoxSize.height),
+                )
+
+                drawShadow(
+                    topLeft = textBoxTopLeft,
+                    size = textBoxSize,
+                    offset = Offset(0f, 3f.sf),
+                    color = Color(0xBDD8E4F6),
+                    shadowBlurRadius=5.sdp,
+                )
+                drawRoundRect(
+                    color = Color.White,
+                    topLeft = textBoxTopLeft,
+                    size = textBoxSize,
+                    cornerRadius = CornerRadius(5f.sf)
+                )
+                val title = "访问数量访问本厂：${needed.yValue}"
+                val titleLayoutResult = textMeasurer.measure(
+                    text = AnnotatedString(
+                        text=title,
+                        spanStyles = listOf(
+                            AnnotatedString.Range(
+                                SpanStyle(
+                                    color = Color(0xFF666666),
+                                    fontSize = 10.ssp,
+                                ),
+                                0, 4
+                            ),
+                            AnnotatedString.Range(
+                                SpanStyle(
+                                    color = Color(0xFF666666),
+                                    fontSize = 9.ssp,
+                                ),
+                                4, 9
+                            ),
+                        ),
+                        paragraphStyles = listOf(
+                            AnnotatedString.Range(
+                                ParagraphStyle(),
+                                0, 4
+                            ),
+                        ),
+                    ),
+                    style = TextStyle(
+                        color = Color(0xFFFF8D1A),
+                        fontSize = 9.ssp,
+                        fontWeight = FontWeight.Bold
+                    ),
+                )
+                drawText(
+                    textLayoutResult = titleLayoutResult,
+                    topLeft = textBoxTopLeft.copy(
+                        x = textBoxTopLeft.x + 10f.sf,
+                        y = textBoxTopLeft.y + (textBoxSize.height - titleLayoutResult.size.height) / 2
+                    ),
+                )
+
                 drawLine(
-                    start = Offset(needed.x, areaT),
-                    end = Offset(needed.x, areaB),
+                    start = Offset(needed.offset.x, areaT),
+                    end = Offset(needed.offset.x, areaB),
                     color = gray,
                     strokeWidth = lineW,
                     pathEffect = PathEffect.dashPathEffect(
@@ -340,32 +434,32 @@ fun LineGraphView(
 fun LineGraphViewPreview() {
     LineGraphView(
         lines = listOf(
-            LineGraph(
-                color = Color.Yellow,
-                points = listOf(
-                    LineGraphPoint( 10.1f, "2022-02-01 00:00:00".dt),
-                    LineGraphPoint( 354.5f, "2022-02-02 00:00:00".dt),
-                    LineGraphPoint( 256.6f, "2022-02-03 00:00:00".dt),
-                    LineGraphPoint( 50.5f, "2022-02-04 00:00:00".dt),
-                    LineGraphPoint( 205.4f, "2022-02-05 00:00:00".dt),
-                    LineGraphPoint( 401.3f, "2022-02-06 00:00:00".dt),
-                    LineGraphPoint( 411.3f, "2022-02-07 00:00:00".dt),
-                    LineGraphPoint( 491.3f, "2022-02-08 00:00:00".dt),
-                    LineGraphPoint( 205.4f, "2022-02-09 00:00:00".dt),
-                    LineGraphPoint( 401.3f, "2022-02-10 00:00:00".dt),
-                    LineGraphPoint( 411.3f, "2022-02-11 00:00:00".dt),
-                    LineGraphPoint( 491.3f, "2022-02-12 00:00:00".dt),
-                )
-            ),
+//            LineGraph(
+//                color = Color.Yellow,
+//                points = listOf(
+//                    LineGraphPoint( 10.1f, "2022-02-01 00:00:00".dt),
+//                    LineGraphPoint( 354.5f, "2022-02-02 00:00:00".dt),
+//                    LineGraphPoint( 256.6f, "2022-02-03 00:00:00".dt),
+//                    LineGraphPoint( 50.5f, "2022-02-04 00:00:00".dt),
+//                    LineGraphPoint( 205.4f, "2022-02-05 00:00:00".dt),
+//                    LineGraphPoint( 401.3f, "2022-02-06 00:00:00".dt),
+//                    LineGraphPoint( 411.3f, "2022-02-07 00:00:00".dt),
+//                    LineGraphPoint( 491.3f, "2022-02-08 00:00:00".dt),
+//                    LineGraphPoint( 205.4f, "2022-02-09 00:00:00".dt),
+//                    LineGraphPoint( 401.3f, "2022-02-10 00:00:00".dt),
+//                    LineGraphPoint( 411.3f, "2022-02-11 00:00:00".dt),
+//                    LineGraphPoint( 491.3f, "2022-02-12 00:00:00".dt),
+//                )
+//            ),
             LineGraph(
                 color = Color.Blue,
                 points = listOf(
-                    LineGraphPoint( 20.2f, "2022-02-01 00:00:00".dt),
-                    LineGraphPoint( 353.3f, "2022-02-02 00:00:00".dt),
-                    LineGraphPoint( 20.1f, "2022-02-03 00:00:00".dt),
-                    LineGraphPoint( 100.5f, "2022-02-04 00:00:00".dt),
-                    LineGraphPoint( 10.6f, "2022-02-05 00:00:00".dt),
-                    LineGraphPoint( 666.5f, "2022-02-06 00:00:00".dt),
+                    LineGraphPoint( 20f, "2022-02-01 00:00:00".dt),
+                    LineGraphPoint( 353f, "2022-02-02 00:00:00".dt),
+                    LineGraphPoint( 20f, "2022-02-03 00:00:00".dt),
+                    LineGraphPoint( 100f, "2022-02-04 00:00:00".dt),
+                    LineGraphPoint( 10f, "2022-02-05 00:00:00".dt),
+                    LineGraphPoint( 666f, "2022-02-06 00:00:00".dt),
                 )
             ),
         )
