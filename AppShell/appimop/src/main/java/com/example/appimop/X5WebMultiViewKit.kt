@@ -54,6 +54,7 @@ object X5WebMultiViewKit {
             Log.d("web-multi-view", "ensure new: $key")
             viewMap[key] = WebView(this)
         }
+        Log.d("web-multi-view", "ensure: $key")
         return viewMap[key]!!
     }
 

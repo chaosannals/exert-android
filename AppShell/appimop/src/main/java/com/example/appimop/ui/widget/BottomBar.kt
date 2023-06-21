@@ -59,6 +59,14 @@ fun BottomBar(
                     navController.navigate("web-3")
                 }
         )
+        BottomBarItem(
+            text = "Reentry",
+            modifier = Modifier
+                .weight(1f)
+                .clickable {
+                    navController.navigate("reentry")
+                }
+        )
     }
 }
 

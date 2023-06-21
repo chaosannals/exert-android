@@ -4,6 +4,7 @@ import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
+import com.example.appimop.ui.page.ReentryPage
 import com.example.appimop.ui.page.Web1Page
 import com.example.appimop.ui.page.Web2Page
 import com.example.appimop.ui.page.Web3Page
@@ -13,7 +14,9 @@ val LocalNavController = staticCompositionLocalOf<NavHostController> {
 }
 
 fun NavGraphBuilder.rootGraph() {
-
+    composable("reentry") {
+        ReentryPage()
+    }
 }
 
 fun NavGraphBuilder.webGraph() {
