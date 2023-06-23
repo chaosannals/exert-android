@@ -1,5 +1,6 @@
 package com.example.appimop.ui.widget
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.graphics.Bitmap
 import android.net.Uri
@@ -8,24 +9,48 @@ import android.util.Log
 import android.view.ViewGroup
 import android.webkit.WebSettings
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Text
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.IntRect
+import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.compose.ui.window.Popup
+import androidx.compose.ui.window.PopupPositionProvider
+import androidx.compose.ui.window.PopupProperties
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
+import com.example.appimop.WebViewLongClickImageEvent
 import com.example.appimop.WebViewOpenFileChooserEvent
 import com.example.appimop.WebViewProgressChangedEvent
 import com.example.appimop.X5WebMultiViewKit
 import com.example.appimop.X5WebMultiViewKit.canGoBack2
+import com.example.appimop.X5WebMultiViewKit.download
 import com.example.appimop.X5WebMultiViewKit.onProgressChangedPublisher
 import com.example.appimop.X5WebMultiViewKit.onShowFileChooserPublisher
 import com.example.appimop.X5WebMultiViewKit.rememberWebView
+import com.example.appimop.X5WebMultiViewKit.savePicture
+import com.example.appimop.X5WebMultiViewKit.saveVideo
 import com.example.appimop.ui.DesignPreview
 import com.example.appimop.ui.LocalNavController
+import com.example.appimop.ui.sdp
+import com.example.appimop.ui.ssp
 import com.tencent.smtt.export.external.interfaces.ConsoleMessage
 import com.tencent.smtt.export.external.interfaces.SslError
 import com.tencent.smtt.export.external.interfaces.SslErrorHandler
@@ -36,9 +61,12 @@ import com.tencent.smtt.sdk.ValueCallback
 import com.tencent.smtt.sdk.WebChromeClient
 import com.tencent.smtt.sdk.WebView
 import com.tencent.smtt.sdk.WebViewClient
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 private val IMAGE_MIME_PATTERN = Regex(".*?(image|png|jpeg|jpg).*?")
 
+@SuppressLint("SetJavaScriptEnabled")
 @Composable
 fun X5WebMultiViewBox(
     key: String,
@@ -46,6 +74,7 @@ fun X5WebMultiViewBox(
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
     val navController = LocalNavController.current
+    val webViewScope = rememberCoroutineScope()
     val webView by context.rememberWebView(key)
 
     // 模拟只有现阶段可以获取的值。
@@ -63,14 +92,37 @@ fun X5WebMultiViewBox(
         }
     }
 
+    var longClickImage: WebViewLongClickImageEvent? by remember {
+        mutableStateOf(null)
+    }
+
     DisposableEffect(webView) {
         Log.d("web-multi-view", "dispose: $key")
+        val onLongClickImageDisposable = X5WebMultiViewKit.onLongClickImagePublisher.subscribe {
+            if (it.key == key) {
+                longClickImage = it
+            }
+        }
+
+        val onDownloadVideoDisposable = X5WebMultiViewKit.onDownloadVideoPublisher.subscribe {
+            if (it.key == key) {
+                webViewScope.download(it.url) {
+                    it?.let {
+                        context.saveVideo(it.data, it.mimeType)
+                    }
+                }
+            }
+        }
+
         val onLoadUrlDisposable = X5WebMultiViewKit.onLoadUrlPublisher.subscribe {
             if (it.key == key) {
                 webView.loadUrl(it.url)
             }
         }
+
         onDispose {
+            onLongClickImageDisposable.dispose()
+            onDownloadVideoDisposable.dispose()
             onLoadUrlDisposable.dispose()
         }
     }
@@ -153,7 +205,10 @@ fun X5WebMultiViewBox(
                     p1: WebResourceRequest?,
                     p2: WebResourceError?
                 ) {
-                    Log.d("web-multi-view", "webView error ${p1?.url} ${p2?.errorCode} ${p2?.description}")
+                    Log.d(
+                        "web-multi-view",
+                        "webView error ${p1?.url} ${p2?.errorCode} ${p2?.description}"
+                    )
                 }
 
                 override fun onReceivedHttpError(
@@ -218,14 +273,13 @@ fun X5WebMultiViewBox(
             }
         }
 
-//        val isFree by remember(webView) {
-//            derivedStateOf {
-//                webView.parent == null
-//            }
-//        }
 
-
-//        if (isFree) {
+        Column(
+            verticalArrangement=Arrangement.Top,
+            horizontalAlignment=Alignment.CenterHorizontally,
+            modifier = Modifier
+                .fillMaxSize()
+        ) {
             AndroidView(
                 factory =
                 {
@@ -253,7 +307,8 @@ fun X5WebMultiViewBox(
                     }
                 },
                 modifier = Modifier
-                    .fillMaxSize()
+                    .fillMaxWidth()
+                    .weight(1f)
             ) {
                 it.webViewClient = webViewClient
                 it.webChromeClient = webChromeClient
@@ -284,8 +339,58 @@ fun X5WebMultiViewBox(
                     mixedContentMode = WebSettings.MIXED_CONTENT_ALWAYS_ALLOW
                 }
             }
+
+            longClickImage?.let { event ->
+                Popup(
+                    popupPositionProvider = object : PopupPositionProvider {
+                        override fun calculatePosition(
+                            anchorBounds: IntRect,
+                            windowSize: IntSize,
+                            layoutDirection: LayoutDirection,
+                            popupContentSize: IntSize
+                        ): IntOffset {
+                            val x = anchorBounds.left
+                            val y = anchorBounds.bottom
+                            return IntOffset(x, y)
+                        }
+                    },
+                    properties = PopupProperties(
+                        focusable = true,
+                        dismissOnBackPress = true,
+                        dismissOnClickOutside = true,
+                    ),
+                    onDismissRequest = { longClickImage = null },
+                ) {
+                    Column(
+                        verticalArrangement=Arrangement.Top,
+                        horizontalAlignment=Alignment.Start,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(
+                                Color.White,
+                                RoundedCornerShape(topStart = 14.sdp, topEnd = 14.sdp)
+                            )
+                            .padding(top = 14.sdp),
+                    ) {
+                        Text(
+                            text = "下载图片",
+                            color = Color(0xFF000000),
+                            fontSize = 14.ssp,
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier
+                                .clickable {
+                                    webViewScope.download(event.url) {
+                                        it?.let {
+                                            context.savePicture(it.data, it.mimeType)
+                                        }
+                                    }
+                                }
+                        )
+                    }
+                }
+            }
         }
-//    }
+    }
 }
 
 @Preview

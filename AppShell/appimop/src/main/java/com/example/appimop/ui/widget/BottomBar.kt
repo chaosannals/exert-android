@@ -1,5 +1,6 @@
 package com.example.appimop.ui.widget
 
+import android.net.Uri
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
@@ -66,6 +67,36 @@ fun BottomBar(
                 .clickable {
                     navController.navigate("reentry")
                 }
+        )
+
+        BottomBarItem(
+            text = "Image",
+            modifier = Modifier
+                .weight(1f)
+                .clickable {
+                    val target = "https://developer.mozilla.org/zh-CN/docs/Web/HTML/Element/img"
+                    val url = Uri.encode(target)
+                    navController.navigate("web-3?url=${url}")
+                }
+        )
+
+        BottomBarItem(
+            text = "Video",
+            modifier = Modifier
+                .weight(1f)
+                .clickable {
+                    val target = "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/video"
+                    val url = Uri.encode(target)
+                    navController.navigate("web-3?url=${url}")
+                }
+        )
+        BottomBarItem(
+            text = "Location",
+            modifier = Modifier
+                .weight(1f)
+                .clickable {
+                    navController.navigate("location")
+                },
         )
     }
 }
