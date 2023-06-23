@@ -10,9 +10,7 @@ import android.location.LocationManager
 import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.core.app.ActivityCompat
+import androidx.compose.runtime.*
 import androidx.core.content.ContextCompat
 import io.reactivex.rxjava3.subjects.BehaviorSubject
 
@@ -48,15 +46,37 @@ fun Context.checkPermit(permission: String): Boolean {
 }
 
 @Composable
-fun Activity.ensurePermit(permission: String, onResult: (Boolean) -> Unit) {
+fun Context.EnsurePermit(permission: String, onResult: (Boolean) -> Unit) {
     val launcher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission(),
         onResult = onResult,
     )
 
-    LaunchedEffect(launcher) {
+    LaunchedEffect(launcher, permission) {
         if (!checkPermit(permission)) {
             launcher.launch(permission)
         }
     }
+}
+
+@Composable
+fun Context.rememberPermit(permission: String): MutableState<Boolean> {
+    val result = remember(permission) {
+        mutableStateOf(checkPermit(permission))
+    }
+
+    val launcher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission(),
+        onResult =
+        {
+            result.value = it
+        },
+    )
+
+    LaunchedEffect(launcher, permission) {
+        if (!checkPermit(permission)) {
+            launcher.launch(permission)
+        }
+    }
+    return result
 }

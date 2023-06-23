@@ -2,9 +2,7 @@ package com.example.appimop.ui.page
 
 import android.Manifest
 import android.app.Activity
-import android.content.pm.PackageManager
 import android.location.Location
-import android.location.LocationManager
 import android.util.Log
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -14,18 +12,15 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.core.app.ActivityCompat
-import com.example.appimop.checkPermit
-import com.example.appimop.ensurePermit
 import com.example.appimop.locate
-import com.example.appimop.locationManagerBehavior
+import com.example.appimop.rememberPermit
 import com.example.appimop.ui.DesignPreview
 
 @Composable
 fun LocationPage() {
     val context = LocalContext.current
-    var isGrantCoarse by remember { mutableStateOf(context.checkPermit(Manifest.permission.ACCESS_COARSE_LOCATION)) }
-    var isGrantFine by remember { mutableStateOf(context.checkPermit(Manifest.permission.ACCESS_FINE_LOCATION)) }
+    val isGrantCoarse by context.rememberPermit(Manifest.permission.ACCESS_COARSE_LOCATION)
+    val isGrantFine by context.rememberPermit(Manifest.permission.ACCESS_FINE_LOCATION)
     val isGrant by remember(isGrantCoarse, isGrantFine) {
         derivedStateOf {
             isGrantCoarse && isGrantFine
@@ -33,15 +28,6 @@ fun LocationPage() {
     }
     var location: Location? by remember {
         mutableStateOf(null)
-    }
-
-    (context as? Activity)?.run {
-        ensurePermit(Manifest.permission.ACCESS_COARSE_LOCATION) {
-            isGrantCoarse = it
-        }
-        ensurePermit(Manifest.permission.ACCESS_FINE_LOCATION) {
-            isGrantFine = it
-        }
     }
 
     LaunchedEffect(Unit) {
