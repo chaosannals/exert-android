@@ -33,7 +33,7 @@ import kotlinx.serialization.json.Json
 data class LoadUrlEvent(
     val key: String,
     val url: String,
-    val isClearHistory: Boolean = false,
+    val isClearHistory: Boolean = false, // TODO 没有优雅的传值方式。
 )
 
 data class WebViewOpenFileChooserEvent(
