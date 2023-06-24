@@ -124,6 +124,7 @@ fun X5WebMultiViewBox(
             onLongClickImageDisposable.dispose()
             onDownloadVideoDisposable.dispose()
             onLoadUrlDisposable.dispose()
+
         }
     }
 
@@ -165,6 +166,8 @@ fun X5WebMultiViewBox(
                 }
 
                 override fun onPageStarted(p0: WebView?, p1: String?, p2: Bitmap?) {
+
+
                     super.onPageStarted(p0, p1, p2)
                 }
 
