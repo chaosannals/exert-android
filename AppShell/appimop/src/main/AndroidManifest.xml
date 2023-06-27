@@ -40,4 +40,12 @@
         </activity>
     </application>
 
+    <!--  高版本安卓(android 11 SDK 30 开始)需要提前设置要查看的包，不然无权访问（不能判断是否安装），但是跳转是可以。  -->
+    <queries>
+        <package android:name="com.tencent.map" />
+    </queries>
+    <queries>
+        <package android:name="com.baidu.BaiduMap" />
+    </queries>
+
 </manifest>

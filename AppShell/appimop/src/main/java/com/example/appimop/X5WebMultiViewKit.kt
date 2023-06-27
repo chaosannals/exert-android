@@ -60,6 +60,11 @@ data class WebViewDownloadVideoEvent(
     val mimeType: String,
 )
 
+data class WebViewAccessCustomSchemeEvent(
+    val key: String,
+    val uri: Uri,
+)
+
 data class WebViewDownloadVideoResult(
     val data: ByteArray,
     val mimeType: String,
@@ -103,6 +108,7 @@ object X5WebMultiViewKit {
         }
     }
 
+    val onAccessCustomSchemePublisher: PublishSubject<WebViewAccessCustomSchemeEvent> = PublishSubject.create()
     val onLoadUrlPublisher: PublishSubject<LoadUrlEvent> = PublishSubject.create()
     val onShowFileChooserPublisher: PublishSubject<WebViewOpenFileChooserEvent> = PublishSubject.create()
     val onLongClickImagePublisher: PublishSubject<WebViewLongClickImageEvent> = PublishSubject.create()

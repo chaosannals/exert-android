@@ -2,7 +2,9 @@ package com.example.appimop.ui.page
 
 import android.Manifest
 import android.app.Activity
+import android.content.Intent
 import android.location.Location
+import android.net.Uri
 import android.util.Log
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -12,6 +14,8 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
+import com.example.appimop.ApkKit
+import com.example.appimop.ApkKit.isInstalled
 import com.example.appimop.locate
 import com.example.appimop.rememberPermit
 import com.example.appimop.ui.DesignPreview
@@ -30,8 +34,17 @@ fun LocationPage() {
         mutableStateOf(null)
     }
 
+    var findTmap by remember {
+        mutableStateOf(false)
+    }
+    var findBdmap by remember {
+        mutableStateOf(false)
+    }
+
     LaunchedEffect(Unit) {
         Log.d("location", "isGrantCoarse: $isGrantCoarse isGrantFine: $isGrantFine")
+        findTmap = context.isInstalled("com.tencent.map")
+        findBdmap = context.isInstalled("com.baidu.BaiduMap")
     }
 
 
@@ -57,6 +70,28 @@ fun LocationPage() {
                     text="${it.longitude}"
                 )
             }
+
+            Button(
+                onClick =
+                {
+                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse("qqmap://map/routeplan?type=drive&from=清华&fromcoord=39.994745,116.247282&to=怡和世家&tocoord=39.867192,116.493187&referer=OB4BZ-D4W3U-B7VVO-4PJWW-6TKDJ-WPB77"))
+                    context.startActivity(intent)
+                }
+            ) {
+                Text("腾讯导航(这个 Key 是官方示例，随时可能失效)")
+            }
+            Text("腾讯地图安装：$findTmap")
+
+            Button(
+                onClick =
+                {
+                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse("baidumap://map/navi?query=故宫&src=andr.baidu.openAPIdemo"))
+                    context.startActivity(intent)
+                }
+            ) {
+                Text("百度导航（）")
+            }
+            Text("百度地图安装：$findBdmap")
         }
     }
 }

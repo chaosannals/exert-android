@@ -36,6 +36,7 @@ import androidx.compose.ui.window.PopupPositionProvider
 import androidx.compose.ui.window.PopupProperties
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
+import com.example.appimop.WebViewAccessCustomSchemeEvent
 import com.example.appimop.WebViewLongClickImageEvent
 import com.example.appimop.WebViewOpenFileChooserEvent
 import com.example.appimop.WebViewProgressChangedEvent
@@ -178,6 +179,9 @@ fun X5WebMultiViewBox(
                     // 生成返回 JSSDK
                     req?.url?.let {
                         if (it.scheme == jssdkScheme) {
+                            X5WebMultiViewKit.onAccessCustomSchemePublisher.onNext(
+                                WebViewAccessCustomSchemeEvent(key, req.url)
+                            )
                             if (it.path == "/to_location_page") {
                                 webViewScope.launch(Dispatchers.Main) {
                                     navController.navigate("location")
