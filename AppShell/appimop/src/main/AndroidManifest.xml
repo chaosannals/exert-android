@@ -38,6 +38,31 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <activity android:name=".DeepLinkKtActivity"
+            android:exported="true"
+            android:label="@string/app_name"
+            android:theme="@style/Theme.AppShell">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <data android:scheme="app4" android:host="www.example4.com" android:pathPrefix="/p"/>
+            </intent-filter>
+        </activity>
+
+        <activity android:name=".DeepLinkJavaActivity"
+            android:exported="true"
+            android:label="@string/app_name"
+            android:theme="@style/Theme.AppShell">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <data android:scheme="app44" android:host="www.example44.com" android:pathPrefix="/p"/>
+            </intent-filter>
+        </activity>
+
     </application>
 
     <!--  高版本安卓(android 11 SDK 30 开始)需要提前设置要查看的包，不然无权访问（不能判断是否安装），但是跳转是可以。  -->

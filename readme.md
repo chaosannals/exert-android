@@ -187,4 +187,10 @@ adb shell am start -W -a android.intent.action.VIEW -d "app2://www.example2.com/
 
 # AndroidManifest.xml 注册的 intent-filter 的 data 是混合过滤的。
 adb shell am start -W -a android.intent.action.VIEW -d "app2://www.example1.com/path2" com.example.app24
+
+# 传参 Kotlin Activity
+adb shell am start -W -a android.intent.action.VIEW -d "app4://www.example4.com/p/ath2?a=123&b=432432"
+
+# 传参 Java Activity
+adb shell am start -W -a android.intent.action.VIEW -d "app44://www.example44.com/p/ath2?a=123&b=432432"
 ```

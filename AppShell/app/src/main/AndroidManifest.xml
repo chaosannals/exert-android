@@ -53,6 +53,7 @@
                 <data android:scheme="app2" android:host="www.example2.com" android:pathPrefix="/path2"/>
             </intent-filter>
         </activity>
+
         <service
             android:name="com.tencent.smtt.export.external.DexClassLoaderProviderService"
             android:label="dexopt"

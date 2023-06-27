@@ -30,6 +30,9 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+
+        Log.d("deeplink", "main activity oncreate")
+
         val locationManager = getSystemService(Context.LOCATION_SERVICE) as? LocationManager
         locationManager?.let {
             Log.d("location", "init locationManagerBehavior")

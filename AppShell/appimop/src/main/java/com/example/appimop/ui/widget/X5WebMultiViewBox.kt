@@ -67,6 +67,17 @@ import kotlinx.coroutines.launch
 
 private val IMAGE_MIME_PATTERN = Regex(".*?(image|png|jpeg|jpg).*?")
 
+fun newBackPage() : WebResourceResponse {
+    return WebResourceResponse(
+        "text/html",
+        "utf-8",
+        200,
+        "Ok",
+        mapOf(),
+        """<script> window.history.go(-1); </script>""".trimIndent().byteInputStream()
+    )
+}
+
 @SuppressLint("SetJavaScriptEnabled")
 @Composable
 fun X5WebMultiViewBox(
@@ -186,32 +197,14 @@ fun X5WebMultiViewBox(
                                 webViewScope.launch(Dispatchers.Main) {
                                     navController.navigate("location")
                                 }
-                                return WebResourceResponse(
-                                    "text/html",
-                                    "utf-8",
-                                    200,
-                                    "Ok",
-                                    mapOf(),
-                                    """
-                                        <script> window.history.go(-1); </script>
-                                    """.trimIndent().byteInputStream()
-                                )
+                                return newBackPage()
                             } else if (it.path == "/to_args") {
                                 val s = it.getQueryParameter("s")
                                 val b = it.getQueryParameter("b")
                                 webViewScope.launch(Dispatchers.Main) {
                                     navController.navigate("args?s=${s}&b=${b}")
                                 }
-                                return WebResourceResponse(
-                                    "text/html",
-                                    "utf-8",
-                                    200,
-                                    "Ok",
-                                    mapOf(),
-                                    """
-                                         <script> window.history.go(-1); </script>
-                                    """.trimIndent().byteInputStream()
-                                )
+                                return newBackPage()
                             } else if (it.path == "/jssdk.js") {
                                 return WebResourceResponse(
                                     "application/javascript",
