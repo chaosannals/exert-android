@@ -3,6 +3,7 @@ package com.example.appimop.ui.widget
 import android.net.Uri
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.Text
@@ -12,6 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.appimop.ui.DesignPreview
 import com.example.appimop.ui.LocalNavController
+import com.example.appimop.ui.ssp
 
 @Composable
 fun BottomBarItem(
@@ -20,6 +22,7 @@ fun BottomBarItem(
 ) {
     Text(
         text = text,
+        fontSize = 14.ssp,
         modifier = modifier
     )
 }
@@ -30,74 +33,98 @@ fun BottomBar(
 ) {
     val navController = LocalNavController.current
 
-    Row(
-        horizontalArrangement=Arrangement.SpaceAround,
-        verticalAlignment=Alignment.CenterVertically,
+    Column(
+        verticalArrangement=Arrangement.Top,
+        horizontalAlignment=Alignment.CenterHorizontally,
         modifier = modifier
             .fillMaxWidth()
     ) {
-        BottomBarItem(
-            text = "Web1",
-            modifier = Modifier
-                .weight(1f)
-                .clickable {
-                    navController.navigate("web-1")
-                }
-        )
-        BottomBarItem(
-            text = "Web2",
-            modifier = Modifier
-                .weight(1f)
-                .clickable {
-                    navController.navigate("web-2")
-                }
-        )
-        BottomBarItem(
-            text = "Web3",
-            modifier = Modifier
-                .weight(1f)
-                .clickable {
-                    navController.navigate("web-3")
-                }
-        )
-        BottomBarItem(
-            text = "Reentry",
-            modifier = Modifier
-                .weight(1f)
-                .clickable {
-                    navController.navigate("reentry")
-                }
-        )
+        Row(
+            horizontalArrangement = Arrangement.SpaceAround,
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = modifier
+                .fillMaxWidth()
+        ) {
+            BottomBarItem(
+                text = "Web1",
+                modifier = Modifier
+                    .weight(1f)
+                    .clickable {
+                        navController.navigate("web-1")
+                    }
+            )
+            BottomBarItem(
+                text = "Web2",
+                modifier = Modifier
+                    .weight(1f)
+                    .clickable {
+                        navController.navigate("web-2")
+                    }
+            )
+            BottomBarItem(
+                text = "Web3",
+                modifier = Modifier
+                    .weight(1f)
+                    .clickable {
+                        navController.navigate("web-3")
+                    }
+            )
+            BottomBarItem(
+                text = "Web Asset",
+                modifier = Modifier
+                    .weight(1f)
+                    .clickable {
+                        navController.navigate("web-asset")
+                    },
+            )
 
-        BottomBarItem(
-            text = "Image",
-            modifier = Modifier
-                .weight(1f)
-                .clickable {
-                    val target = "https://developer.mozilla.org/zh-CN/docs/Web/HTML/Element/img"
-                    val url = Uri.encode(target)
-                    navController.navigate("web-3?url=${url}")
-                }
-        )
+        }
+        Row(
+            horizontalArrangement = Arrangement.SpaceAround,
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = modifier
+                .fillMaxWidth()
+        ) {
+            BottomBarItem(
+                text = "Reentry",
+                modifier = Modifier
+                    .weight(1f)
+                    .clickable {
+                        navController.navigate("reentry")
+                    }
+            )
 
-        BottomBarItem(
-            text = "Video",
-            modifier = Modifier
-                .weight(1f)
-                .clickable {
-                    val target = "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/video"
-                    val url = Uri.encode(target)
-                    navController.navigate("web-3?url=${url}")
-                }
-        )
-        BottomBarItem(
-            text = "Location",
-            modifier = Modifier
-                .weight(1f)
-                .clickable {
-                    navController.navigate("location")
-                },
-        )
+            BottomBarItem(
+                text = "Image",
+                modifier = Modifier
+                    .weight(1f)
+                    .clickable {
+                        val target = "https://developer.mozilla.org/zh-CN/docs/Web/HTML/Element/img"
+                        val url = Uri.encode(target)
+                        navController.navigate("web-3?url=${url}")
+                    }
+            )
+
+            BottomBarItem(
+                text = "Video",
+                modifier = Modifier
+                    .weight(1f)
+                    .clickable {
+                        val target =
+                            "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/video"
+                        val url = Uri.encode(target)
+                        navController.navigate("web-3?url=${url}")
+                    }
+            )
+            BottomBarItem(
+                text = "Location",
+                modifier = Modifier
+                    .weight(1f)
+                    .clickable {
+                        navController.navigate("location")
+                    },
+            )
+        }
     }
 }
 

@@ -176,29 +176,67 @@ fun X5WebMultiViewBox(
                     req: WebResourceRequest?
                 ): WebResourceResponse? {
                     // 生成返回 JSSDK
-                    if (req?.url?.scheme == jssdkScheme) {
-                        return WebResourceResponse(
-                            "application/javascript",
-                            "utf-8",
-                            200,
-                            "Ok",
-                            mapOf(
-                                "Cache-Control" to "no-cache",
-                            ),
-                            """
-                        ${jssdkName}.launchMap = {};
-                        ${jssdkName}.launch = (name, param) => {
-                            return new Promise((resolve, reject) => {
-                                var uuid = String(new Date().getTime());
-                                ${jssdkName}.launchMap[uuid] = {
-                                    resolve: resolve,
-                                    reject: reject,
-                                };
-                                ${jssdkName}.launchDispatch(uuid, name, param);
-                            });
-                        };
-                    """.trimIndent().byteInputStream(),
-                        )
+                    req?.url?.let {
+                        if (it.scheme == jssdkScheme) {
+                            if (it.path == "/to_location_page") {
+                                webViewScope.launch(Dispatchers.Main) {
+                                    navController.navigate("location")
+                                }
+                                return WebResourceResponse(
+                                    "text/html",
+                                    "utf-8",
+                                    200,
+                                    "Ok",
+                                    mapOf(),
+                                    """
+                                        <script> window.history.go(-1); </script>
+                                    """.trimIndent().byteInputStream()
+                                )
+                            } else if (it.path == "/to_args") {
+                                val s = it.getQueryParameter("s")
+                                val b = it.getQueryParameter("b")
+                                webViewScope.launch(Dispatchers.Main) {
+                                    navController.navigate("args?s=${s}&b=${b}")
+                                }
+                                return WebResourceResponse(
+                                    "text/html",
+                                    "utf-8",
+                                    200,
+                                    "Ok",
+                                    mapOf(),
+                                    """
+                                         <script> window.history.go(-1); </script>
+                                    """.trimIndent().byteInputStream()
+                                )
+                            } else if (it.path == "/jssdk.js") {
+                                return WebResourceResponse(
+                                    "application/javascript",
+                                    "utf-8",
+                                    200,
+                                    "Ok",
+                                    mapOf(
+                                        "Cache-Control" to "no-cache",
+                                    ),
+                                    """
+                                        console.log('init jssdk.');
+                                        ${jssdkName}.launchMap = {};
+                                        ${jssdkName}.launch = (name, param) => {
+                                            return new Promise((resolve, reject) => {
+                                                var uuid = String(new Date().getTime());
+                                                ${jssdkName}.launchMap[uuid] = {
+                                                    resolve: resolve,
+                                                    reject: reject,
+                                                };
+                                                ${jssdkName}.launchDispatch(uuid, name, param);
+                                            });
+                                        };
+                                        ${jssdkName}.callApp = (url) => {
+                                            
+                                        };
+                                    """.trimIndent().byteInputStream(),
+                                )
+                            }
+                        }
                     }
                     return super.shouldInterceptRequest(wv, req)
                 }
