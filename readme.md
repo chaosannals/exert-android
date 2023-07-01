@@ -4,6 +4,7 @@
 
 PC 网页打开 chrome://inspect/#devices
 这个好像只能真机，模拟器能发现但是进不了 devtools 。
+兼容很差，调试端和被调试端不同版本的会导致 inspect 打开 404 .
 
 ```kotlin
 // 全局打开调试模式，连上设备，在 PC 的页面链接。
@@ -63,7 +64,7 @@ target=android-29
 
 注：修改后要重启 Android Studio 的管理器，不然会识别不到状态。
 
-## ExoPlayer
+## ExoPlayer（新出的 media3 已经进入 RC 阶段，之后谷歌会停止ExoPlayer维护，之后用 Media3 替代）
 
 通过 GitHub 拉取源码，编译
 
