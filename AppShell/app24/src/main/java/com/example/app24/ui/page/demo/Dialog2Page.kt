@@ -29,7 +29,9 @@ fun Dialog2Page() {
         if (isShow) {
             Popup(
                 onDismissRequest={isShow = false},
-            )
+            ) {
+
+            }
         }
     }
 }
