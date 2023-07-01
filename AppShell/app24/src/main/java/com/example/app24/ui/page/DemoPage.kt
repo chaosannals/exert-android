@@ -66,6 +66,9 @@ fun DemoPage() {
         item {
             DemoLinkButton("Line Graph", "line-graph-page")
         }
+        item {
+            DemoLinkButton("Dialog", "dialog-page")
+        }
     }
 }
 

@@ -9,6 +9,7 @@ import androidx.navigation.navigation
 import com.example.app24.ui.page.BootPage
 import com.example.app24.ui.page.DemoPage
 import com.example.app24.ui.page.HomePage
+import com.example.app24.ui.page.demo.DialogPage
 import com.example.app24.ui.page.demo.LineGraphPage
 import com.example.app24.ui.page.demo.RandomGraph2Page
 import com.example.app24.ui.page.demo.RandomGraphPage
@@ -64,6 +65,9 @@ fun NavGraphBuilder.demoGraph() {
         }
         composable("line-graph-page") {
             LineGraphPage()
+        }
+        composable("dialog-page") {
+            DialogPage()
         }
     }
 }
