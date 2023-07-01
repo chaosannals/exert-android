@@ -3,8 +3,8 @@
 ## WebView chrome 远程调试
 
 PC 网页打开 chrome://inspect/#devices
-这个好像只能真机，模拟器能发现但是进不了 devtools 。
 兼容很差，调试端和被调试端不同版本的会导致 inspect 打开 404 .
+官方 chrome 安装不能多版本共存。网上找别人的绿色版本，根据要调试的机型的 chrome 版本去下载，这样多个版本就可以调试不同版本的 chrome 了。
 
 ```kotlin
 // 全局打开调试模式，连上设备，在 PC 的页面链接。
