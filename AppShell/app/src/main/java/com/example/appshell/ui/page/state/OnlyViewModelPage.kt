@@ -16,7 +16,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.appshell.LocalTotalStatus
 import com.example.appshell.ui.widget.DesignPreview
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -27,11 +26,21 @@ data class OnlyViewModelState(
 )
 
 class OnlyViewModel: ViewModel() {
-    val state = MutableStateFlow(OnlyViewModelState())
-    val uiState: StateFlow<OnlyViewModelState> = state.asStateFlow()
+    // StateFlow
+    private val customState = MutableStateFlow(OnlyViewModelState())
+    val uiCustomState: StateFlow<OnlyViewModelState> = customState.asStateFlow()
 
-    val intState = MutableLiveData<Int>()
+    // LiveData
+    val intState = MutableLiveData<Int>(0)
     val uiIntState: LiveData<Int> = intState
+
+    suspend fun emitCustomState(v: OnlyViewModelState) {
+        customState.emit(v)
+    }
+
+    fun setCustomState(v: OnlyViewModelState) {
+        customState.value = v
+    }
 }
 
 @Composable
@@ -40,7 +49,7 @@ fun OnlyViewModelPage(
 ) {
     val totalStatus = LocalTotalStatus.current
     val coroutineScope = rememberCoroutineScope()
-    val state by vm.uiState.collectAsState()
+    val state by vm.uiCustomState.collectAsState()
     val intValue by vm.uiIntState.observeAsState()
 
     LazyColumn(
@@ -70,12 +79,23 @@ fun OnlyViewModelPage(
             Button(
                 onClick =
                 {
+                    vm.setCustomState(OnlyViewModelState("${System.nanoTime()}"))
+                },
+            ) {
+                Text("时间戳(value)")
+            }
+        }
+
+        item {
+            Button(
+                onClick =
+                {
                     coroutineScope.launch {
-                        vm.state.emit(OnlyViewModelState("${System.nanoTime()}"))
+                        vm.emitCustomState(OnlyViewModelState("${System.nanoTime()}"))
                     }
                 },
             ) {
-                Text("时间戳")
+                Text("时间戳(emit)")
             }
         }
 

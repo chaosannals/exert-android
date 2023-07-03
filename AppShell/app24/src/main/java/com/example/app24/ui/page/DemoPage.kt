@@ -69,6 +69,9 @@ fun DemoPage() {
         item {
             DemoLinkButton("Dialog", "dialog-page")
         }
+        item {
+            DemoLinkButton("Custom Shape", "custom-shape-page")
+        }
     }
 }
 
