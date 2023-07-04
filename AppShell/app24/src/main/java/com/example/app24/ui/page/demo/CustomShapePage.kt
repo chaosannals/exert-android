@@ -105,6 +105,8 @@ fun drawTicketPath(size: Size, cornerRadius: Float): Path {
     }
 }
 
+
+// 这个类比较简单，不设置宽高也是正常的。
 class SubscriptShape : Shape {
     override fun createOutline(
         size: Size,
@@ -156,7 +158,7 @@ fun CustomShapePage() {
         Box(
             contentAlignment = Alignment.Center,
             modifier = Modifier
-                .height(23.sdp)
+//                .height(23.sdp)
                 .background(Color.Black, SubscriptShape())
                 .padding(start=22.5.sdp, end=11.sdp),
         ) {
