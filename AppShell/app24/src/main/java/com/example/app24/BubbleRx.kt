@@ -41,7 +41,7 @@ fun BubbleRxProvider(
         mutableStateOf(BubbleRx(key))
     }
 
-    DisposableEffect(here) {
+    DisposableEffect(parent, here, onBubbleUp) {
         val hereDisposable = here.onBubbleUp.subscribe {
             if (onBubbleUp(it)) {
                 parent.onBubbleUp.onNext(it)
