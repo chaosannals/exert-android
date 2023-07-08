@@ -61,10 +61,12 @@ fun Dialog4Page() {
                     .size(size1)
                     .background(Color.Blue)
                     .clickable {
-                        size1 += 100.sdp
+                        size1 += 10.sdp
                     }
             ) {
-
+                Text(
+                    text="${size1.value}"
+                )
             }
         }
     }
@@ -84,10 +86,12 @@ fun Dialog4Page() {
                         .size(size2)
                         .background(Color.Red)
                         .clickable {
-                            size2 += 100.sdp
+                            size2 += 10.sdp
                         }
                 ) {
-
+                    Text(
+                        text="${size2.value}"
+                    )
                 }
             }
         }
