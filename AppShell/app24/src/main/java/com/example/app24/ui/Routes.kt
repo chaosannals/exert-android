@@ -12,6 +12,7 @@ import com.example.app24.ui.page.HomePage
 import com.example.app24.ui.page.demo.CustomShapePage
 import com.example.app24.ui.page.demo.Dialog2Page
 import com.example.app24.ui.page.demo.Dialog3Page
+import com.example.app24.ui.page.demo.Dialog4Page
 import com.example.app24.ui.page.demo.DialogPage
 import com.example.app24.ui.page.demo.LineGraphPage
 import com.example.app24.ui.page.demo.RandomGraph2Page
@@ -77,6 +78,9 @@ fun NavGraphBuilder.demoGraph() {
         }
         composable("dialog-3-page") {
             Dialog3Page()
+        }
+        composable("dialog-4-page") {
+            Dialog4Page()
         }
         composable("custom-shape-page") {
             CustomShapePage()

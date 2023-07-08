@@ -10,6 +10,9 @@ import androidx.compose.runtime.staticCompositionLocalOf
 import io.reactivex.rxjava3.subjects.PublishSubject
 import java.util.UUID
 
+// 此实现使用 Rx 分发，bubbleUp 只发起第一层，所以线程安全。
+// bubbleUp 是没有 for 循环的，执行也是很快。
+
 val LocalBubbleRx = staticCompositionLocalOf {
     BubbleRx("root")
 }
