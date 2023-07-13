@@ -9,6 +9,7 @@ import androidx.navigation.navigation
 import com.example.app24.ui.page.BootPage
 import com.example.app24.ui.page.DemoPage
 import com.example.app24.ui.page.HomePage
+import com.example.app24.ui.page.demo.BackHandlePage
 import com.example.app24.ui.page.demo.CustomShapePage
 import com.example.app24.ui.page.demo.Dialog2Page
 import com.example.app24.ui.page.demo.Dialog3Page
@@ -84,6 +85,9 @@ fun NavGraphBuilder.demoGraph() {
         }
         composable("custom-shape-page") {
             CustomShapePage()
+        }
+        composable("back-handle-page") {
+            BackHandlePage()
         }
     }
 }

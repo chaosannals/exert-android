@@ -81,6 +81,9 @@ fun DemoPage() {
         item {
             DemoLinkButton("Custom Shape", "custom-shape-page")
         }
+        item {
+            DemoLinkButton("Back Handle", "back-handle-page")
+        }
     }
 }
 
