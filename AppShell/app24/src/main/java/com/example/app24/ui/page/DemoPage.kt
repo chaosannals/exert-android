@@ -84,6 +84,9 @@ fun DemoPage() {
         item {
             DemoLinkButton("Back Handle", "back-handle-page")
         }
+        item {
+            DemoLinkButton("Json", "json-page")
+        }
     }
 }
 

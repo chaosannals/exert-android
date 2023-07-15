@@ -21,6 +21,20 @@ androidApp 和 iosApp 也是类似 Flutter 那种纯粹的启动器。而是有�
 
 ## Jetpack Compose
 
+```kotlin
+// 使用了 WindowCompat.setDecorFitsSystemWindows(window, false) 读出的 padding 值就会变成 0
+WindowInsets.statusBars
+LocalWindowInsets.current // 弃用
+
+// 在调用 WindowCompat.setDecorFitsSystemWindows(window, false) 前先把值读出来
+val resourceId = applicationContext.resources.getIdentifier("status_bar_height", "dimen", "android")
+if (resourceId > 0) {
+    val height = applicationContext.resources.getDimensionPixelSize(resourceId) // 高度值
+}
+
+WindowCompat.setDecorFitsSystemWindows(window, false)
+```
+
 ### Modifier 修改器
 
 修改器本身带顺序，所以表现力上比  CSS 要好很多。

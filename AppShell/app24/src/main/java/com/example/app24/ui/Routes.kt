@@ -15,6 +15,7 @@ import com.example.app24.ui.page.demo.Dialog2Page
 import com.example.app24.ui.page.demo.Dialog3Page
 import com.example.app24.ui.page.demo.Dialog4Page
 import com.example.app24.ui.page.demo.DialogPage
+import com.example.app24.ui.page.demo.JsonPage
 import com.example.app24.ui.page.demo.LineGraphPage
 import com.example.app24.ui.page.demo.RandomGraph2Page
 import com.example.app24.ui.page.demo.RandomGraphPage
@@ -88,6 +89,9 @@ fun NavGraphBuilder.demoGraph() {
         }
         composable("back-handle-page") {
             BackHandlePage()
+        }
+        composable("json-page") {
+            JsonPage()
         }
     }
 }

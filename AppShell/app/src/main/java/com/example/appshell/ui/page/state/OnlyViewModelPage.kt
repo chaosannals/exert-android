@@ -10,6 +10,7 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -60,6 +61,15 @@ inline fun <reified VM : ViewModel> viewModelEx(): VM {
     }
 }
 
+@Composable
+inline fun <reified VM : ViewModel> viewModelEx2(): VM {
+    return if (LocalInspectionMode.current) { // 判定是否是 预览环境。
+        viewModel()
+    } else {
+        viewModel(viewModelStoreOwner = LocalContext.current as MainActivity)
+    }
+}
+
 // 常用的  ViewModelStoreOwner 为 ComponentActivity、Fragment 和 NavBackStackEntry
 // ComponentActivity 整个 Activity 周期
 // Fragment 这个在 Jetpack Compose 基本用不到
@@ -71,7 +81,7 @@ inline fun <reified VM : ViewModel> viewModelEx(): VM {
 // 谷歌的 UI 库执行了此类方式，Jetpack Compose 组件源码的几乎不使用 VM
 @Composable
 fun OnlyViewModelPage(
-    vm: OnlyViewModel = viewModelEx(),
+    vm: OnlyViewModel = viewModelEx2(),
 //    vm: OnlyViewModel = viewModel(
 //        // 使用此上下文使得数据是整个 Activity 周期。
 //        // 如果使用预览不能这么写，预览的 Actitiy 是特殊的，无法转成 MainActivity。
