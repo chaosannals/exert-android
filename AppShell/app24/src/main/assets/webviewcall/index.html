@@ -53,6 +53,22 @@
         }).catch (e => {
             console.log('resultFail catch.', e);
         });
+
+        console.log('getMap start.');
+        var m = jssdk.getMap();
+        console.log('getMap result:', JSON.stringify(m));
+
+        console.log('getObject start.');
+        var o = jssdk.getObject();
+        console.log('getObject result:', JSON.stringify(o), o.keyA, o.keyB);
+
+        console.log('getString start.');
+        var s = jssdk.getString();
+        console.log('getString result:', s);
+
+        console.log('getInt start.');
+        var i = jssdk.getInt();
+        console.log('getInt result:', i);
     </script>
 </body>
 </html>
