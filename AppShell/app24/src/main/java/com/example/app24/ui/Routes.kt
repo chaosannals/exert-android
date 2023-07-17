@@ -4,7 +4,9 @@ import android.util.Log
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.composable
+import androidx.navigation.navArgument
 import androidx.navigation.navigation
 import com.example.app24.ui.page.BootPage
 import com.example.app24.ui.page.DemoPage
@@ -95,7 +97,19 @@ fun NavGraphBuilder.demoGraph() {
         composable("json-page") {
             JsonPage()
         }
-        composable("disposable-page") {
+        composable(
+            route="disposable-page?a={a}&b={b}",
+            arguments = listOf(
+                navArgument("a") {
+                    type = NavType.StringType
+                    nullable = true
+                },
+                navArgument("b") {
+                    type = NavType.BoolType
+                    defaultValue = false
+                }
+            ),
+        ) {
             DisposablePage()
         }
         composable("disposable-2-page") {
