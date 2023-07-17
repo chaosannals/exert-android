@@ -87,6 +87,9 @@ fun DemoPage() {
         item {
             DemoLinkButton("Json", "json-page")
         }
+        item {
+            DemoLinkButton("Disposable", "disposable-page")
+        }
     }
 }
 

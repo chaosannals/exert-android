@@ -31,7 +31,7 @@ class JsSdk (
         for (c in 'a'..'z') {
             result.put("$c key", true)
         }
-        Log.d("appsbf", "jssdk getMap $result")
+        Log.d("app24", "jssdk getMap $result")
         return result
     }
 
