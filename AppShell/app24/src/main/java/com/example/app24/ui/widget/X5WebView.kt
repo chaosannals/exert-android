@@ -2,6 +2,7 @@ package com.example.app24.ui.widget
 
 import android.app.Activity
 import android.util.Log
+import android.view.ViewGroup
 import android.webkit.WebSettings
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
@@ -35,6 +36,7 @@ import com.example.app24.X5WebViewKit.launchResolve
 import com.example.app24.js.JsSdk
 import com.example.app24.ui.LocalNavController
 import com.example.app24.ui.sdp
+import com.tencent.smtt.sdk.WebView
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -141,7 +143,16 @@ fun X5WebView(
                 factory =
                 {
                     Log.d("app24", "webView Compose factory: ${System.identityHashCode(webView)}")
-                    webView
+                    webView.apply {
+                        if (parent != null) {
+                            val p = (parent as ViewGroup)
+                            val n = WebView(it)
+                            n.id = id
+                            p.removeView(this)
+                            p.addView(n)
+                            Log.d("app24", "android view factory remove ${n.id} $id")
+                        }
+                    }
                 },
                 modifier = Modifier
                     .fillMaxSize()

@@ -16,19 +16,19 @@ import com.example.app24.ui.widget.X5WebView
 fun WebNewSecondPage() {
     val url by X5WebViewKit.lastUrl.subscribeAsState(initial = "")
 
-//    LaunchedEffect(Unit) {
-//        if (X5WebViewKit.isInited.value == true && url != "https://m.baidu.com") {
-//            Log.d("app24", "web-new-2-load ${url}")
-//            X5WebViewKit.loadUrl("https://m.baidu.com")
-//        } else {
-//            Log.d("app24", "webView new 2 isInited == false")
-//        }
-//    }
-//    // AndroidView 的 factory 返回的对象必须通过父级 removeView 才能重新被挂载到新的 AndroidView 上。
-//    X5WebView(
-//        modifier = Modifier
-//            .fillMaxSize()
-//    )
+    LaunchedEffect(Unit) {
+        if (X5WebViewKit.isInited.value == true && url != "https://m.baidu.com") {
+            Log.d("app24", "web-new-2-load ${url}")
+            X5WebViewKit.loadUrl("https://m.baidu.com")
+        } else {
+            Log.d("app24", "webView new 2 isInited == false")
+        }
+    }
+
+    X5WebView(
+        modifier = Modifier
+            .fillMaxSize()
+    )
 }
 
 @Preview
