@@ -11,10 +11,13 @@ import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Polymorphic
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonClassDiscriminator
 import kotlinx.serialization.json.JsonContentPolymorphicSerializer
 import kotlinx.serialization.json.JsonElement
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.contentOrNull
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
@@ -121,14 +124,15 @@ fun TypeText(
 
 @Composable
 fun JsonPage() {
-    val json = remember {
+    val colorJsoner = remember {
         Json {
             ignoreUnknownKeys = true
             isLenient = true
             prettyPrint = true
             allowStructuredMapKeys = true
             encodeDefaults = true
-//            classDiscriminator = "#class" // 无效
+//            classDiscriminator = "#class" // 不知道这个表示法是什么意思.
+            //  @JsonClassDiscriminator 时好时坏。
             serializersModule = SerializersModule {
                 polymorphic(ColorData::class) {
                     subclass(ColorInfo::class, ColorInfo.serializer())
@@ -160,7 +164,7 @@ fun JsonPage() {
     }
     val colors by remember {
         derivedStateOf {
-            json.decodeFromString<List<ColorData>>(colorsJson)
+            colorJsoner.decodeFromString<List<ColorData>>(colorsJson)
         }
     }
 
@@ -177,7 +181,7 @@ fun JsonPage() {
     }
     val color by remember {
         derivedStateOf {
-            json.decodeFromString<WrapColor>(colorJson)
+            colorJsoner.decodeFromString<WrapColor>(colorJson)
         }
     }
 
@@ -202,7 +206,74 @@ fun JsonPage() {
     }
     val types by remember {
         derivedStateOf {
-            json.decodeFromString<List<TypeData>>(typesJson)
+            Json.decodeFromString<List<TypeData>>(typesJson)
+        }
+    }
+
+
+    // 完全弱化类型。
+    val mapJsoner = remember {
+        Json {
+            ignoreUnknownKeys = true
+            isLenient = true
+            prettyPrint = true
+            allowStructuredMapKeys = true
+            encodeDefaults = true
+        }
+    }
+    val mapJson = remember {
+        """
+            {
+                "a": 123,
+                "b": "tttt",
+                "c": {
+                    "c1": 123,
+                    "c2": {}
+                },
+                "d": null
+            }
+        """.trimIndent()
+    }
+    val map by remember {
+        derivedStateOf {
+            mapJsoner.decodeFromString<Map<String, JsonElement?>>(mapJson)
+        }
+    }
+
+    // encode
+    // 此序列化 JSON 库有自己一套节点类型
+    // JsonNull  null
+    // JsonElement 基类
+    // JsonObject 字典 map
+    // JsonArray 数组 array
+    // JsonPrimitive 基础类型
+    val anyJsoner = remember {
+        Json {
+            ignoreUnknownKeys = true
+            isLenient = true
+            prettyPrint = true
+            allowStructuredMapKeys = true
+            encodeDefaults = true
+            classDiscriminator = "#class"
+        }
+    }
+    val any = remember {
+        JsonObject(
+            mapOf(
+                "aaa" to JsonPrimitive(123),
+                "bbb" to JsonPrimitive("string"),
+                "ccc" to JsonObject(
+                    mapOf(
+                        "ccc1" to JsonPrimitive(123),
+                        "ccc2" to JsonPrimitive(null),
+                    )
+                )
+            )
+        )
+    }
+    val anyJson by remember {
+        derivedStateOf {
+            anyJsoner.encodeToString(any)
         }
     }
 
@@ -214,6 +285,13 @@ fun JsonPage() {
         for (t in types) {
             TypeText(type = t)
         }
+
+        Text("map.a: ${map["a"]}")
+        Text("map.b: ${map["b"]}")
+        Text("map.c: ${map["c"]}")
+        Text("map.d: ${map["d"]}")
+
+        Text("any: ${anyJson}")
     }
 }
 
