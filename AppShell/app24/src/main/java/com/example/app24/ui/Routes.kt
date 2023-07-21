@@ -12,6 +12,8 @@ import com.example.app24.ui.page.BootPage
 import com.example.app24.ui.page.DemoPage
 import com.example.app24.ui.page.HomePage
 import com.example.app24.ui.page.demo.BackHandlePage
+import com.example.app24.ui.page.demo.CaptureViewImage2Page
+import com.example.app24.ui.page.demo.CaptureViewImagePage
 import com.example.app24.ui.page.demo.CustomShapePage
 import com.example.app24.ui.page.demo.Dialog2Page
 import com.example.app24.ui.page.demo.Dialog3Page
@@ -114,6 +116,12 @@ fun NavGraphBuilder.demoGraph() {
         }
         composable("disposable-2-page") {
             Disposable2Page()
+        }
+        composable("capture-view-image-page") {
+            CaptureViewImagePage()
+        }
+        composable("capture-view-image-2-page") {
+            CaptureViewImage2Page()
         }
     }
 }

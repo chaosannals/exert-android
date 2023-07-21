@@ -12,6 +12,7 @@ import com.example.appshell.LocalTotalStatus
 import com.example.appshell.ui.widget.DesignPreview
 import io.reactivex.rxjava3.subjects.BehaviorSubject // 是 rxjava3 不是 kotlin 版本的
 
+// Rx onNext 是同步调用，没有被协程分发，只是回调。
 // 基本上和 kotlin 版本 rxjava2 版本的一致
 object OnlyRxJava3State {
     val intSubjection:BehaviorSubject<Int> = BehaviorSubject.create()

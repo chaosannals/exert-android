@@ -90,6 +90,12 @@ fun DemoPage() {
         item {
             DemoLinkButton("Disposable", "disposable-page")
         }
+        item {
+            DemoLinkButton("CaptureViewImage", "capture-view-image-page")
+        }
+        item {
+            DemoLinkButton("CaptureViewImage2", "capture-view-image-2-page")
+        }
     }
 }
 
