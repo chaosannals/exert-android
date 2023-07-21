@@ -10,6 +10,7 @@ import android.view.ViewTreeObserver
 import android.widget.FrameLayout
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
@@ -21,6 +22,7 @@ import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.compose.ui.window.Popup
 import coil.compose.AsyncImage
 import com.example.app24.ui.DesignPreview
 import com.example.app24.ui.sdp
@@ -146,11 +148,29 @@ fun CaptureViewImage2Page() {
             .border(1.sdp, Color.Black)
     ) {
         CaptureView(controller) {
-            Text(
-                text="文本",
+            Column(
                 modifier = Modifier
+                    .size(240.sdp)
                     .border(1.sdp, Color.Green)
-            )
+            ) {
+                Text(
+                    text = "文本",
+                )
+                Text(
+                    text = "文本",
+                )
+                Text(
+                    text = "文本",
+                )
+                Button(onClick = { /*TODO*/ }) {
+                    Text("按钮")
+                }
+
+                // 弹出框是另外的 Window ，不会被截取到。
+                Popup() {
+                    Text("弹出窗")
+                }
+            }
         }
         Button(onClick = { controller.capture() }) {
             Text("截取")
