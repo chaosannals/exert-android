@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8"/>
+    <script>
+        var cf = JSON.parse(jsSdk.getConfig());
+        Object.keys(cf).forEach((k) => {
+            jsSdk[k] = cf[k];
+        });
+    </script>
+</head>
+<body>
+    <h1>WebInit</h1>
+    <div>
+        <span>incToken:</span>
+        <span id="itid"></span>
+    </div>
+    <script>
+        jsSdk.init();
+        console.log('index', 'jsSdk', JSON.stringify(jsSdk));
+        console.log('index', 'jsSdk.token', window.jsSdk.token);
+        console.log('index', 'bToken', JSON.stringify(window.bToken));
+        console.log('index', 'incToken', window.incToken);
+        var it = document.getElementById('itid');
+        it.innerHTML = window.incToken.toString();
+    </script>
+</body>
+</html>

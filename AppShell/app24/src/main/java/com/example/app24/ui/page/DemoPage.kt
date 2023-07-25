@@ -58,6 +58,9 @@ fun DemoPage() {
             DemoLinkButton("web-jssdk", "web-jssdk-page")
         }
         item {
+            DemoLinkButton("web-init", "web-init-page")
+        }
+        item {
             DemoLinkButton("Random Graph", "random-graph-page")
         }
         item {

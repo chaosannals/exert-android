@@ -27,6 +27,7 @@ import com.example.app24.ui.page.demo.RandomGraph2Page
 import com.example.app24.ui.page.demo.RandomGraphPage
 import com.example.app24.ui.page.demo.ThreeTenABPPage
 import com.example.app24.ui.page.demo.WebFirstPage
+import com.example.app24.ui.page.demo.WebInitPage
 import com.example.app24.ui.page.demo.WebJsSdkPage
 import com.example.app24.ui.page.demo.WebNewFirstPage
 import com.example.app24.ui.page.demo.WebNewSecondPage
@@ -68,6 +69,9 @@ fun NavGraphBuilder.demoGraph() {
         }
         composable("web-jssdk-page") {
             WebJsSdkPage()
+        }
+        composable("web-init-page") {
+            WebInitPage()
         }
         composable("random-graph-page") {
             RandomGraphPage()
