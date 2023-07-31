@@ -5,6 +5,8 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
 import com.example.hlitdemo.ui.page.AboutPage
+import com.example.hlitdemo.ui.page.Coroutine2Page
+import com.example.hlitdemo.ui.page.CoroutinePage
 import com.example.hlitdemo.ui.page.HomePage
 
 val LocalNavController = staticCompositionLocalOf<NavHostController> {
@@ -17,5 +19,11 @@ fun NavGraphBuilder.rootGraph() {
     }
     composable("about") {
         AboutPage()
+    }
+    composable("coroutine") {
+        CoroutinePage()
+    }
+    composable("coroutine-2") {
+        Coroutine2Page()
     }
 }
