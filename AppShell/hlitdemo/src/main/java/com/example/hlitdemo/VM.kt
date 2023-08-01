@@ -13,7 +13,7 @@ public inline fun <reified VM : ViewModel> hiltActivityViewModel(): VM {
     val context = LocalContext.current
     val inspectionMode = LocalInspectionMode.current
     val defaultStoreOwner = LocalViewModelStoreOwner.current
-    val vmStoreOwner = remember(inspectionMode, context) {
+    val vmStoreOwner = remember(inspectionMode, context, defaultStoreOwner) {
         if (inspectionMode) {
             checkNotNull(defaultStoreOwner) {
                 "No ViewModelStoreOwner was provided via LocalViewModelStoreOwner"
