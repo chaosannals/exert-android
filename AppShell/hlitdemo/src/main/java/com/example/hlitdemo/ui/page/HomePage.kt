@@ -63,6 +63,24 @@ fun HomePage(
         ) {
             Text("Coroutine 2")
         }
+
+        Button(
+            onClick =
+            {
+                navController?.navigate("coroutine-3")
+            },
+        ) {
+            Text("Coroutine 3")
+        }
+
+        Button(
+            onClick =
+            {
+                navController?.navigate("coroutine-4")
+            },
+        ) {
+            Text("Coroutine 4")
+        }
     }
 }
 

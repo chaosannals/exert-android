@@ -6,6 +6,8 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
 import com.example.hlitdemo.ui.page.AboutPage
 import com.example.hlitdemo.ui.page.Coroutine2Page
+import com.example.hlitdemo.ui.page.Coroutine3Page
+import com.example.hlitdemo.ui.page.Coroutine4Page
 import com.example.hlitdemo.ui.page.CoroutinePage
 import com.example.hlitdemo.ui.page.HomePage
 
@@ -25,5 +27,11 @@ fun NavGraphBuilder.rootGraph() {
     }
     composable("coroutine-2") {
         Coroutine2Page()
+    }
+    composable("coroutine-3") {
+        Coroutine3Page()
+    }
+    composable("coroutine-4") {
+        Coroutine4Page()
     }
 }

@@ -69,6 +69,9 @@ dependencies {
     // 谷歌扩展库
     implementation "com.google.accompanist:accompanist-systemuicontroller:0.30.1"
 
+    // rx
+    implementation "androidx.compose.runtime:runtime-rxjava3:1.4.3"
+
     // DI
     implementation "com.google.dagger:hilt-android:2.44"
     kapt "com.google.dagger:hilt-compiler:2.44"
