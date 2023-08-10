@@ -174,6 +174,15 @@ keytool -list -v -keystore debug.keystore -storepass android -keypass android
 # [alias] 为别名
 # [test] 为文件名
 keytool -genkey -alias [alias] -keyalg RSA -keysize 2048 -validity 36500 -keystore [test].keystore
+
+
+# jks 转 keystore
+# 输入以下命令后会依次要求输入
+# 1. keystore 新密钥，因为我们是转换，所以使用原 jks 的密钥
+# 2. 再输入一遍，新密钥
+# 3. 源（jks）密钥，因为是转换所以同上
+# 4. keyAlias 的密钥 keyPassword
+keytool -importkeystore -srckeystore ./release.jks -srcstoretype JKS -deststoretype PKCS12 -destkeystore ./release.keystore
 ```
 
 ## 百度地图
