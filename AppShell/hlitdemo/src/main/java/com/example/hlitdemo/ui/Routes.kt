@@ -10,6 +10,7 @@ import com.example.hlitdemo.ui.page.Coroutine3Page
 import com.example.hlitdemo.ui.page.Coroutine4Page
 import com.example.hlitdemo.ui.page.CoroutinePage
 import com.example.hlitdemo.ui.page.HomePage
+import com.example.hlitdemo.ui.page.XWebViewProxyPage
 
 val LocalNavController = staticCompositionLocalOf<NavHostController> {
     error ("Not Nav Controller")
@@ -33,5 +34,8 @@ fun NavGraphBuilder.rootGraph() {
     }
     composable("coroutine-4") {
         Coroutine4Page()
+    }
+    composable("x-web-view-proxy") {
+        XWebViewProxyPage()
     }
 }

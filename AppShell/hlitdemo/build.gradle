@@ -66,6 +66,9 @@ dependencies {
     api "androidx.navigation:navigation-dynamic-features-fragment:$nav_version"
     api "androidx.navigation:navigation-compose:$nav_version"
 
+    // webkit 扩展库
+    implementation "androidx.webkit:webkit:1.6.0"
+
     // 谷歌扩展库
     implementation "com.google.accompanist:accompanist-systemuicontroller:0.30.1"
 
