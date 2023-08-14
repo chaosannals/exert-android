@@ -240,3 +240,13 @@ StateFlow 是个异步的 Rx ，数据跟对象，没做自动释放数据的处
 LiveData 在 StateFlow 的基础上会根据 Activity Fragment 生命周期自动删除数据。
 
 注：很多数据都是挂全局，从这点上看，LiveData 代码上做多了反而不好。
+
+
+## 路由返回
+
+```kotlin
+
+navController.navigateUp()
+
+navController.popBackStack()
+```
