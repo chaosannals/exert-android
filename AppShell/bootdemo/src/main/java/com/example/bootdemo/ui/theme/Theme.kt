@@ -4,6 +4,7 @@ import android.app.Activity
 import android.os.Build
 import android.transition.Explode
 import android.transition.Fade
+import android.view.Window
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
@@ -59,8 +60,6 @@ fun AppShellTheme(
     if (!view.isInEditMode) {
         SideEffect {
             val window = (view.context as Activity).window
-            window.enterTransition = Fade()
-            window.exitTransition = Fade()
             WindowCompat.setDecorFitsSystemWindows(window, false)
             window.statusBarColor = colorScheme.primary.toArgb()
             WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = darkTheme

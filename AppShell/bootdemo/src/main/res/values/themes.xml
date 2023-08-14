@@ -3,7 +3,11 @@
 
     <style name="Theme.AppShell" parent="android:Theme.Material.Light.NoActionBar" >
         <!-- enable window content transitions -->
-        <item name="android:windowActivityTransitions">true</item>
+<!--        都不是 Activity 动画必要设置 -->
+<!--        <item name="android:windowActivityTransitions">true</item>-->
+<!--        <item name="android:windowContentTransitions">true</item>-->
+<!--        -->
+<!--        <item name="android:transitionName">startTransition</item>-->
 
         <!-- specify enter and exit transitions -->
 <!--        <item name="android:windowEnterTransition">@transition/explode</item>-->

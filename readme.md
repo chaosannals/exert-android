@@ -218,3 +218,25 @@ adb shell am start -W -a android.intent.action.VIEW -d "app4://www.example4.com/
 # 传参 Java Activity
 adb shell am start -W -a android.intent.action.VIEW -d "app44://www.example44.com/p/ath2?a=123&b=432432"
 ```
+
+
+## Activity 过渡动画
+
+```kotlin
+// 在 setContent 或 setContentView 之前调用
+window.requestFeature(Window.FEATURE_ACTIVITY_TRANSITIONS)
+window.enterTransition = Fade()
+window.exitTransition = Fade()
+
+// 唤起该带过渡动画Activity 的 Intent 要带上参数。makeSceneTransitionAnimation
+val intent = Intent()
+intent.setClass(context, MainActivity::class.java)
+context.startActivity(intent, ActivityOptions.makeSceneTransitionAnimation(context as Activity).toBundle())
+```
+
+## LiveData 和 StateFlow
+
+StateFlow 是个异步的 Rx ，数据跟对象，没做自动释放数据的处理。
+LiveData 在 StateFlow 的基础上会根据 Activity Fragment 生命周期自动删除数据。
+
+注：很多数据都是挂全局，从这点上看，LiveData 代码上做多了反而不好。

@@ -1,5 +1,7 @@
 package com.example.bootdemo.ui
 
+import android.app.Activity
+import android.app.ActivityOptions
 import android.content.Intent
 import androidx.compose.animation.core.withInfiniteAnimationFrameMillis
 import androidx.compose.foundation.layout.Box
@@ -12,6 +14,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.drawscope.withTransform
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.imageResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -32,7 +35,11 @@ fun Modifier.drawSome(
         }
     }
 
-    Modifier.drawWithCache {
+    Modifier
+        .graphicsLayer {
+            rotationY = (time % duration) * 360f
+        }
+        .drawWithCache {
         val center = Offset(size.width / 2, size.height / 2)
         onDrawBehind {
             withTransform({
@@ -52,7 +59,7 @@ fun Modifier.drawSome(
                 drawCircle(
                     color = Color.Cyan,
                     center = center,
-                    radius = ((time + duration-0.1f) % duration) / duration * size.width / 2,
+                    radius = ((time + duration - 0.1f) % duration) / duration * size.width / 2,
                 )
                 drawLine(
                     color = Color.Black,
@@ -74,10 +81,10 @@ fun Bootstrap() {
     val image = ImageBitmap.imageResource(R.drawable.boot)
 
     LaunchedEffect(Unit) {
-        delay(4000)
+        delay(400)
         val intent = Intent()
         intent.setClass(context, MainActivity::class.java)
-        context.startActivity(intent)
+        context.startActivity(intent, ActivityOptions.makeSceneTransitionAnimation(context as Activity).toBundle())
     }
 
     Box(

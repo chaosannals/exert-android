@@ -4,6 +4,7 @@ import android.app.Activity
 import android.os.Bundle
 import android.transition.Explode
 import android.transition.Fade
+import android.view.Window
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.fillMaxSize
@@ -25,9 +26,9 @@ class BootActivity : ComponentActivity() {
 
         WindowCompat.setDecorFitsSystemWindows(window, false)
         window.statusBarColor = Color.Transparent.toArgb()
-        // 无效
-//        window.enterTransition = Fade()
-//        window.exitTransition = Fade()
+        window.requestFeature(Window.FEATURE_ACTIVITY_TRANSITIONS)
+        window.enterTransition = Fade()
+        window.exitTransition = Fade()
         setContent {
             Bootstrap()
         }
