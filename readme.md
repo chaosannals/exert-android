@@ -242,11 +242,20 @@ LiveData 在 StateFlow 的基础上会根据 Activity Fragment 生命周期自�
 注：很多数据都是挂全局，从这点上看，LiveData 代码上做多了反而不好。
 
 
-## 路由返回
+## 路由
+
+返回队列默认是  null  和  NavHost 的 startDestination 两个元素，即 backQueue.size == 2。
+返回队列的类型声明是  ArrayDeque<NavBackStackEntry> 也就是非空，第一个元素却出现了 null 。
+清空 backQueue 后使用 navigate 会重新往里面添加 null 和 导航目地项。
+
+注：多级的 BackHandler 里使用 navigateUp() 会导致 backQueue.size 计数混乱 == 0 而实际 backQueue 元素可能不为空（比如 3 个）。
 
 ```kotlin
+// 返回队列
+navController.backQueue
 
+// 返回
 navController.navigateUp()
-
+// 返回
 navController.popBackStack()
 ```

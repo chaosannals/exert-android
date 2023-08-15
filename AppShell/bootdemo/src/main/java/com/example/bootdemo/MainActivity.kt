@@ -24,14 +24,7 @@ class MainActivity : ComponentActivity() {
         window.enterTransition = Fade()
         window.exitTransition = Fade()
         setContent {
-            AppShellTheme {
-                Surface(
-                    modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.background
-                ) {
-                    MainScaffold()
-                }
-            }
+            MainScaffold()
         }
     }
 }
