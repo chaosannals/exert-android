@@ -8,13 +8,17 @@ import androidx.compose.foundation.layout.safeContentPadding
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.sp
 import androidx.navigation.compose.rememberNavController
+import com.example.bootdemo.hiltActivityViewModel
 import com.example.bootdemo.ui.LocalRouter
+import com.example.bootdemo.ui.MainScaffoldViewModel
 import com.example.bootdemo.ui.widget.finishDialogVisible
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -38,21 +42,24 @@ fun CanBackButton(
 }
 
 @Composable
-fun CanBackPage() {
+fun CanBackPage(
+    activityVm: MainScaffoldViewModel = hiltActivityViewModel()
+) {
     val router = rememberNavController()
     val coroutineScope = rememberCoroutineScope()
+    val canBack by activityVm.canBack.observeAsState(false)
 
     // 多个 BackHandler 会导致 backQueue.size 混乱
-//    BackHandler {
-//        Log.d("bootdemo", "CanBackPage BackHandler ${router.backQueue.size}")
-//        if (router.backQueue.isEmpty() || router.backQueue.size == 2) {
-//            finishDialogVisible.value = true
-//        } else {
-//            coroutineScope.launch(Dispatchers.Main) {
-//                router.navigateUp()
-//            }
-//        }
-//    }
+    BackHandler(canBack) {
+        Log.d("bootdemo", "CanBackPage BackHandler ${router.backQueue.size}")
+        if (router.backQueue.isEmpty() || router.backQueue.size == 2) {
+            finishDialogVisible.value = true
+        } else {
+            coroutineScope.launch(Dispatchers.Main) {
+                router.navigateUp()
+            }
+        }
+    }
 
     Column (
         modifier = Modifier

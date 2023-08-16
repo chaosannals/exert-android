@@ -39,6 +39,7 @@ fun IndexPage() {
             .fillMaxSize(),
     ) {
         IndexButton(text = "返回页", route = "can-back")
+        IndexButton(text = "网页", route = "web-view")
     }
 }
 

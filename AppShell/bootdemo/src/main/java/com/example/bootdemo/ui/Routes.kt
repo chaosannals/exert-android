@@ -12,6 +12,7 @@ import com.example.bootdemo.ui.page.canback.CanBack2Lv2N2Page
 import com.example.bootdemo.ui.page.canback.CanBack3Lv1Page
 import com.example.bootdemo.ui.page.canback.CanBackLv1Page
 import com.example.bootdemo.ui.page.canback.CanBackPage
+import com.example.bootdemo.ui.page.web.WebViewPage
 
 val LocalRouter = staticCompositionLocalOf<NavHostController> {
     error("not found router.")
@@ -49,5 +50,11 @@ fun NavGraphBuilder.canBackGraph() {
 
     composable("can-back-3-lv1") {
         CanBack3Lv1Page()
+    }
+}
+
+fun NavGraphBuilder.webGraph() {
+    composable("web-view") {
+        WebViewPage()
     }
 }
