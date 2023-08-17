@@ -40,6 +40,15 @@ class SshController(
             properties.setProperty("StrictHostKeyChecking", "no")
             session.setConfig(properties)
             session.connect()
+
+            while (true) {
+
+                if (session.isConnected) {
+
+                } else {
+
+                }
+            }
         }
         catch (any: Throwable) {
             exceptions.add(any)

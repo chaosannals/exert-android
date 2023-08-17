@@ -45,18 +45,22 @@ fun CanBackButton(
 fun CanBackPage(
     activityVm: MainScaffoldViewModel = hiltActivityViewModel()
 ) {
-    val router = rememberNavController()
+//    val router = rememberNavController() // 不应该多个 rememember 的 控制器
+    val router = if (LocalInspectionMode.current) null else LocalRouter.current
     val coroutineScope = rememberCoroutineScope()
     val canBack by activityVm.canBack.observeAsState(false)
 
     // 多个 BackHandler 会导致 backQueue.size 混乱
     BackHandler(canBack) {
-        Log.d("bootdemo", "CanBackPage BackHandler ${router.backQueue.size}")
-        if (router.backQueue.isEmpty() || router.backQueue.size == 2) {
-            finishDialogVisible.value = true
-        } else {
-            coroutineScope.launch(Dispatchers.Main) {
-                router.navigateUp()
+        Log.d("bootdemo", "CanBackPage BackHandler call")
+        router?.run {
+            Log.d("bootdemo", "CanBackPage BackHandler size: ${backQueue.size}")
+            if (backQueue.isEmpty() || backQueue.size == 2) {
+                finishDialogVisible.value = true
+            } else {
+                coroutineScope.launch(Dispatchers.Main) {
+                    navigateUp()
+                }
             }
         }
     }

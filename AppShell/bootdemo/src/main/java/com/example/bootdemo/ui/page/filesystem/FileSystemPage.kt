@@ -1,23 +1,19 @@
-package com.example.bootdemo.ui.page
+package com.example.bootdemo.ui.page.filesystem
 
-import android.util.Log
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.safeContentPadding
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.bootdemo.ui.LocalRouter
-import kotlinx.coroutines.launch
 
 @Composable
-fun IndexButton(
+fun FileSystemButton(
     text: String,
     route: String,
 ) {
@@ -26,30 +22,27 @@ fun IndexButton(
 
     Button(
         onClick = { router?.navigate(route) },
-        ) {
+    ) {
         Text(
             text = text,
             fontSize = 14.sp,
-            )
+        )
     }
 }
 
 @Composable
-fun IndexPage() {
-    Column(
+fun FileSystemPage() {
+    Column (
         modifier = Modifier
-            .safeContentPadding()
-            .fillMaxSize(),
+            .statusBarsPadding()
+            .fillMaxSize()
     ) {
-        IndexButton(text = "返回键", route = "can-back")
-        IndexButton(text = "网页", route = "web-view")
-        IndexButton(text = "文件", route = "file-system")
-        IndexButton(text = "锁", route = "lock")
+        FileSystemButton(text = "pick visual media", route = "pick-visual-media")
     }
 }
 
 @Preview
 @Composable
-fun IndexPagePreview() {
-    IndexPage()
+fun FileSystemPagePreview() {
+    FileSystemPage()
 }

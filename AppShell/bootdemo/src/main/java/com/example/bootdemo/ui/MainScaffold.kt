@@ -127,6 +127,8 @@ fun MainScaffold(
                             rootGraph()
                             canBackGraph()
                             webGraph()
+                            filesystemGraph()
+                            lockGraph()
                         }
                         BottomBar()
                     }
