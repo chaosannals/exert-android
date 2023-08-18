@@ -42,10 +42,15 @@ class SshController(
             session.connect()
 
             while (true) {
+                try {
+                    Thread.sleep(2000)
+                    if (session.isConnected) {
 
-                if (session.isConnected) {
+                    } else {
 
-                } else {
+                    }
+                }
+                catch (e: InterruptedException) {
 
                 }
             }

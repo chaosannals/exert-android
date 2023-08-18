@@ -14,7 +14,10 @@ import com.example.bootdemo.ui.page.canback.CanBackLv1Page
 import com.example.bootdemo.ui.page.canback.CanBackPage
 import com.example.bootdemo.ui.page.filesystem.FileSystemPage
 import com.example.bootdemo.ui.page.filesystem.PickVisualMediaPage
+import com.example.bootdemo.ui.page.lock.CoroutinePage
 import com.example.bootdemo.ui.page.lock.LockPage
+import com.example.bootdemo.ui.page.lock.LooperPage
+import com.example.bootdemo.ui.page.lock.MutexPage
 import com.example.bootdemo.ui.page.web.WebViewPage
 
 val LocalRouter = staticCompositionLocalOf<NavHostController> {
@@ -77,7 +80,18 @@ fun NavGraphBuilder.filesystemGraph() {
 }
 
 fun NavGraphBuilder.lockGraph() {
-    composable("lock") {
-        LockPage()
+    navigation("lock", "lock-demo") {
+        composable("lock") {
+            LockPage()
+        }
+        composable("mutex") {
+            MutexPage()
+        }
+        composable("looper") {
+            LooperPage()
+        }
+        composable("coroutine") {
+            CoroutinePage()
+        }
     }
 }

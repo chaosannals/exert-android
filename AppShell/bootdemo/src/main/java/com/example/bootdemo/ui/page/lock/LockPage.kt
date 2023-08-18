@@ -1,81 +1,45 @@
 package com.example.bootdemo.ui.page.lock
 
-import android.os.Looper
-import android.util.Log
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.tooling.preview.Preview
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.sync.Mutex
+import androidx.compose.ui.unit.sp
+import com.example.bootdemo.ui.LocalRouter
 
-fun isMainThread(): Boolean {
-    return Looper.myLooper() == Looper.getMainLooper()
+@Composable
+fun LockButton(
+    text: String,
+    route: String,
+) {
+    val mode = LocalInspectionMode.current
+    val router = if (mode) null else LocalRouter.current
+
+    Button(
+        onClick = { router?.navigate(route) },
+    ) {
+        Text(
+            text = text,
+            fontSize = 14.sp,
+        )
+    }
 }
 
 @Composable
 fun LockPage() {
-    val coroutineScope = rememberCoroutineScope()
-    val mutex = remember {
-        Mutex(false)
-    }
-
-    var isMain by remember {
-        mutableStateOf(isMainThread())
-    }
-
     Column(
         modifier = Modifier
+            .statusBarsPadding()
             .fillMaxSize()
     ) {
-        Text(text = "isMain: $isMain")
-
-        Button(
-            onClick = {
-                isMain = isMainThread()
-            }
-        ) {
-            Text("Main")
-        }
-
-        Button(
-            onClick = {
-                coroutineScope.launch(Dispatchers.Main) {
-                    isMain = isMainThread()
-                }
-            }
-        ) {
-            Text("Main(launch)")
-        }
-
-        Button(
-            onClick = {
-                coroutineScope.launch(Dispatchers.IO) {
-                    isMain = isMainThread()
-                }
-            }
-        ) {
-            Text("IO")
-        }
-    }
-
-    LaunchedEffect(mutex) {
-        Log.d("锁", "0")
-        mutex.lock()
-        launch(Dispatchers.IO) {
-            Log.d("锁", "1")
-            delay(1000)
-            mutex.unlock()
-            Log.d("锁", "2")
-        }
-        mutex.lock()
-        mutex.unlock()
-        Log.d("锁", "3")
+        LockButton("Mutex", "mutex")
+        LockButton("Looper", "looper")
+        LockButton("Coroutine", "coroutine")
     }
 }
 
