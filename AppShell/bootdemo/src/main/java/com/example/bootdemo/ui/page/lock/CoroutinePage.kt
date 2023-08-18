@@ -100,12 +100,16 @@ fun CoroutinePage() {
         // TODO
         // 这个好像没啥用，控制取消的 CancellableContinuation 是在闭包内部。
         // 不像 job 可以在外部取消操作。
+        // 大概率只是提供多了取消的监听函数 invokeOnCancellation
         Button(
             onClick =
             {
-                runBlocking {
+                val r = runBlocking {
                     suspendCancellableCoroutine {
-
+                        it.invokeOnCancellation {
+                            // 被取消时调用。
+                        }
+                        it.resume(false)
                     }
                 }
             }

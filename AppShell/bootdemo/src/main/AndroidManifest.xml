@@ -11,10 +11,14 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.AppShell">
+<!--        android:noHistory="true" 退出后不保留任务列表，一般不会用，毕竟 APP 更希望用户能看到并点出来，大部分应用退出后还是常驻任务列表 -->
+<!--        android:excludeFromRecents 退出后不在近期使用列表，一般不会用，同上 APP 更希望用户看到并使用，所以都是默认行为，留在列表。-->
         <activity
             android:name=".MainActivity"
             android:exported="false"
             android:label="@string/title_activity_main"
+            android:noHistory="true"
+            android:excludeFromRecents="true"
             android:theme="@style/Theme.AppShell" />
         <activity
             android:name=".BootActivity"
