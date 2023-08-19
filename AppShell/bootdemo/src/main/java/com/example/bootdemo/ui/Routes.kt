@@ -18,6 +18,10 @@ import com.example.bootdemo.ui.page.lock.CoroutinePage
 import com.example.bootdemo.ui.page.lock.LockPage
 import com.example.bootdemo.ui.page.lock.LooperPage
 import com.example.bootdemo.ui.page.lock.MutexPage
+import com.example.bootdemo.ui.page.side.DisposeLv1Page
+import com.example.bootdemo.ui.page.side.DisposeLv2N2Page
+import com.example.bootdemo.ui.page.side.DisposeLv2Page
+import com.example.bootdemo.ui.page.side.EffectPage
 import com.example.bootdemo.ui.page.web.WebViewPage
 
 val LocalRouter = staticCompositionLocalOf<NavHostController> {
@@ -92,6 +96,23 @@ fun NavGraphBuilder.lockGraph() {
         }
         composable("coroutine") {
             CoroutinePage()
+        }
+    }
+}
+
+fun NavGraphBuilder.sideGraph() {
+    navigation("effect", "side") {
+        composable("effect") {
+            EffectPage()
+        }
+        composable("dispose-lv1") {
+            DisposeLv1Page()
+        }
+        composable("dispose-lv2") {
+            DisposeLv2Page()
+        }
+        composable("dispose-lv2-n2") {
+            DisposeLv2N2Page()
         }
     }
 }

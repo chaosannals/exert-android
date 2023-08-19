@@ -129,6 +129,7 @@ fun MainScaffold(
                             webGraph()
                             filesystemGraph()
                             lockGraph()
+                            sideGraph()
                         }
                         BottomBar()
                     }
