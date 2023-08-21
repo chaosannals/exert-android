@@ -22,6 +22,10 @@ import com.example.bootdemo.ui.page.side.DisposeLv1Page
 import com.example.bootdemo.ui.page.side.DisposeLv2N2Page
 import com.example.bootdemo.ui.page.side.DisposeLv2Page
 import com.example.bootdemo.ui.page.side.EffectPage
+import com.example.bootdemo.ui.page.store.DataStorePreferencesPage
+import com.example.bootdemo.ui.page.store.DataStoreProtoPage
+import com.example.bootdemo.ui.page.store.SharedPreferencesPage
+import com.example.bootdemo.ui.page.store.StoragePage
 import com.example.bootdemo.ui.page.web.WebViewPage
 
 val LocalRouter = staticCompositionLocalOf<NavHostController> {
@@ -113,6 +117,23 @@ fun NavGraphBuilder.sideGraph() {
         }
         composable("dispose-lv2-n2") {
             DisposeLv2N2Page()
+        }
+    }
+}
+
+fun NavGraphBuilder.storeGraph() {
+    navigation("storage", "store") {
+        composable("storage") {
+            StoragePage()
+        }
+        composable("shared-preferences") {
+            SharedPreferencesPage()
+        }
+        composable("data-store-preferences") {
+            DataStorePreferencesPage()
+        }
+        composable("data-store-proto") {
+            DataStoreProtoPage()
         }
     }
 }

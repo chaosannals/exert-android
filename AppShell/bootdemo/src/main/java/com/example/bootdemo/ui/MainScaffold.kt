@@ -130,6 +130,7 @@ fun MainScaffold(
                             filesystemGraph()
                             lockGraph()
                             sideGraph()
+                            storeGraph()
                         }
                         BottomBar()
                     }

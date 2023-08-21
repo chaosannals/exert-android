@@ -1,4 +1,4 @@
-package com.example.bootdemo.ui.page
+package com.example.bootdemo.ui.page.drawing
 
 import android.graphics.RuntimeShader
 import android.os.Build

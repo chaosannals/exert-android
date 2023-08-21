@@ -10,6 +10,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 
+/// key 变动会调用上次注册的 onDispose闭包 后再执行块内代码，即再次注册 onDispose闭包。
 @Composable
 fun DisposeLv2N2Page() {
     var key1 by remember {
