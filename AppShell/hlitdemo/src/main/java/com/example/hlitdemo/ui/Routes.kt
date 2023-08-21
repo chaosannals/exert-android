@@ -9,6 +9,7 @@ import com.example.hlitdemo.ui.page.Coroutine2Page
 import com.example.hlitdemo.ui.page.Coroutine3Page
 import com.example.hlitdemo.ui.page.Coroutine4Page
 import com.example.hlitdemo.ui.page.CoroutinePage
+import com.example.hlitdemo.ui.page.DataStoreProtoPage
 import com.example.hlitdemo.ui.page.HomePage
 import com.example.hlitdemo.ui.page.XWebViewProxyPage
 
@@ -37,5 +38,8 @@ fun NavGraphBuilder.rootGraph() {
     }
     composable("x-web-view-proxy") {
         XWebViewProxyPage()
+    }
+    composable("data-store-proto") {
+        DataStoreProtoPage()
     }
 }

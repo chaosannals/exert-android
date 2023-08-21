@@ -3,6 +3,7 @@ plugins {
     id("org.jetbrains.kotlin.android")
     id("kotlin-kapt")
     id("com.google.dagger.hilt.android")
+    id("com.google.protobuf") version "0.8.17"
 }
 
 android {
@@ -92,6 +93,9 @@ dependencies {
     implementation("androidx.datastore:datastore:1.0.0")
     implementation("androidx.datastore:datastore-rxjava3:1.0.0") // Rx 可选
 
+    //
+    implementation("com.google.protobuf:protobuf-javalite:3.18.0")
+
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
@@ -101,3 +105,20 @@ dependencies {
     debugImplementation("androidx.compose.ui:ui-tooling")
     debugImplementation("androidx.compose.ui:ui-test-manifest")
 }
+
+//protobuf {
+//
+//    protoc {
+//        artifact = "com.google.protobuf:protoc:3.14.0"
+//    }
+//
+//    generateProtoTasks {
+//        all().each { task ->
+//            task.builtins {
+//                java {
+//                    option "lite"
+//                }
+//            }
+//        }
+//    }
+//}

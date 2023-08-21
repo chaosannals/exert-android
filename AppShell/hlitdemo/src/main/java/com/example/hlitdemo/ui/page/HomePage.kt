@@ -81,6 +81,15 @@ fun HomePage(
         ) {
             Text("Coroutine 4")
         }
+
+        Button(
+            onClick =
+            {
+                navController?.navigate("data-store-proto")
+            },
+        ) {
+            Text("Data Store Proto")
+        }
     }
 }
 

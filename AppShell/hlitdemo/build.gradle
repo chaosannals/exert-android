@@ -3,6 +3,7 @@ plugins {
     id 'org.jetbrains.kotlin.android'
     id 'kotlin-kapt'
     id 'com.google.dagger.hilt.android'
+    id "com.google.protobuf" version "0.8.17"
 }
 
 android {
@@ -82,6 +83,13 @@ dependencies {
     implementation 'androidx.hilt:hilt-navigation-compose:1.0.0'
 //    implementation("androidx.hilt:hilt-navigation-fragment:1.0.0")
 
+    // Data Store Proto
+    // https://developer.android.com/codelabs/android-proto-datastore?hl=zh-cn#6
+    // 示例有误，不只依赖 core 库， 所以要引入 preferences
+//    implementation  "androidx.datastore:datastore-core:1.0.0"
+    implementation 'androidx.datastore:datastore-preferences:1.0.0'
+    implementation  "com.google.protobuf:protobuf-javalite:3.18.0"
+
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
@@ -93,4 +101,20 @@ dependencies {
 
 kapt {
     correctErrorTypes true
+}
+
+protobuf {
+    protoc {
+        artifact = "com.google.protobuf:protoc:3.14.0"
+    }
+
+    generateProtoTasks {
+        all().each { task ->
+            task.builtins {
+                java {
+                    option 'lite'
+                }
+            }
+        }
+    }
 }
