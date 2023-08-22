@@ -56,7 +56,7 @@ fun DataStorePreferencesPage() {
                 }
             }
         ) {
-            Text(text = "${counter}")
+            Text(text = "$counter")
         }
     }
 }

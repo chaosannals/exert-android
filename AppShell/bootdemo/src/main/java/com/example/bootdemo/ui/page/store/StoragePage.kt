@@ -40,6 +40,7 @@ fun StoragePage() {
         StorageButton("Shared Preferences", "shared-preferences")
         StorageButton("Data Store Preferences", "data-store-preferences")
         StorageButton("Data Store Proto", "data-store-proto")
+        StorageButton("Data Store From Shared Preferences", "data-store-from-shared-preferences")
     }
 }
 

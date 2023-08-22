@@ -22,6 +22,7 @@ import com.example.bootdemo.ui.page.side.DisposeLv1Page
 import com.example.bootdemo.ui.page.side.DisposeLv2N2Page
 import com.example.bootdemo.ui.page.side.DisposeLv2Page
 import com.example.bootdemo.ui.page.side.EffectPage
+import com.example.bootdemo.ui.page.store.DataStoreFromSharedPreferencesPage
 import com.example.bootdemo.ui.page.store.DataStorePreferencesPage
 import com.example.bootdemo.ui.page.store.DataStoreProtoPage
 import com.example.bootdemo.ui.page.store.SharedPreferencesPage
@@ -134,6 +135,9 @@ fun NavGraphBuilder.storeGraph() {
         }
         composable("data-store-proto") {
             DataStoreProtoPage()
+        }
+        composable("data-store-from-shared-preferences") {
+            DataStoreFromSharedPreferencesPage()
         }
     }
 }
