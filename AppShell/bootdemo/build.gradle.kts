@@ -1,9 +1,11 @@
+import com.google.protobuf.gradle.* // kotlin script 需要自行引入命令空间
+
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
     id("kotlin-kapt")
     id("com.google.dagger.hilt.android")
-    id("com.google.protobuf") version "0.8.17"
+    id("com.google.protobuf") version "0.8.19"
 }
 
 android {
@@ -85,15 +87,19 @@ dependencies {
     // 图片显示
     implementation("io.coil-kt:coil-compose:2.2.0")
 
+    // Jetpack 扩展的 preference 名字空间在 androidx
+    // 默认 android 提供的 preference 都被标记未废弃.
+    implementation("androidx.preference:preference-ktx:1.2.1")
+
     // Data Store 弱类型
     implementation("androidx.datastore:datastore-preferences:1.0.0")
     implementation("androidx.datastore:datastore-preferences-rxjava3:1.0.0") // Rx 可选
 
-    // Data Store 强类型
+    // Data Store 强类型依赖 ProtoBuf
     implementation("androidx.datastore:datastore:1.0.0")
     implementation("androidx.datastore:datastore-rxjava3:1.0.0") // Rx 可选
 
-    //
+    // protobuf
     implementation("com.google.protobuf:protobuf-javalite:3.18.0")
 
     testImplementation("junit:junit:4.13.2")
@@ -106,19 +112,19 @@ dependencies {
     debugImplementation("androidx.compose.ui:ui-test-manifest")
 }
 
-//protobuf {
-//
-//    protoc {
-//        artifact = "com.google.protobuf:protoc:3.14.0"
-//    }
-//
-//    generateProtoTasks {
-//        all().each { task ->
-//            task.builtins {
-//                java {
-//                    option "lite"
-//                }
-//            }
-//        }
-//    }
-//}
+
+protobuf {
+    protoc {
+        artifact = "com.google.protobuf:protoc:3.14.0"
+    }
+
+    generateProtoTasks {
+        all().forEach { task ->
+            task.builtins {
+                create("java") {
+                    option("lite")
+                }
+            }
+        }
+    }
+}
