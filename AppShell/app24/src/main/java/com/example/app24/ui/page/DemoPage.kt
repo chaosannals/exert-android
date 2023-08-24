@@ -99,6 +99,9 @@ fun DemoPage() {
         item {
             DemoLinkButton("CaptureViewImage2", "capture-view-image-2-page")
         }
+        item {
+            DemoLinkButton("Carousel", "carousel-page")
+        }
     }
 }
 

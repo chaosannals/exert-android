@@ -1,3 +1,5 @@
+import javax.inject.Inject
+
 plugins {
     id 'com.android.application'
     id 'org.jetbrains.kotlin.android'
@@ -117,4 +119,87 @@ protobuf {
             }
         }
     }
+}
+
+// 0.配置
+// 1.doFirst 倒序
+// 2.action 正序
+// 3.doLast 正序
+
+abstract class BuildCustomTask extends DefaultTask {
+    private String message
+    private final WorkerExecutor workerExecutor
+    private final FileSystemOperations fileSystemOperations
+
+    @Inject
+    BuildCustomTask(WorkerExecutor workerExecutor, FileSystemOperations fileSystemOperations) {
+        this.workerExecutor = workerExecutor
+        this.fileSystemOperations = fileSystemOperations
+    }
+
+    @Option(option = "url", description = "some message.")
+    void setMessage(String message) {
+        this.message = message
+    }
+
+    @Input
+    String getMessage() {
+        return url
+    }
+
+    @TaskAction
+    void doAction1() {
+
+    }
+
+    @TaskAction
+    void doAction2() {
+
+    }
+}
+
+def buildCustom = tasks.register("buildCustom", BuildCustomTask) {
+    message = "some message"
+
+    configure {
+
+    }
+
+    doFirst {
+
+    }
+}
+
+def buildCustom2 = task("buildCustom2") {
+    configure {
+        dependsOn(
+            provider {
+                tasks.findAll {
+                    it.name == "buildCustom"
+                }
+            }
+        )
+    }
+
+    doFirst {
+
+    }
+
+
+
+    doLast {
+
+    }
+}
+
+def buildCustom3 = task("buildCustom3") {
+    configure {
+        mustRunAfter buildCustom // 这个可以在没有依赖下确保执行顺序
+    }
+
+    finalizedBy buildCustom2
+}
+
+buildCustom3.configure {
+    dependsOn buildCustom
 }

@@ -1,4 +1,11 @@
 import com.google.protobuf.gradle.* // kotlin script 需要自行引入命令空间
+import java.io.BufferedReader
+import java.io.DataOutputStream
+import java.io.InputStreamReader
+import java.net.HttpURLConnection
+import java.net.URL
+
+//import java.net.http.HttpClient // java11+ 才能用，gradle 要用 java8
 
 plugins {
     id("com.android.application")
@@ -127,4 +134,101 @@ protobuf {
             }
         }
     }
+}
+
+abstract class BuildCustomTask: DefaultTask() {
+    @get:Input
+    @get:Option(option="message", description="some message.")
+    abstract val message: Property<String>
+
+
+    @get:Input
+    @get:Option(option="id", description="the id.")
+    abstract val id: Property<Int>
+
+    @TaskAction
+    fun action1() {
+        println("BuildCustomTask action1 ${message.get()}")
+    }
+
+    @TaskAction
+    fun action2() {
+//        println("BuildCustomTask action2 ${id}")
+    }
+}
+
+// task 会有提示：推荐通过 tasks.register 注册
+val buildCustomTask = tasks.register<BuildCustomTask>("buildCustom") {
+    println("BuildCustomTask register")
+
+    id.set(44)
+    message.set("some message")
+
+    doFirst {
+
+    }
+
+    doLast {
+
+    }
+}
+
+tasks.register("buildCustom2") {
+    doFirst {
+
+    }
+
+    // kotlin 不需要在 configure 方法内调用
+    dependsOn(buildCustomTask)
+}
+
+abstract class BuildCustom3Task: DefaultTask() {
+    @TaskAction
+    fun action1() {
+        val url = URL("https://baidu.com")
+        val conn = url.openConnection() as HttpURLConnection
+        conn.requestMethod = "GET"
+        conn.useCaches = false
+
+        conn.doOutput = true
+        DataOutputStream(conn.outputStream).use { wr ->
+            wr.writeBytes("")
+        }
+        conn.inputStream.use {
+            val rd = BufferedReader(InputStreamReader(it))
+            val sb = StringBuilder()
+            while(true) {
+                val line = rd.readLine() ?: break
+                sb.append(line)
+                sb.append("\r\n")
+            }
+            println(sb.toString())
+        }
+    }
+}
+
+// kotlin 特有的写法
+val buildCustom3 by tasks.registering(BuildCustom3Task::class) {
+    val hereDirectory = file("./") // 这个是 build.kts 文件所在目录
+
+    doLast {
+        val entities = hereDirectory.listFiles()?.sorted()
+        entities?.forEach { entity ->
+            if (entity.isFile) {
+                println("file: ${entity.absolutePath}")
+            }
+            if (entity.isDirectory) {
+                println("dir: ${entity.absolutePath}")
+            }
+        }
+    }
+
+    doFirst {
+        println("build info:")
+        println(GradleVersion.current())
+        println(GradleVersion.version("8.0"))
+        println(layout.buildDirectory.get().asFile.absolutePath)
+    }
+
+    dependsOn(buildCustomTask)
 }
