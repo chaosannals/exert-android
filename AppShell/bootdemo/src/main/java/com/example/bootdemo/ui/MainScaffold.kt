@@ -128,6 +128,7 @@ fun MainScaffold(
                             canBackGraph()
                             webGraph()
                             filesystemGraph()
+                            layoutGraph()
                             lockGraph()
                             sideGraph()
                             storeGraph()

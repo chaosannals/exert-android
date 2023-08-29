@@ -14,6 +14,8 @@ import com.example.bootdemo.ui.page.canback.CanBackLv1Page
 import com.example.bootdemo.ui.page.canback.CanBackPage
 import com.example.bootdemo.ui.page.filesystem.FileSystemPage
 import com.example.bootdemo.ui.page.filesystem.PickVisualMediaPage
+import com.example.bootdemo.ui.page.layout.ImePage
+import com.example.bootdemo.ui.page.layout.LayoutPage
 import com.example.bootdemo.ui.page.lock.CoroutinePage
 import com.example.bootdemo.ui.page.lock.LockPage
 import com.example.bootdemo.ui.page.lock.LooperPage
@@ -84,6 +86,17 @@ fun NavGraphBuilder.filesystemGraph() {
         }
         composable("pick-visual-media") {
             PickVisualMediaPage()
+        }
+    }
+}
+
+fun NavGraphBuilder.layoutGraph() {
+    navigation("layout", "lay") {
+        composable("layout") {
+            LayoutPage()
+        }
+        composable("ime") {
+            ImePage()
         }
     }
 }

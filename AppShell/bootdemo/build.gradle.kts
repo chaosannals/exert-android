@@ -82,6 +82,9 @@ dependencies {
     implementation("androidx.navigation:navigation-dynamic-features-fragment:$nav_version")
     implementation("androidx.navigation:navigation-compose:$nav_version")
 
+    // rx
+    implementation("androidx.compose.runtime:runtime-rxjava3:1.5.0")
+
     // DI
     implementation("com.google.dagger:hilt-android:2.44")
     kapt("com.google.dagger:hilt-compiler:2.44")
