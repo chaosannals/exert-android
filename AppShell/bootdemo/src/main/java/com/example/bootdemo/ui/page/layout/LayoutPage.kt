@@ -39,6 +39,7 @@ fun LayoutPage() {
             .fillMaxSize()
     ) {
         LayoutButton("Ime", "ime")
+        LayoutButton("Input Method", "input-method")
     }
 }
 

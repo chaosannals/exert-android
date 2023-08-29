@@ -24,6 +24,11 @@ private val stateRx: BehaviorSubject<Boolean> = BehaviorSubject.create()
 private val stateSf: MutableStateFlow<Boolean> = MutableStateFlow(false)
 private val stateLd: MutableLiveData<Boolean> = MutableLiveData()
 
+/// .navigationBarsPadding().imePadding() 会使得 navigationBarsPadding 无效
+/// .imePadding().navigationBarsPadding() 才能起效，imePadding 必须在前。
+/// .fillMaxSize().imePadding() 会直接卡死。
+/// .imePadding().fillMaxSize() 才正常，imePadding 必须在前。
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ImePage() {
@@ -66,7 +71,7 @@ fun ImePage() {
             onValueChange = {text = it}
         )
         Column(
-            modifier = mRx // TODO 测试 切换 mRx 会导致程序卡死
+            modifier = mRx
                 .border(1.dp, Color.Red)
                 .imePadding()
         ) {
@@ -80,7 +85,7 @@ fun ImePage() {
         }
 
         Column(
-            modifier = mSf // TODO 测试是否与 RX 一样
+            modifier = mSf
                 .border(1.dp, Color.Blue)
                 .imePadding()
         ) {

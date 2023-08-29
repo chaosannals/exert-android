@@ -5,6 +5,7 @@ import android.app.Application
 import android.os.Bundle
 import android.transition.Fade
 import android.view.Window
+import android.view.inputmethod.InputMethodManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.fillMaxSize
@@ -24,6 +25,7 @@ import com.example.bootdemo.ui.MainScaffold
 import com.example.bootdemo.ui.theme.AppShellTheme
 import dagger.hilt.android.AndroidEntryPoint
 import dagger.hilt.android.HiltAndroidApp
+import io.reactivex.rxjava3.subjects.BehaviorSubject
 
 @Composable
 inline fun <reified VM : ViewModel> hiltActivityViewModel(): VM {
@@ -49,6 +51,8 @@ inline fun <reified VM : ViewModel> hiltActivityViewModel(): VM {
 class MainApplication : Application() {
 }
 
+val inputMethodManager: BehaviorSubject<InputMethodManager> = BehaviorSubject.create()
+
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -57,6 +61,10 @@ class MainActivity : ComponentActivity() {
         window.requestFeature(Window.FEATURE_ACTIVITY_TRANSITIONS)
         window.enterTransition = Fade()
         window.exitTransition = Fade()
+
+        val imm = getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
+        inputMethodManager.onNext(imm)
+
         setContent {
             MainScaffold()
         }
