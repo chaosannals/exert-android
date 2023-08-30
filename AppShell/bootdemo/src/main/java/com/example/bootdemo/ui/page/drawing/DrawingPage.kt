@@ -1,4 +1,4 @@
-package com.example.bootdemo.ui.page.lock
+package com.example.bootdemo.ui.page.drawing
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -13,7 +13,7 @@ import androidx.compose.ui.unit.sp
 import com.example.bootdemo.ui.LocalRouter
 
 @Composable
-fun LockButton(
+fun DrawingButton(
     text: String,
     route: String,
 ) {
@@ -31,21 +31,19 @@ fun LockButton(
 }
 
 @Composable
-fun LockPage() {
+fun DrawingPage() {
     Column(
         modifier = Modifier
             .statusBarsPadding()
             .fillMaxSize()
     ) {
-        LockButton("Mutex", "mutex")
-        LockButton("Looper", "looper")
-        LockButton("Coroutine", "coroutine")
-        LockButton("Cancel", "cancel")
+//        DrawingButton("GLSL SKSL", "glsl-sksl")
+        DrawingButton("Wheel", "wheel")
     }
 }
 
 @Preview
 @Composable
-fun LockPagePreview() {
-    LockPage()
+fun DrawingPagePreview() {
+    DrawingPage()
 }

@@ -12,11 +12,15 @@ import com.example.bootdemo.ui.page.canback.CanBack2Lv2N2Page
 import com.example.bootdemo.ui.page.canback.CanBack3Lv1Page
 import com.example.bootdemo.ui.page.canback.CanBackLv1Page
 import com.example.bootdemo.ui.page.canback.CanBackPage
+import com.example.bootdemo.ui.page.drawing.DrawingPage
+import com.example.bootdemo.ui.page.drawing.GlslSkslPage
+import com.example.bootdemo.ui.page.drawing.WheelPage
 import com.example.bootdemo.ui.page.filesystem.FileSystemPage
 import com.example.bootdemo.ui.page.filesystem.PickVisualMediaPage
 import com.example.bootdemo.ui.page.layout.ImePage
 import com.example.bootdemo.ui.page.layout.InputMethodPage
 import com.example.bootdemo.ui.page.layout.LayoutPage
+import com.example.bootdemo.ui.page.lock.CancelPage
 import com.example.bootdemo.ui.page.lock.CoroutinePage
 import com.example.bootdemo.ui.page.lock.LockPage
 import com.example.bootdemo.ui.page.lock.LooperPage
@@ -71,6 +75,20 @@ fun NavGraphBuilder.canBackGraph() {
     }
 }
 
+fun NavGraphBuilder.drawingGraph() {
+    navigation("drawing", "draw") {
+        composable("drawing") {
+            DrawingPage()
+        }
+//        composable("glsl-sksl") {
+//            GlslSkslPage()
+//        }
+        composable("wheel") {
+            WheelPage()
+        }
+    }
+}
+
 fun NavGraphBuilder.webGraph() {
     composable("web-view") {
         WebViewPage()
@@ -118,6 +136,9 @@ fun NavGraphBuilder.lockGraph() {
         }
         composable("coroutine") {
             CoroutinePage()
+        }
+        composable("cancel") {
+            CancelPage()
         }
     }
 }

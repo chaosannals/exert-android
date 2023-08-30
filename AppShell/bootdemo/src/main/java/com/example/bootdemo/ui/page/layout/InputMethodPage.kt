@@ -32,7 +32,9 @@ import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupPositionProvider
 import androidx.compose.ui.window.PopupProperties
 import com.example.bootdemo.inputMethodManager
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -102,6 +104,27 @@ fun InputMethodPage() {
         }
     }
 
+    var inputShowCount by remember {
+        mutableStateOf(0)
+    }
+    var inputHideCount by remember {
+        mutableStateOf(0)
+    }
+
+    LaunchedEffect(isInputVisible) {
+        launch(Dispatchers.IO) {
+            if (isInputVisible) {
+                launch(Dispatchers.Main) {
+                    ++inputShowCount
+                }
+            } else {
+                launch(Dispatchers.Main) {
+                    ++inputHideCount
+                }
+            }
+        }
+    }
+
     DisposableEffect(Unit) {
         val listener = (context as? Activity)?.run {
             val result = ViewTreeObserver.OnPreDrawListener {
@@ -143,6 +166,8 @@ fun InputMethodPage() {
         Text("window out Height: $outHeight")
         Text("window in Height: $inHeight")
         Text("input visible: $isInputVisible")
+        Text("input show count: $inputShowCount")
+        Text("input hide count: $inputHideCount")
         Button(onClick = {
             (context as? Activity)?.run {
                 imm?.showSoftInput(window.decorView, 0)

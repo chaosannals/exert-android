@@ -42,6 +42,7 @@ fun IndexPage() {
             .fillMaxSize(),
     ) {
         IndexButton(text = "返回键", route = "can-back")
+        IndexButton(text = "绘制", route = "drawing")
         IndexButton(text = "网页", route = "web-view")
         IndexButton(text = "文件", route = "file-system")
         IndexButton(text = "锁", route = "lock")
