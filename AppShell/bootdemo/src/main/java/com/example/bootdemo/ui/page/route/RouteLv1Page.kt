@@ -10,6 +10,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -22,6 +23,10 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.bootdemo.ui.LocalRouter
 import com.example.bootdemo.ui.ROUTE_ROUTE_LV1
+import kotlinx.coroutines.flow.MutableStateFlow
+
+private val tickSf = MutableStateFlow(0L)
+private val tickSfi = MutableStateFlow(0L)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -34,6 +39,24 @@ fun RouteLv1Page() {
         derivedStateOf {
             entry?.arguments?.getString("path")
         }
+    }
+    var tick by remember {
+        mutableStateOf(System.currentTimeMillis().toString())
+    }
+    // 起始时 tick 只触发一次，可见 currentBackStackEntryAsState 起始触发 2 次是比较特殊的。
+    LaunchedEffect(tick) {
+        Log.d("Lv1", "[Route] Lv1 tick: $tick")
+    }
+
+    // State Flow 如果 collectAsState 给定 initial 就会导致触发 2 次，而且值非 initial 的值
+    val tickSfValue by tickSf.collectAsState()
+    LaunchedEffect(tickSfValue) {
+        Log.d("Lv1", "[Route] Lv1 tickSf: $tickSfValue")
+    }
+
+    val tickSfiValue by tickSf.collectAsState(initial = System.currentTimeMillis())
+    LaunchedEffect(tickSfiValue) {
+        Log.d("Lv1", "[Route] Lv1 tickSf set initial: $tickSfiValue")
     }
 
     // 如果以当前路由参数为 key 切换路由时会先触发此项。
@@ -65,6 +88,18 @@ fun RouteLv1Page() {
             router.navigate("route-lv2-n2?path=$text")
         }) {
             Text("Lv2N2")
+        }
+
+        Button(onClick = { tick = System.currentTimeMillis().toString() }) {
+            Text(text = "时间：$tick")
+        }
+
+        Button(onClick = { tickSf.value = System.currentTimeMillis() }) {
+            Text(text = "时间 State Flow：$tickSfValue")
+        }
+
+        Button(onClick = { tickSfi.value = System.currentTimeMillis() }) {
+            Text(text = "时间 State Flow set initial：$tickSfiValue")
         }
     }
 }
