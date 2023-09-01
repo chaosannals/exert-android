@@ -15,6 +15,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.bootdemo.ui.LocalRouter
+import com.example.bootdemo.ui.ROUTE_ROUTE_LV1
+import com.example.bootdemo.ui.ROUTE_ROUTE_LV2_N1
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -29,8 +31,16 @@ fun RouteLv2N1Page() {
         }
     }
 
+    // 进入触发 1 次
+    LaunchedEffect(Unit) {
+        Log.d("Lv2N1", "[Route] 进入 Lv2N1 $path")
+    }
+
+    // 通过条件 可以在离开时触发 1 次
     LaunchedEffect(entry) {
-        Log.d("Lv2N1", "[Route] Lv2N1 $path")
+        if (entry?.destination?.route != ROUTE_ROUTE_LV2_N1) {
+            Log.d("Lv2N1", "[Route] 离开 Lv2N1 $path")
+        }
     }
 
     Column(

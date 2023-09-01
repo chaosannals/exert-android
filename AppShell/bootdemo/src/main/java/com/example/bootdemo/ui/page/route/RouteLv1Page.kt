@@ -21,6 +21,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.bootdemo.ui.LocalRouter
+import com.example.bootdemo.ui.ROUTE_ROUTE_LV1
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -36,8 +37,14 @@ fun RouteLv1Page() {
     }
 
     // 如果以当前路由参数为 key 切换路由时会先触发此项。
+    // 可以判定离开和进入，但是进入时该页面会触发 2 次。
+    // 参考 Lv2N1 的做法 分开处理 进入 和 离开 可各触发 1 次。
     LaunchedEffect(entry) {
-        Log.d("Lv1", "[Route] Lv1 $path")
+        if (entry?.destination?.route == ROUTE_ROUTE_LV1) {
+            Log.d("Lv1", "[Route] 进入 Lv1 $path") // 2 次
+        } else {
+            Log.d("Lv1", "[Route] 离开 Lv1 $path") // 1 次
+        }
     }
 
     Column(

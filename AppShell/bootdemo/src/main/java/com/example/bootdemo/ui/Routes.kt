@@ -189,10 +189,14 @@ fun NavGraphBuilder.storeGraph() {
     }
 }
 
+const val ROUTE_ROUTE_LV1 = "route-lv1?path={path}"
+const val ROUTE_ROUTE_LV2_N1 = "route-lv2-n1?path={path}"
+const val ROUTE_ROUTE_LV2_N2 = "route-lv2-n2?path={path}"
+
 fun NavGraphBuilder.routeGraph() {
     navigation("route-lv1", "route") {
         composable(
-            "route-lv1?path={path}",
+            ROUTE_ROUTE_LV1,
             arguments = listOf(
                 navArgument("path") {
                     defaultValue = "/"
@@ -203,7 +207,7 @@ fun NavGraphBuilder.routeGraph() {
             RouteLv1Page()
         }
         composable(
-            "route-lv2-n1?path={path}",
+            ROUTE_ROUTE_LV2_N1,
             arguments = listOf(
                 navArgument("path") {
                     defaultValue = "/"
@@ -214,7 +218,7 @@ fun NavGraphBuilder.routeGraph() {
             RouteLv2N1Page()
         }
         composable(
-            "route-lv2-n2?path={path}",
+            ROUTE_ROUTE_LV2_N2,
             arguments = listOf(
                 navArgument("path") {
                     defaultValue = "/"
