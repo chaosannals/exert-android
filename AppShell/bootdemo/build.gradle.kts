@@ -96,6 +96,9 @@ dependencies {
 
     // 图片显示
     implementation("io.coil-kt:coil-compose:2.2.0")
+    implementation("io.coil-kt:coil-gif:2.4.0")
+    implementation("io.coil-kt:coil-svg:2.4.0")
+    implementation("io.coil-kt:coil-video:2.4.0")
 
     // Jetpack 扩展的 preference 名字空间在 androidx
     // 默认 android 提供的 preference 都被标记未废弃.
@@ -138,6 +141,8 @@ protobuf {
         }
     }
 }
+
+// local.properties 可以存 非版本控制配置
 
 abstract class BuildCustomTask: DefaultTask() {
     @get:Input

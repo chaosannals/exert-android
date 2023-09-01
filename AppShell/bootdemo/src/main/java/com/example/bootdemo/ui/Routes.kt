@@ -12,6 +12,7 @@ import com.example.bootdemo.ui.page.canback.CanBack2Lv2N2Page
 import com.example.bootdemo.ui.page.canback.CanBack3Lv1Page
 import com.example.bootdemo.ui.page.canback.CanBackLv1Page
 import com.example.bootdemo.ui.page.canback.CanBackPage
+import com.example.bootdemo.ui.page.drawing.CoilGifPage
 import com.example.bootdemo.ui.page.drawing.DrawingPage
 import com.example.bootdemo.ui.page.drawing.GlslSkslPage
 import com.example.bootdemo.ui.page.drawing.WheelPage
@@ -85,6 +86,9 @@ fun NavGraphBuilder.drawingGraph() {
 //        }
         composable("wheel") {
             WheelPage()
+        }
+        composable("coil-gif") {
+            CoilGifPage()
         }
     }
 }

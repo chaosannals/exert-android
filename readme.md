@@ -259,3 +259,9 @@ navController.navigateUp()
 // 返回
 navController.popBackStack()
 ```
+
+## 调试用图片链接
+
+```
+https://picsum.photos/id/$pid/400/400.jpg
+```
