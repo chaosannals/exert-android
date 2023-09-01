@@ -49,6 +49,7 @@ fun IndexPage() {
         IndexButton(text = "附带效应（Side Effect）", route = "effect")
         IndexButton(text = "存储", route = "storage")
         IndexButton(text = "布局", route = "layout")
+        IndexButton(text = "路由", route = "route-lv1")
     }
 }
 

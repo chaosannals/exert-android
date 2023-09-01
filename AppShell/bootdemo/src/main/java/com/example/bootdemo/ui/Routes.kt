@@ -3,7 +3,9 @@ package com.example.bootdemo.ui
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.composable
+import androidx.navigation.navArgument
 import androidx.navigation.navigation
 import com.example.bootdemo.ui.page.IndexPage
 import com.example.bootdemo.ui.page.canback.CanBack2Lv1Page
@@ -26,6 +28,9 @@ import com.example.bootdemo.ui.page.lock.CoroutinePage
 import com.example.bootdemo.ui.page.lock.LockPage
 import com.example.bootdemo.ui.page.lock.LooperPage
 import com.example.bootdemo.ui.page.lock.MutexPage
+import com.example.bootdemo.ui.page.route.RouteLv1Page
+import com.example.bootdemo.ui.page.route.RouteLv2N1Page
+import com.example.bootdemo.ui.page.route.RouteLv2N2Page
 import com.example.bootdemo.ui.page.side.DisposeLv1Page
 import com.example.bootdemo.ui.page.side.DisposeLv2N2Page
 import com.example.bootdemo.ui.page.side.DisposeLv2Page
@@ -180,6 +185,44 @@ fun NavGraphBuilder.storeGraph() {
         }
         composable("data-store-from-shared-preferences") {
             DataStoreFromSharedPreferencesPage()
+        }
+    }
+}
+
+fun NavGraphBuilder.routeGraph() {
+    navigation("route-lv1", "route") {
+        composable(
+            "route-lv1?path={path}",
+            arguments = listOf(
+                navArgument("path") {
+                    defaultValue = "/"
+                    type = NavType.StringType
+                }
+            )
+        ) {
+            RouteLv1Page()
+        }
+        composable(
+            "route-lv2-n1?path={path}",
+            arguments = listOf(
+                navArgument("path") {
+                    defaultValue = "/"
+                    type = NavType.StringType
+                }
+            )
+        ) {
+            RouteLv2N1Page()
+        }
+        composable(
+            "route-lv2-n2?path={path}",
+            arguments = listOf(
+                navArgument("path") {
+                    defaultValue = "/"
+                    type = NavType.StringType
+                }
+            )
+        ) {
+            RouteLv2N2Page()
         }
     }
 }

@@ -135,6 +135,7 @@ fun MainScaffold(
                             lockGraph()
                             sideGraph()
                             storeGraph()
+                            routeGraph()
                         }
                         BottomBar()
                     }
