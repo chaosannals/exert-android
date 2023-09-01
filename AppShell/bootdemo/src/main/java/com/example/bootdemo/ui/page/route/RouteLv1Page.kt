@@ -13,20 +13,30 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rxjava3.subscribeAsState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.MutableLiveData
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.bootdemo.ui.LocalRouter
 import com.example.bootdemo.ui.ROUTE_ROUTE_LV1
+import io.reactivex.rxjava3.subjects.BehaviorSubject
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 
+
+// 总结：初始化时给定了默认值的，不要使用 initial ，即便 LiveData 没有 StateFlow 触发2次的问题。
 private val tickSf = MutableStateFlow(0L)
 private val tickSfi = MutableStateFlow(0L)
+private val tickShf = MutableSharedFlow<Long>()
+private val tickLd = MutableLiveData(0L)
+private val tickRx = BehaviorSubject.create<Long>()
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -53,10 +63,28 @@ fun RouteLv1Page() {
     LaunchedEffect(tickSfValue) {
         Log.d("Lv1", "[Route] Lv1 tickSf: $tickSfValue")
     }
-
-    val tickSfiValue by tickSf.collectAsState(initial = System.currentTimeMillis())
+    // 可见 State Flow 不应该使用 initial
+    val tickSfiValue by tickSfi.collectAsState(initial = System.currentTimeMillis())
     LaunchedEffect(tickSfiValue) {
         Log.d("Lv1", "[Route] Lv1 tickSf set initial: $tickSfiValue")
+    }
+
+    // Shared Flow 是正常的
+    val tickShfValue by tickShf.collectAsState(initial = System.currentTimeMillis())
+    LaunchedEffect(tickShfValue) {
+        Log.d("Lv1", "[Route] Lv1 tick Shared Flow: $tickShfValue")
+    }
+
+    // Live Data 触发正常，而且由于初始化时有默认值，也不会使用 initial 的值。
+    val tickLdValue by tickLd.observeAsState(initial = System.currentTimeMillis())
+    LaunchedEffect(tickLdValue) {
+        Log.d("Lv1", "[Route] Lv1 tick Live Data: $tickLdValue")
+    }
+
+    // Rx 是正常的
+    val tickRxValue by tickRx.subscribeAsState(System.currentTimeMillis())
+    LaunchedEffect(tickRxValue) {
+        Log.d("Lv1", "[Route] Lv1 tickRx: $tickRxValue")
     }
 
     // 如果以当前路由参数为 key 切换路由时会先触发此项。
@@ -100,6 +128,18 @@ fun RouteLv1Page() {
 
         Button(onClick = { tickSfi.value = System.currentTimeMillis() }) {
             Text(text = "时间 State Flow set initial：$tickSfiValue")
+        }
+
+        Button(onClick = { tickShf.tryEmit(System.currentTimeMillis()) }) {
+            Text(text = "时间 Shared Flow：$tickShfValue")
+        }
+
+        Button(onClick = { tickLd.value = System.currentTimeMillis() }) {
+            Text(text = "时间 Live Data：$tickLdValue")
+        }
+
+        Button(onClick = { tickRx.onNext(System.currentTimeMillis()) }) {
+            Text(text = "时间 Rx：$tickRxValue")
         }
     }
 }
