@@ -1,9 +1,13 @@
+import com.aliyun.oss.OSSClientBuilder
+import com.aliyun.oss.common.auth.CredentialsProviderFactory
+import com.google.gson.Gson
 import com.google.protobuf.gradle.* // kotlin script 需要自行引入命令空间
 import java.io.BufferedReader
 import java.io.DataOutputStream
 import java.io.InputStreamReader
 import java.net.HttpURLConnection
 import java.net.URL
+import java.util.Properties
 
 //import java.net.http.HttpClient // java11+ 才能用，gradle 要用 java8
 
@@ -145,10 +149,19 @@ protobuf {
 // local.properties 可以存 非版本控制配置
 
 abstract class BuildCustomTask: DefaultTask() {
+
     @get:Input
     @get:Option(option="message", description="some message.")
     abstract val message: Property<String>
 
+    @get:Input
+    abstract val proPath: Property<String>
+
+    @get:Input
+    abstract val txtPath: Property<String>
+
+    @get:Input
+    abstract val jsonPath: Property<String>
 
     @get:Input
     @get:Option(option="id", description="the id.")
@@ -161,7 +174,48 @@ abstract class BuildCustomTask: DefaultTask() {
 
     @TaskAction
     fun action2() {
-//        println("BuildCustomTask action2 ${id}")
+        try {
+            // 这个是环境变量设置后自动读取的，比较麻烦。
+//        val credentialsProvider = CredentialsProviderFactory.newEnvironmentVariableCredentialsProvider()
+            val properties = Properties()
+            val propertiesFile = File(proPath.get())
+            properties.load(propertiesFile.inputStream())
+            val bucket = properties.getProperty("oss.bucket")
+            val endPoint = properties.getProperty("oss.endPoint")
+            val keyId = properties.getProperty("oss.keyId")
+            val keySecret = properties.getProperty("oss.keySecret")
+            val credentialsProvider =
+                CredentialsProviderFactory.newDefaultCredentialProvider(keyId, keySecret)
+            val client = OSSClientBuilder().build(endPoint, credentialsProvider)
+            println("oss: $endPoint bucket: $bucket keyId: $keyId  keySecret: $keySecret")
+            client.putObject(bucket, "test/test.txt", File(txtPath.get()))
+
+            // JSON
+            val gson = Gson()
+            val content = File(jsonPath.get()).readText()
+            val json = gson.fromJson(content, MutableMap::class.java) as MutableMap<String, Any>
+            json.put("aaa", 123)
+            val objectValue = json.get("objectValue") as MutableMap<String, Any>
+            objectValue.put("aaa", 123)
+            println("objectValue.intValue: ${objectValue.get("intValue")}")
+
+            val target = gson.toJson(json).byteInputStream()
+            client.putObject(bucket, "test/test.json",  target)
+        }
+        catch (e: com.aliyuncs.exceptions.ClientException) {
+            println(e.errCode)
+            println(e.errMsg)
+            println(e.requestId)
+        }
+        catch (e: com.aliyun.oss.ServiceException) {
+            println(e.errorCode)
+            println(e.errorMessage)
+            println(e.rawResponseError)
+        }
+        catch (t: Throwable) {
+            println(t.message)
+            println(t.javaClass.name)
+        }
     }
 }
 
@@ -171,6 +225,9 @@ val buildCustomTask = tasks.register<BuildCustomTask>("buildCustom") {
 
     id.set(44)
     message.set("some message")
+    proPath.set(rootDir.absolutePath + "/local.properties")
+    txtPath.set(rootDir.absolutePath + "/test.txt")
+    jsonPath.set(rootDir.absolutePath + "/test.json")
 
     doFirst {
 

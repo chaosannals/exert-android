@@ -1,0 +1,8 @@
+{
+    "intValue": 123,
+    "stringValue": "test",
+    "objectValue": {
+        "intValue": 1234,
+        "boolValue": true
+    }
+}

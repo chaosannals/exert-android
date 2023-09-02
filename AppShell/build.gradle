@@ -13,7 +13,13 @@ buildscript {
         classpath "androidx.navigation:navigation-safe-args-gradle-plugin:$nav_version"
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
 
-        // Tinker 镜像仓库不支持TLSv1.2, TLSv1.3，gradle构建报错，
+        classpath "com.google.code.gson:gson:2.9.1"
+
+        // 国内的包，设置代理后会有 SSL 错误（提示：镜像仓库不支持TLSv1.2, TLSv1.3，gradle构建报错），
+        // 关闭代理 单独拉包，之后再重开代理防止其他包拉不了。
+        classpath "com.aliyun.oss:aliyun-sdk-oss:3.15.1"
+
+        // 这个好像是真的不支持 TLSv1.2, TLSv1.3，导致 gradle构建报错
         //classpath 'com.tencent.tinker:tinker-patch-gradle-plugin:1.9.1'
     }
     repositories {

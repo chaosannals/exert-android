@@ -1,4 +1,9 @@
 import javax.inject.Inject
+import com.google.gson.*
+import com.aliyun.oss.*
+import com.aliyun.oss.common.auth.*
+
+import java.nio.charset.Charset
 
 plugins {
     id 'com.android.application'
@@ -128,6 +133,8 @@ protobuf {
 
 abstract class BuildCustomTask extends DefaultTask {
     private String message
+    private String jsonPath
+    private String proPath
     private final WorkerExecutor workerExecutor
     private final FileSystemOperations fileSystemOperations
 
@@ -137,19 +144,62 @@ abstract class BuildCustomTask extends DefaultTask {
         this.fileSystemOperations = fileSystemOperations
     }
 
-    @Option(option = "url", description = "some message.")
+    @Option(option = "message", description = "some message.")
     void setMessage(String message) {
         this.message = message
     }
 
     @Input
     String getMessage() {
-        return url
+        return message
+    }
+
+    @Option(option = "jsonPath", description = "jsonPath.")
+    void setJsonPath(String jsonPath) {
+        this.jsonPath = jsonPath
+    }
+
+    @Input
+    String getJsonPath() {
+        return jsonPath
+    }
+
+    @Option(option = "proPath", description = "properties Path.")
+    void setProPath(String proPath) {
+        this.proPath = proPath
+    }
+
+    @Input
+    String getProPath() {
+        return proPath
     }
 
     @TaskAction
     void doAction1() {
+        def properties = new Properties()
+        def propertiesFile = new File(proPath)
+        properties.load(propertiesFile.newDataInputStream())
+        def bucket = properties.getProperty("oss.bucket")
+        def endPoint = properties.getProperty("oss.endPoint")
+        def keyId = properties.getProperty("oss.keyId")
+        def keySecret = properties.getProperty("oss.keySecret")
 
+        println("oss: $endPoint bucket: $bucket keyId: $keyId  keySecret: $keySecret")
+        def credentialsProvider = CredentialsProviderFactory.newDefaultCredentialProvider(keyId, keySecret)
+        def client = (new OSSClientBuilder()).build(endPoint, credentialsProvider)
+
+
+        def gson = new Gson()
+        def content = new String((new File(jsonPath)).readBytes(), Charset.forName("UTF-8"))
+        def json = gson.fromJson(content, HashMap.class)
+
+        json.put("aaa", 123)
+        json.put("intValue", 456)
+        def objectValue = json.get("objectValue")
+        objectValue.put("intValue", 9999999)
+
+        def target = new ByteArrayInputStream(gson.toJson(json).bytes)
+        client.putObject(bucket, "test/test2.json", target)
     }
 
     @TaskAction
@@ -160,6 +210,8 @@ abstract class BuildCustomTask extends DefaultTask {
 
 def buildCustom = tasks.register("buildCustom", BuildCustomTask) {
     message = "some message"
+    jsonPath = rootDir.absolutePath + "/test.json"
+    proPath = rootDir.absolutePath + "/local.properties"
 
     configure {
 
