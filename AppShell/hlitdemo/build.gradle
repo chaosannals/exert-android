@@ -209,6 +209,8 @@ abstract class BuildCustomTask extends DefaultTask {
 }
 
 def buildCustom = tasks.register("buildCustom", BuildCustomTask) {
+    group = "custom"
+
     message = "some message"
     jsonPath = rootDir.absolutePath + "/test.json"
     proPath = rootDir.absolutePath + "/local.properties"
@@ -223,6 +225,8 @@ def buildCustom = tasks.register("buildCustom", BuildCustomTask) {
 }
 
 def buildCustom2 = task("buildCustom2") {
+    group = "custom"
+
     configure {
         dependsOn(
             provider {
@@ -245,6 +249,8 @@ def buildCustom2 = task("buildCustom2") {
 }
 
 def buildCustom3 = task("buildCustom3") {
+    group = "custom"
+    
     configure {
         mustRunAfter buildCustom // 这个可以在没有依赖下确保执行顺序
     }

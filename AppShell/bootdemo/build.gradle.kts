@@ -221,6 +221,8 @@ abstract class BuildCustomTask: DefaultTask() {
 
 // task 会有提示：推荐通过 tasks.register 注册
 val buildCustomTask = tasks.register<BuildCustomTask>("buildCustom") {
+    group = "custom"
+
     println("BuildCustomTask register")
 
     id.set(44)
@@ -239,6 +241,8 @@ val buildCustomTask = tasks.register<BuildCustomTask>("buildCustom") {
 }
 
 tasks.register("buildCustom2") {
+    group = "custom"
+
     doFirst {
 
     }
@@ -274,6 +278,8 @@ abstract class BuildCustom3Task: DefaultTask() {
 
 // kotlin 特有的写法
 val buildCustom3 by tasks.registering(BuildCustom3Task::class) {
+    group = "custom"
+
     val hereDirectory = file("./") // 这个是 build.kts 文件所在目录
 
     doLast {
