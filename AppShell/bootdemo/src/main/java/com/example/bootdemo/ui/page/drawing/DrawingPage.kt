@@ -40,6 +40,7 @@ fun DrawingPage() {
 //        DrawingButton("GLSL SKSL", "glsl-sksl")
         DrawingButton("Wheel", "wheel")
         DrawingButton("Coil Gif Svg", "coil-gif")
+        DrawingButton("Screen Record", "screen-record")
     }
 }
 

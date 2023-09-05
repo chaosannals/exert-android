@@ -17,6 +17,7 @@ import com.example.bootdemo.ui.page.canback.CanBackPage
 import com.example.bootdemo.ui.page.drawing.CoilGifPage
 import com.example.bootdemo.ui.page.drawing.DrawingPage
 import com.example.bootdemo.ui.page.drawing.GlslSkslPage
+import com.example.bootdemo.ui.page.drawing.ScreenRecordPage
 import com.example.bootdemo.ui.page.drawing.WheelPage
 import com.example.bootdemo.ui.page.filesystem.FileSystemPage
 import com.example.bootdemo.ui.page.filesystem.PickVisualMediaPage
@@ -94,6 +95,9 @@ fun NavGraphBuilder.drawingGraph() {
         }
         composable("coil-gif") {
             CoilGifPage()
+        }
+        composable("screen-record") {
+            ScreenRecordPage()
         }
     }
 }
