@@ -15,6 +15,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.tooling.preview.Preview
 
+// TODO
 @Composable
 fun ScreenRecord2Page() {
     val context = LocalContext.current
@@ -41,13 +42,7 @@ fun ScreenRecord2Page() {
         contract =  ActivityResultContracts.StartActivityForResult()
     ) {
         if (it.resultCode == Activity.RESULT_OK) {
-//            val intent = Intent(context, ScreenRecordService::class.java)
-//            intent.putExtra("code", it.resultCode)
-//            intent.putExtra("data", it.data)
-//            intent.putExtra("dpi", metrics.densityDpi)
-//            intent.putExtra("width", metrics.widthPixels)
-//            intent.putExtra("height", metrics.heightPixels)
-//            context.startForegroundService(intent)
+
         }
     }
 }
