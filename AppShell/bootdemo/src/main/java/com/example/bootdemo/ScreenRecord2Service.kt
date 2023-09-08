@@ -20,7 +20,7 @@ import android.os.IBinder
 import android.view.Surface
 import java.io.File
 
-// TODO 
+// TODO
 class ScreenRecord2Service() : Service() {
     private val MIME_TYPE = "video/avc" // H.264 Advanced
     private val FRAME_RATE = 30 // 30 fps

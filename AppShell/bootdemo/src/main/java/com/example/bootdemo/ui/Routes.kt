@@ -1,5 +1,7 @@
 package com.example.bootdemo.ui
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
@@ -32,6 +34,7 @@ import com.example.bootdemo.ui.page.lock.MutexPage
 import com.example.bootdemo.ui.page.route.RouteLv1Page
 import com.example.bootdemo.ui.page.route.RouteLv2N1Page
 import com.example.bootdemo.ui.page.route.RouteLv2N2Page
+import com.example.bootdemo.ui.page.route.RouteLv2N3Page
 import com.example.bootdemo.ui.page.side.DisposeLv1Page
 import com.example.bootdemo.ui.page.side.DisposeLv2N2Page
 import com.example.bootdemo.ui.page.side.DisposeLv2Page
@@ -196,6 +199,7 @@ fun NavGraphBuilder.storeGraph() {
 const val ROUTE_ROUTE_LV1 = "route-lv1?path={path}"
 const val ROUTE_ROUTE_LV2_N1 = "route-lv2-n1?path={path}"
 const val ROUTE_ROUTE_LV2_N2 = "route-lv2-n2?path={path}"
+const val ROUTE_ROUTE_LV2_N3 = "route-lv2-n3?path={path}"
 
 fun NavGraphBuilder.routeGraph() {
     navigation("route-lv1", "route") {
@@ -231,6 +235,17 @@ fun NavGraphBuilder.routeGraph() {
             )
         ) {
             RouteLv2N2Page()
+        }
+        composable(
+            ROUTE_ROUTE_LV2_N3,
+            arguments = listOf(
+                navArgument("path") {
+                    defaultValue = "/"
+                    type = NavType.StringType
+                }
+            )
+        ) {
+            RouteLv2N3Page()
         }
     }
 }

@@ -31,7 +31,6 @@ import com.example.bootdemo.MainActivity
 import com.example.bootdemo.ScreenRecordService
 import com.example.bootdemo.screenRecordTip
 
-@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun ScreenRecordPage() {
     val context = LocalContext.current
@@ -162,7 +161,6 @@ fun ScreenRecordPage() {
     }
 }
 
-@RequiresApi(Build.VERSION_CODES.O)
 @Preview
 @Composable
 fun ScreenRecordPagePreview() {

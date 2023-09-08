@@ -117,6 +117,11 @@ fun RouteLv1Page() {
         }) {
             Text("Lv2N2")
         }
+        Button(onClick = {
+            router.navigate("route-lv2-n3?path=$text")
+        }) {
+            Text("Lv2N3")
+        }
 
         Button(onClick = { tick = System.currentTimeMillis().toString() }) {
             Text(text = "时间：$tick")
