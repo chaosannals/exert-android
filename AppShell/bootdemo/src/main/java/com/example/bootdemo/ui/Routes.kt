@@ -26,6 +26,7 @@ import com.example.bootdemo.ui.page.filesystem.PickVisualMediaPage
 import com.example.bootdemo.ui.page.layout.ImePage
 import com.example.bootdemo.ui.page.layout.InputMethodPage
 import com.example.bootdemo.ui.page.layout.LayoutPage
+import com.example.bootdemo.ui.page.layout.Lazy2RowListPage
 import com.example.bootdemo.ui.page.lock.CancelPage
 import com.example.bootdemo.ui.page.lock.CoroutinePage
 import com.example.bootdemo.ui.page.lock.LockPage
@@ -135,6 +136,9 @@ fun NavGraphBuilder.layoutGraph() {
         }
         composable("input-method") {
             InputMethodPage()
+        }
+        composable("lazy-2row-list") {
+            Lazy2RowListPage()
         }
     }
 }

@@ -40,6 +40,7 @@ fun LayoutPage() {
     ) {
         LayoutButton("Ime", "ime")
         LayoutButton("Input Method", "input-method")
+        LayoutButton("Lazy 2Row List", "lazy-2row-list")
     }
 }
 
