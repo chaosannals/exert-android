@@ -15,3 +15,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "BuildScriptDemo"
 include(":app")
+include(":layoutdemo")
