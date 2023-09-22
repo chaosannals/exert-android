@@ -13,7 +13,9 @@ import com.example.layoutdemo.ui.widget.RouteButtonConf
 fun IndexPage() {
     val routes = remember {
         mutableStateListOf(
-            RouteButtonConf(text="Drawer Button", route="drawer-button")
+            RouteButtonConf(text="Drawer Button", route="drawer-button"),
+            RouteButtonConf(text="Modifier Old", route="modifier-old"),
+            RouteButtonConf(text="Modifier 150", route="modifier-150"),
         )
     }
 
