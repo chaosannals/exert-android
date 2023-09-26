@@ -161,7 +161,10 @@ keytool -exportcert -alias key0 -keystore /c/path/to/key.jks -file /c/path/to/ke
 # -export 和 -exportcert 目前看是一样的
 keytool -export -alias key0 -keystore /c/path/to/key.jks -file /c/path/to/key.cer
 # Windows 下 打开 .cer 文件可以查看  详细信息  里面有  公钥
-# TODO 找到命令直接输出 公钥
+# TODO 找到命令直接输出 公钥 hex 格式
+
+# 打印 公钥 和 证书 base64 格式
+keytool -list -rfc --keystore /c/path/to/key.jks | openssl x509 -inform pem -pubkey
 
 # 上面的指令 老版本加 -v 参数可以输出 MD5 指纹
 # 此版的证书 java8 带的 keytool 无法识别
