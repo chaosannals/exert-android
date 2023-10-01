@@ -275,3 +275,11 @@ navController.popBackStack()
 ```
 https://picsum.photos/id/$pid/400/400.jpg
 ```
+
+## 代理
+
+```
+Auto-detect proxy settings:
+腾讯： https://mirrors.cloud.tencent.com/AndroidSDK/
+阿里： https://mirrors.aliyun.com/android.googlesource.com/
+```
