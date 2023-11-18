@@ -1,11 +1,16 @@
 package com.example.appshell.ui.widget
 
+import android.Manifest
+import android.app.Activity
 import android.content.ContentUris
 import android.content.Context
 import android.net.Uri
 import android.os.Build
 import android.provider.MediaStore
 import android.util.Log
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.RequiresApi
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -38,6 +43,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.zIndex
 import coil.compose.AsyncImage
+import com.example.appshell.ui.ensurePermit
 import com.example.appshell.ui.sdp
 import com.example.appshell.ui.sizeText
 import com.example.appshell.ui.ssp
@@ -78,7 +84,7 @@ private fun SnapshotStateList<ImagePickerItem>.loadImageItems(context: Context) 
         val nameColumn =
             cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DISPLAY_NAME)
         val sizeColumn = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.SIZE)
-
+        val b = cursor.moveToFirst()
         while (cursor.moveToNext()) {
             val id = cursor.getLong(idColumn)
             val name = cursor.getString(nameColumn)
@@ -128,8 +134,20 @@ fun ImagePicker(
         itemsList.loadImageItems(context)
     }
 
-    LaunchedEffect(visible) {
-        update()
+    val launcher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission()
+    ) {
+        if (it) {
+            update()
+        }
+    }
+
+    LaunchedEffect(Unit) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            launcher.launch(Manifest.permission.READ_MEDIA_IMAGES)
+        } else {
+            launcher.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
+        }
     }
 
     AnimatedVisibility(

@@ -1,11 +1,14 @@
 package com.example.appshell.ui.widget
 
+import android.Manifest
 import android.content.ContentUris
 import android.content.Context
 import android.net.Uri
 import android.os.Build
 import android.provider.MediaStore
 import android.util.Log
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -45,6 +48,7 @@ import com.example.appshell.VideoKit.loadVideoThumb
 import com.example.appshell.ui.sdp
 import com.example.appshell.ui.sizeText
 import com.example.appshell.ui.ssp
+import java.util.concurrent.TimeUnit
 import kotlin.time.Duration
 import kotlin.time.DurationUnit
 import kotlin.time.toDuration
@@ -75,8 +79,10 @@ private fun SnapshotStateList<VideoPickerItem>.loadVideoItems(context: Context) 
         MediaStore.Video.Media.DURATION,
         MediaStore.Video.Media.SIZE
     )
-    val selection = ""
-    val selectionArgs = arrayOf<String>()
+    val selection = "${MediaStore.Video.Media.DURATION} >= ?"
+    val selectionArgs = arrayOf(
+        TimeUnit.MILLISECONDS.convert(1, TimeUnit.SECONDS).toString()
+    )
     val sortOrder = "${MediaStore.Video.Media.DISPLAY_NAME} DESC"
     val query = context.contentResolver.query(
         collection,
@@ -163,8 +169,20 @@ fun VideoPicker(
         derivedStateOf { viewItem?.uri }
     }
 
-    LaunchedEffect(visible) {
-        update()
+    val launcher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission()
+    ) {
+        if (it) {
+            update()
+        }
+    }
+
+    LaunchedEffect(Unit) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            launcher.launch(Manifest.permission.READ_MEDIA_VIDEO)
+        } else {
+            launcher.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
+        }
     }
 
     AnimatedVisibility(
