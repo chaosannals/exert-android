@@ -39,6 +39,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
@@ -71,9 +72,11 @@ import coil.compose.AsyncImage
 import coil.decode.GifDecoder
 import coil.decode.ImageDecoderDecoder
 import coil.decode.VideoFrameDecoder
+import com.example.jcm3ui.ui.routeTo
 import com.example.jcm3ui.ui.sdp
 import com.example.jcm3ui.ui.sf
 import com.example.jcm3ui.ui.ssp
+import kotlinx.coroutines.flow.MutableStateFlow
 
 enum class FileFilter(
     val title: String,
@@ -102,10 +105,12 @@ data class FileFilterOption(
     val count: Int,
 )
 
+
 enum class FileType {
     Image,
     Video,
 }
+
 
 data class FileStat(
     val id: Long,
@@ -412,6 +417,8 @@ fun FilePickBoxPreview() {
     )
 }
 
+val filePickSelectItemsSubject = MutableStateFlow<List<FileStat>>(listOf())
+
 @Preview()
 @Composable
 fun FilePickPage() {
@@ -454,9 +461,8 @@ fun FilePickPage() {
     val permissions = remember() {
         mutableStateMapOf<String, Boolean>()
     }
-    val selectItems = remember() {
-        mutableStateListOf<FileStat>()
-    }
+    val selectItems by filePickSelectItemsSubject.collectAsState()
+
     val selectIds by remember(selectItems) {
         derivedStateOf {
             selectItems.map{ it.id }.toSet()
@@ -534,7 +540,7 @@ fun FilePickPage() {
             ) {
                 Text(text = filter.title)
                 Icon(
-                    imageVector = if (showPopup) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
+                    imageVector = if (showPopup) Icons.Default.KeyboardArrowDown else Icons.Default.KeyboardArrowUp,
                     contentDescription = "箭头",
                     tint=Color(0xFF666666),
                     modifier = Modifier
@@ -662,12 +668,12 @@ fun FilePickPage() {
                     isSelect = isSelect,
                     onClickSelect = {
                         if (isSelect) {
-                            selectItems.removeIf {
-                                it.id == stat.id
+                            filePickSelectItemsSubject.value = selectItems.filter {
+                                it.id != stat.id
                             }
                         } else {
                             if (selectItems.size < pickMaxCount) {
-                                selectItems.add(stat)
+                                filePickSelectItemsSubject.value = selectItems + stat
                             }
                         }
                     },
@@ -722,6 +728,9 @@ fun FilePickPage() {
                 text = "预览",
                 color=Color(0xFF04A3FC),
                 fontSize=14.ssp,
+                modifier = Modifier.clickable {
+                    routeTo("demo/file-view")
+                }
             )
             Box(
                 contentAlignment=Alignment.Center,

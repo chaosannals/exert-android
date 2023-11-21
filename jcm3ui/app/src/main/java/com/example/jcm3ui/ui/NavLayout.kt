@@ -32,7 +32,11 @@ fun NavLayout() {
 
     LaunchedEffect(navController) {
         routeEventSubject.collect {
-            navController.navigate(it)
+            if (it == "[back]") {
+                navController.popBackStack()
+            } else {
+                navController.navigate(it)
+            }
         }
     }
 
