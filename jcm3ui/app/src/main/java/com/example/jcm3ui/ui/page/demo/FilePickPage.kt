@@ -3,9 +3,11 @@ package com.example.jcm3ui.ui.page.demo
 import android.Manifest
 import android.content.ContentUris
 import android.content.Context
+import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Build
 import android.provider.MediaStore
+import android.util.Size
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
@@ -17,6 +19,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -65,6 +68,7 @@ import androidx.compose.ui.window.PopupProperties
 import androidx.compose.ui.zIndex
 import coil.ImageLoader
 import coil.compose.AsyncImage
+import coil.decode.GifDecoder
 import coil.decode.ImageDecoderDecoder
 import coil.decode.VideoFrameDecoder
 import com.example.jcm3ui.ui.sdp
@@ -111,11 +115,13 @@ data class FileStat(
     val duration: Int?=null,
     val size: Int,
     val type: FileType,
+//    val thumbnail: Bitmap?,
 )
 
 // 图片
 fun Context.loadImagesStats(
     filter: FileFilter,
+    isLoadThumbnail: Boolean,
 ): List<FileStat>? {
     val collection = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
         MediaStore.Images.Media.getContentUri(MediaStore.VOLUME_EXTERNAL)
@@ -161,6 +167,12 @@ fun Context.loadImagesStats(
                 MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
                 id
             )
+//            val thumbnail = if (isLoadThumbnail && Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+//                contentResolver.loadThumbnail(contentUri, Size(256, 256), null)
+//            } else {
+//                null
+//            }
+
             result.add(
                 FileStat(
                     id = id,
@@ -169,6 +181,7 @@ fun Context.loadImagesStats(
                     path = path,
                     size = size,
                     type = FileType.Image,
+//                    thumbnail = thumbnail
                 )
             )
         } while(cursor.moveToNext())
@@ -179,6 +192,7 @@ fun Context.loadImagesStats(
 // 视频
 fun Context.loadVideosStats(
     filter: FileFilter,
+    isLoadThumbnail: Boolean,
 ): List<FileStat>? {
     val collection = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
         MediaStore.Video.Media.getContentUri(MediaStore.VOLUME_EXTERNAL)
@@ -227,6 +241,11 @@ fun Context.loadVideosStats(
                 MediaStore.Video.Media.EXTERNAL_CONTENT_URI,
                 id
             )
+//            val thumbnail = if (isLoadThumbnail && Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+//                contentResolver.loadThumbnail(contentUri, Size(256, 256), null)
+//            } else {
+//                null
+//            }
             result.add(
                 FileStat(
                     id = id,
@@ -236,6 +255,7 @@ fun Context.loadVideosStats(
                     size = size,
                     duration = duration,
                     type = FileType.Video,
+//                    thumbnail = thumbnail,
                 )
             )
         } while(cursor.moveToNext())
@@ -246,28 +266,29 @@ fun Context.loadVideosStats(
 fun Context.loadFileStats(
     permissions: Map<String, Boolean>,
     filter: FileFilter,
+    isLoadThumbnail: Boolean,
 ): List<FileStat> {
     val fileStats = mutableListOf<FileStat>()
     for (it in permissions) {
         if (!it.value) continue
         when (it.key) {
             Manifest.permission.READ_MEDIA_IMAGES -> {
-                loadImagesStats(filter)?.let {
+                loadImagesStats(filter, isLoadThumbnail)?.let {
                     fileStats.addAll(it)
                 }
             }
 
             Manifest.permission.READ_MEDIA_VIDEO -> {
-                loadVideosStats(filter)?.let {
+                loadVideosStats(filter, isLoadThumbnail)?.let {
                     fileStats.addAll(it)
                 }
             }
 
             Manifest.permission.READ_EXTERNAL_STORAGE -> {
-                loadImagesStats(filter)?.let {
+                loadImagesStats(filter, isLoadThumbnail)?.let {
                     fileStats.addAll(it)
                 }
-                loadVideosStats(filter)?.let {
+                loadVideosStats(filter, isLoadThumbnail)?.let {
                     fileStats.addAll(it)
                 }
             }
@@ -280,7 +301,7 @@ fun Context.loadByFilterAll(
     permissions: Map<String, Boolean>,
 ): List<FileFilterOption> {
     return FileFilter.values().map {
-        val fileStats = loadFileStats(permissions, it)
+        val fileStats = loadFileStats(permissions, it, false)
         FileFilterOption(
             filter = it,
             firstStat = fileStats.firstOrNull(),
@@ -294,55 +315,62 @@ fun FilePickBox(
     stat: FileStat,
     isSelect: Boolean,
     imageLoader: ImageLoader,
+    thumbnail: Bitmap?,
     onClickSelect: () -> Unit,
 ) {
     Box (
-        contentAlignment=Alignment.Center,
-        modifier = Modifier
-            .size(90.sdp)
-            .clip(RectangleShape)
+        contentAlignment = Alignment.Center,
+        modifier= Modifier
+            .aspectRatio(1f)
     ) {
         Box(
-            contentAlignment=Alignment.Center,
+            contentAlignment = Alignment.Center,
             modifier = Modifier
-                .zIndex(4f)
-                .align(Alignment.TopEnd)
-                .padding(top = 7.sdp, end = 7.sdp)
-                .size(15.sdp)
-                .background(
-                    if (isSelect) Color(0xFF04A3FC) else Color.White,
-                    RoundedCornerShape(2.sdp)
-                )
-                .border(
-                    BorderStroke(0.5.sdp, Color(0xFFEDEDED)),
-                    RoundedCornerShape(2.sdp)
-                )
-                .clickable {
-                    onClickSelect()
-                },
+                .size(90.sdp)
+                .background(Color.White)
+                .clip(RectangleShape)
         ) {
-            if (isSelect) {
-                Icon(
-                    imageVector = Icons.Default.Check,
-                    contentDescription = "选中",
-                    tint=Color.White,
-                    modifier = Modifier.size(11.sdp),
-                )
+            Box(
+                contentAlignment = Alignment.Center,
+                modifier = Modifier
+                    .zIndex(4f)
+                    .align(Alignment.TopEnd)
+                    .padding(top = 7.sdp, end = 7.sdp)
+                    .size(15.sdp)
+                    .background(
+                        if (isSelect) Color(0xFF04A3FC) else Color.White,
+                        RoundedCornerShape(2.sdp)
+                    )
+                    .border(
+                        BorderStroke(0.5.sdp, Color(0xFFEDEDED)),
+                        RoundedCornerShape(2.sdp)
+                    )
+                    .clickable {
+                        onClickSelect()
+                    },
+            ) {
+                if (isSelect) {
+                    Icon(
+                        imageVector = Icons.Default.Check,
+                        contentDescription = "选中",
+                        tint = Color.White,
+                        modifier = Modifier.size(11.sdp),
+                    )
+                }
             }
+
+
+
+            AsyncImage(
+                model = thumbnail ?: stat.contentUri,
+                imageLoader = imageLoader,
+                contentDescription = "文件",
+                contentScale = ContentScale.Crop,
+                alignment = Alignment.Center,
+                modifier = Modifier
+                    .fillMaxSize()
+            )
         }
-        AsyncImage(
-            model = stat.contentUri,
-            imageLoader = imageLoader,
-            contentDescription = "文件",
-            contentScale = ContentScale.Crop,
-            alignment = Alignment.Center,
-            modifier = Modifier
-                .fillMaxSize()
-        )
-//                    Text(
-//                        text = "(${stat.name}) ${stat.contentUri} => ${stat.path}",
-//                        color = Color.Black,
-//                    )
     }
 }
 
@@ -358,7 +386,11 @@ fun FilePickBoxPreview() {
         derivedStateOf {
             ImageLoader.Builder(context)
                 .components {
-                    add(ImageDecoderDecoder.Factory())
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                        add(ImageDecoderDecoder.Factory())
+                    } else {
+                        add(GifDecoder.Factory())
+                    }
                     add(VideoFrameDecoder.Factory())
                 }.build()
         }
@@ -371,11 +403,12 @@ fun FilePickBoxPreview() {
             "测试",
             "WeiXin",
             size=1000,
-            type = FileType.Image
+            type = FileType.Image,
         ),
         isSelect = isSelect,
         onClickSelect = { isSelect = !isSelect },
         imageLoader=imageLoader,
+        thumbnail = null,
     )
 }
 
@@ -384,6 +417,10 @@ fun FilePickBoxPreview() {
 fun FilePickPage() {
     val context = LocalContext.current
     val inspectionMode = LocalInspectionMode.current
+
+//    val thumbnailMap = remember() {
+//        mutableStateMapOf<Uri, Bitmap>()
+//    }
 
     val imageLoader by remember(context) {
         derivedStateOf {
@@ -404,17 +441,14 @@ fun FilePickPage() {
         mutableStateOf(FileFilter.All)
     }
     val filterOptions = remember(inspectionMode) {
-        if (inspectionMode) {
-            mutableStateListOf<FileFilterOption>(
-                FileFilterOption(
+        mutableStateListOf<FileFilterOption>().apply {
+            if (inspectionMode) {
+                add(FileFilterOption(
                     filter = FileFilter.All,
                     firstStat = null,
                     count = 100
-                )
-            )
-        }
-        else {
-            mutableStateListOf<FileFilterOption>()
+                ))
+            }
         }
     }
     val permissions = remember() {
@@ -439,7 +473,7 @@ fun FilePickPage() {
     // permissions 居然不触发 compose 需要 permissions.size ?
     LaunchedEffect(permissions.size, filter) {
         if (permissions.isNotEmpty()) {
-            val r = context.loadFileStats(permissions, filter)
+            val r = context.loadFileStats(permissions, filter, true)
             fileStats.clear()
             fileStats.addAll(r)
         }
@@ -579,9 +613,14 @@ fun FilePickPage() {
                                     }
                                 }
                                 Text(
-                                    text = "${it.filter.title}(${it.count})",
+                                    text = it.filter.title,
                                     color = Color(0xFF4F4F4F),
                                     fontSize = 13.ssp,
+                                )
+                                Text(
+                                    text="(${it.count})",
+                                    color=Color(0xFF999999),
+                                    fontSize=12.ssp,
                                     modifier = Modifier.weight(1f)
                                 )
                                 Icon(
@@ -633,6 +672,17 @@ fun FilePickPage() {
                         }
                     },
                     imageLoader=imageLoader,
+                    thumbnail = remember(stat) {
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                            context.contentResolver.loadThumbnail(
+                                stat.contentUri,
+                                Size(256, 256),
+                                null
+                            )
+                        } else {
+                            null
+                        }
+                    }
                 )
             }
             items(endPaddingCount) {
