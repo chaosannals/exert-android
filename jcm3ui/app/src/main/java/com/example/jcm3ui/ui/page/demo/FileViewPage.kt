@@ -45,6 +45,7 @@ import coil.decode.ImageDecoderDecoder
 import coil.decode.VideoFrameDecoder
 import com.example.jcm3ui.ui.sdp
 import com.example.jcm3ui.ui.ssp
+import com.example.jcm3ui.ui.widget.VideoExoPlayerViewer
 
 @Preview
 @Composable
@@ -141,15 +142,26 @@ fun FileViewPage() {
                 .background(Color(0x44444444))
         ) {
             currentSelect?.let {
-                AsyncImage(
-                    model = it.contentUri,
-                    contentScale = ContentScale.None,
-                    contentDescription = "原图",
-                    alignment = Alignment.Center,
-                    imageLoader=imageLoader,
-                    modifier = Modifier
-                        .fillMaxSize()
-                )
+                when (it.type) {
+                    FileType.Image -> {
+                        AsyncImage(
+                            model = it.contentUri,
+                            contentScale = ContentScale.None,
+                            contentDescription = "原图",
+                            alignment = Alignment.Center,
+                            imageLoader=imageLoader,
+                            modifier = Modifier
+                                .fillMaxSize()
+                        )
+                    }
+                    FileType.Video -> {
+                        VideoExoPlayerViewer(
+                            uri = it.contentUri,
+                            modifier = Modifier
+                                .fillMaxSize()
+                        )
+                    }
+                }
             }
         }
 

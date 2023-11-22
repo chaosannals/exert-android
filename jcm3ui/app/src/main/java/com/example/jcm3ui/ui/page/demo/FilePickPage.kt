@@ -35,6 +35,7 @@ import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.KeyboardArrowUp
+import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -52,6 +53,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.layout.ContentScale
@@ -106,9 +108,11 @@ data class FileFilterOption(
 )
 
 
-enum class FileType {
-    Image,
-    Video,
+enum class FileType(
+    val title: String,
+) {
+    Image("图片"),
+    Video("视频"),
 }
 
 
@@ -315,6 +319,20 @@ fun Context.loadByFilterAll(
     }.filter { it.count > 0 }
 }
 
+fun Int.padZero(length: Int=2) : String {
+    return toString().padStart(length, '0')
+}
+
+fun formatDuration(duration: Int): String {
+    val seconds = (duration / 1000) % 60
+    val minutes = (duration / 1000 / 60) % 60
+    val hours = (duration / 1000 / 60 / 60) % 24
+    if (hours > 0) {
+        return "${hours.padZero()}:${minutes.padZero()}:${seconds.padZero()}"
+    }
+    return "${minutes.padZero()}:${seconds.padZero()}"
+}
+
 @Composable
 fun FilePickBox(
     stat: FileStat,
@@ -364,8 +382,6 @@ fun FilePickBox(
                 }
             }
 
-
-
             AsyncImage(
                 model = thumbnail ?: stat.contentUri,
                 imageLoader = imageLoader,
@@ -375,6 +391,44 @@ fun FilePickBox(
                 modifier = Modifier
                     .fillMaxSize()
             )
+
+            if (stat.type == FileType.Video) {
+                val durationText by remember(stat.duration) {
+                    derivedStateOf {
+                        stat.duration?.let {
+                            formatDuration(it)
+                        } ?: ""
+                    }
+                }
+                Row (
+                    horizontalArrangement= Arrangement.SpaceBetween,
+                    verticalAlignment= Alignment.CenterVertically,
+                    modifier = Modifier
+                        .align(Alignment.BottomCenter)
+                        .fillMaxWidth()
+                        .height(25.sdp)
+                        .background(
+                            brush = Brush.verticalGradient(
+                                colors = listOf(
+                                    Color.Transparent,
+                                    Color(0xFF333333),
+                                )
+                            )
+                        )
+                        .padding(horizontal = 8.sdp)
+                ){
+                    Icon(
+                        imageVector = Icons.Default.PlayArrow,
+                        contentDescription = "视频标记",
+                        tint=Color.White,
+                    )
+                    Text(
+                        text = durationText,
+                        color = Color.White,
+                        fontSize = 11.ssp,
+                    )
+                }
+            }
         }
     }
 }
@@ -408,7 +462,8 @@ fun FilePickBoxPreview() {
             "测试",
             "WeiXin",
             size=1000,
-            type = FileType.Image,
+            duration=10861000,
+            type = FileType.Video,
         ),
         isSelect = isSelect,
         onClickSelect = { isSelect = !isSelect },
