@@ -18,18 +18,24 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.KeyboardArrowLeft
+import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Alignment
@@ -38,6 +44,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.zIndex
 import coil.ImageLoader
 import coil.compose.AsyncImage
 import coil.decode.GifDecoder
@@ -46,11 +53,17 @@ import coil.decode.VideoFrameDecoder
 import com.example.jcm3ui.ui.sdp
 import com.example.jcm3ui.ui.ssp
 import com.example.jcm3ui.ui.widget.VideoExoPlayerViewer
+import com.example.jcm3ui.ui.widget.rememberExoPlayer
+import com.example.jcm3ui.ui.widget.replay
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 @Preview
 @Composable
 fun FileViewPage() {
     val context = LocalContext.current
+
+    val exoPlayer = rememberExoPlayer()
 
     val imageLoader by remember(context) {
         derivedStateOf {
@@ -72,6 +85,15 @@ fun FileViewPage() {
     }
     val selects = remember(pickItems) {
         pickItems.map { it.contentUri }.toMutableStateList()
+    }
+
+    var isPlay by remember() {
+        mutableStateOf(false)
+    }
+
+    // 不这样写的话，isPlay 好像被优化导致逻辑上错误，无法在下面被改变的时候触发修改。
+    LaunchedEffect(currentSelect) {
+        isPlay = false
     }
 
     Column(
@@ -140,7 +162,36 @@ fun FileViewPage() {
                 .weight(1f)
                 .fillMaxWidth()
                 .background(Color(0x44444444))
+                .clickable {
+                    currentSelect?.let {
+                        exoPlayer?.replay(it.contentUri)
+                    }
+                }
         ) {
+            val isStop by remember(isPlay, currentSelect) {
+                derivedStateOf {
+                    !isPlay && currentSelect?.type == FileType.Video
+                }
+            }
+            if (isStop) {
+                Box(
+                    contentAlignment = Alignment.Center,
+                    modifier = Modifier
+                        .zIndex(4f)
+                        .align(Alignment.Center)
+                        .size(60.sdp)
+                        .background(Color.White, CircleShape)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.PlayArrow,
+                        contentDescription = "播放",
+                        tint = Color.Black,
+                        modifier = Modifier
+                            .size(34.sdp)
+                    )
+                }
+            }
+
             currentSelect?.let {
                 when (it.type) {
                     FileType.Image -> {
@@ -155,11 +206,16 @@ fun FileViewPage() {
                         )
                     }
                     FileType.Video -> {
-                        VideoExoPlayerViewer(
-                            uri = it.contentUri,
-                            modifier = Modifier
-                                .fillMaxSize()
-                        )
+                        exoPlayer?.apply {
+                            VideoExoPlayerViewer(
+                                uri=it.contentUri,
+                                exoPlayer = this,
+                                modifier = Modifier
+                                    .fillMaxSize()
+                            ) {
+                                isPlay = it
+                            }
+                        }
                     }
                 }
             }

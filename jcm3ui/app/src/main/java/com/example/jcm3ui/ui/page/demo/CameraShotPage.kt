@@ -7,6 +7,7 @@ import android.icu.text.SimpleDateFormat
 import android.net.Uri
 import android.os.Build
 import android.provider.MediaStore
+import android.util.Log
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -32,7 +33,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -46,6 +46,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -70,16 +71,20 @@ import coil.compose.AsyncImage
 import coil.decode.GifDecoder
 import coil.decode.ImageDecoderDecoder
 import coil.decode.VideoFrameDecoder
+import com.example.jcm3ui.ui.routeTo
 import com.example.jcm3ui.ui.sdp
 import com.example.jcm3ui.ui.sf
 import com.example.jcm3ui.ui.ssp
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import java.util.Locale
-import java.util.concurrent.Executors
 
 const val FILENAME_FORMAT = "yyyy-MM-dd-HH-mm-ss-SSS"
+
+val cameraShotContentUriSubject = MutableStateFlow<Uri?>(null)
+val cameraShotModeSubject = MutableStateFlow<FileType>(FileType.Image)
 
 fun Context.startCamera(
     cameraSelector: CameraSelector,
@@ -91,14 +96,13 @@ fun Context.startCamera(
     cameraProviderFuture.addListener({
         val cameraProvider: ProcessCameraProvider = cameraProviderFuture.get()
 
-        val preview = Preview.Builder()
-            .build()
-            .apply {
-                setSurfaceProvider(viewFinder.surfaceProvider)
-            }
-
         try {
             cameraProvider.unbindAll()
+            val preview = Preview.Builder()
+                .build()
+                .apply {
+                    setSurfaceProvider(viewFinder.surfaceProvider)
+                }
             cameraProvider.bindToLifecycle(
                 lifecycleOwner,
                 cameraSelector,
@@ -107,7 +111,7 @@ fun Context.startCamera(
             )
 
         } catch(exc: Exception) {
-
+            Log.d("camera-excepation", " ${exc.message} ${exc.stackTraceToString() }")
         }
 
     }, ContextCompat.getMainExecutor(this))
@@ -195,6 +199,12 @@ fun CameraShotPage() {
         }
     }
 
+    val mode by cameraShotModeSubject.collectAsState()
+
+    var cameraSelector by remember {
+        mutableStateOf(CameraSelector.DEFAULT_BACK_CAMERA)
+    }
+
     // cameraExecutor 是做图片和视频分析用的，此功能不需要分析。
 //    val cameraExecutor = remember {
 //        Executors.newSingleThreadExecutor()
@@ -206,13 +216,13 @@ fun CameraShotPage() {
     var durationMs by remember {
         mutableStateOf(0)
     }
-    val recorder = remember {
-        Recorder.Builder()
-            .setQualitySelector(QualitySelector.from(Quality.HIGHEST))
-            .build()
-    }
-    val videoCapture = remember(recorder) {
-        VideoCapture.withOutput(recorder)
+
+    val videoCapture = remember(cameraSelector) {
+        VideoCapture.withOutput(
+            Recorder.Builder() // recorder 和 摄像头相关，切换摄像头要重新生成 recorder
+                .setQualitySelector(QualitySelector.from(Quality.HIGHEST))
+                .build()
+        )
     }
     var recording by remember {
         mutableStateOf<Recording?>(null)
@@ -233,10 +243,6 @@ fun CameraShotPage() {
 //        }
 //    }
 
-    var mode by remember {
-        mutableStateOf(FileType.Image)
-    }
-
     var isRecord by remember {
         mutableStateOf(false)
     }
@@ -251,10 +257,6 @@ fun CameraShotPage() {
                 }
             }
         }
-    }
-
-    var cameraSelector by remember {
-        mutableStateOf(CameraSelector.DEFAULT_BACK_CAMERA)
     }
 
     val previewView = remember {
@@ -273,9 +275,7 @@ fun CameraShotPage() {
                 .reduce { acc, entry -> acc && entry }
     }
 
-    var thumbUri by remember {
-        mutableStateOf<Uri?>(null)
-    }
+    val contentUri by cameraShotContentUriSubject.collectAsState()
 
     LaunchedEffect(Unit) {
         permissionLauncher.launch(
@@ -292,6 +292,11 @@ fun CameraShotPage() {
 
     LaunchedEffect(hasPermissions, cameraSelector, mode, lifecycleOwner, previewView) {
         if (hasPermissions) {
+            recording?.apply {
+                stop()
+                close()
+            }
+            recording = null
             context.startCamera(
                 cameraSelector,
                 lifecycleOwner,
@@ -306,9 +311,8 @@ fun CameraShotPage() {
         modifier = Modifier
             .fillMaxSize()
     ) {
-        Row(
-            horizontalArrangement= Arrangement.SpaceBetween,
-            verticalAlignment= Alignment.Bottom,
+        Box(
+            contentAlignment=Alignment.Center,
             modifier = Modifier
                 .zIndex(4f)
                 .align(Alignment.TopCenter)
@@ -321,6 +325,8 @@ fun CameraShotPage() {
                 text = "取消",
                 color = Color.White,
                 fontSize=14.ssp,
+                modifier = Modifier
+                    .align(Alignment.BottomStart)
             )
 
             val durationText by remember(durationMs) {
@@ -329,12 +335,15 @@ fun CameraShotPage() {
                 }
             }
 
-            Text(
-                text = durationText,
-                color = Color.White,
-                fontSize = 12.ssp,
-            )
-            Spacer(modifier=Modifier)
+            if (isRecord) {
+                Text(
+                    text = durationText,
+                    color = Color.White,
+                    fontSize = 12.ssp,
+                    modifier = Modifier
+                        .align(Alignment.BottomCenter)
+                )
+            }
         }
 
         AndroidView(
@@ -379,14 +388,13 @@ fun CameraShotPage() {
                         modifier = Modifier
                             .padding(horizontal = 10.sdp)
                             .clickable {
-                                mode = it
+                                cameraShotModeSubject.value = it
                             }
                     )
                 }
             }
-            Row(
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically,
+            Box(
+                contentAlignment = Alignment.Center,
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(103.sdp)
@@ -395,6 +403,7 @@ fun CameraShotPage() {
             ) {
                 Box(
                     modifier = Modifier
+                        .align(Alignment.CenterStart)
                         .size(40.sdp)
                         .border(
                             0.5.sdp,
@@ -402,7 +411,7 @@ fun CameraShotPage() {
                             RoundedCornerShape(2.sdp),
                         )
                 ) {
-                    thumbUri?.let {
+                    contentUri?.let {
                         AsyncImage(
                             model = it,
                             contentDescription = "缩略图",
@@ -417,6 +426,7 @@ fun CameraShotPage() {
 
                 Box(
                     modifier = Modifier
+                        .align(Alignment.Center)
                         .size(60.sdp)
                         .drawBehind {
                             val center = Offset(size.width, size.height).div(2f)
@@ -437,7 +447,8 @@ fun CameraShotPage() {
                         .clickable {
                             if (mode == FileType.Image) {
                                 context.takePhoto(imageCapture) {
-                                    thumbUri = it
+                                    cameraShotContentUriSubject.value = it
+                                    routeTo("demo/camera-view")
                                 }
                             } else {
                                 if (isRecord) {
@@ -451,12 +462,14 @@ fun CameraShotPage() {
 
                                             is VideoRecordEvent.Finalize -> {
                                                 if (!it.hasError()) {
-                                                    thumbUri = it.outputResults.outputUri
+                                                    cameraShotContentUriSubject.value =
+                                                        it.outputResults.outputUri
                                                 } else {
                                                     recording?.close()
                                                     recording = null
                                                 }
                                                 isRecord = false
+                                                routeTo("demo/camera-view")
                                             }
                                         }
                                     }
@@ -464,34 +477,37 @@ fun CameraShotPage() {
                             }
                         }
                 )
-                Box(
-                    contentAlignment = Alignment.Center,
-                    modifier = Modifier
-                        .size(30.sdp)
-                        .drawBehind {
-                            drawCircle(
-                                color = Color.White,
-                                radius = size.width / 2f,
-                                center = Offset(size.width, size.height).div(2f),
-                                style = Stroke(
-                                    width = 0.5f.sf,
+                if (!isRecord) {
+                    Box(
+                        contentAlignment = Alignment.Center,
+                        modifier = Modifier
+                            .align(Alignment.CenterEnd)
+                            .size(30.sdp)
+                            .drawBehind {
+                                drawCircle(
+                                    color = Color.White,
+                                    radius = size.width / 2f,
+                                    center = Offset(size.width, size.height).div(2f),
+                                    style = Stroke(
+                                        width = 0.5f.sf,
+                                    )
                                 )
-                            )
-                        }
-                        .clickable {
-                            cameraSelector =
-                                if (cameraSelector == CameraSelector.DEFAULT_BACK_CAMERA) {
-                                    CameraSelector.DEFAULT_FRONT_CAMERA
-                                } else {
-                                    CameraSelector.DEFAULT_BACK_CAMERA
-                                }
-                        }
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Refresh,
-                        "切换前后摄像头",
-                        tint = Color.White,
-                    )
+                            }
+                            .clickable {
+                                cameraSelector =
+                                    if (cameraSelector == CameraSelector.DEFAULT_BACK_CAMERA) {
+                                        CameraSelector.DEFAULT_FRONT_CAMERA
+                                    } else {
+                                        CameraSelector.DEFAULT_BACK_CAMERA
+                                    }
+                            }
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Refresh,
+                            "切换前后摄像头",
+                            tint = Color.White,
+                        )
+                    }
                 }
             }
         }
