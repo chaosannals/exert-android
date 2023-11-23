@@ -444,6 +444,7 @@ fun CameraShotPage() {
                                 )
                             )
                         }
+
                         .clickable {
                             if (mode == FileType.Image) {
                                 context.takePhoto(imageCapture) {

@@ -6,6 +6,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -29,6 +30,8 @@ suspend fun routeWait(path: String) {
 @Composable
 fun NavLayout() {
     val navController = rememberNavController()
+
+    navController.currentBackStackEntryAsState()
 
     LaunchedEffect(navController) {
         routeEventSubject.collect {

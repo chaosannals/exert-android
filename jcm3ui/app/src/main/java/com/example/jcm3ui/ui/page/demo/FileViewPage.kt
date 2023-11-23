@@ -1,6 +1,7 @@
 package com.example.jcm3ui.ui.page.demo
 
 import android.os.Build
+import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -87,12 +88,13 @@ fun FileViewPage() {
         pickItems.map { it.contentUri }.toMutableStateList()
     }
 
+    // remember(currentSelect) 被优化导致逻辑上错误，在下面被改变的时候不触发 compose。
     var isPlay by remember() {
+        Log.d("remember-launched", "remember")
         mutableStateOf(false)
     }
-
-    // 不这样写的话，isPlay 好像被优化导致逻辑上错误，无法在下面被改变的时候触发修改。
     LaunchedEffect(currentSelect) {
+        Log.d("remember-launched", "launched")
         isPlay = false
     }
 
@@ -214,6 +216,7 @@ fun FileViewPage() {
                                     .fillMaxSize()
                             ) {
                                 isPlay = it
+                                Log.d("remember-launched", "isPlay ${it}")
                             }
                         }
                     }

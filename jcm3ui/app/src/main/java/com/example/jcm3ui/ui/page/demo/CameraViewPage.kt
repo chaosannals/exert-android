@@ -16,13 +16,18 @@ import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -62,6 +67,13 @@ fun CameraViewPage() {
                     add(VideoFrameDecoder.Factory())
                 }.build()
         }
+    }
+
+    var isPlay by remember() {
+        mutableStateOf(false)
+    }
+    LaunchedEffect(contentUri) {
+        isPlay = false
     }
 
     Box(
@@ -114,7 +126,9 @@ fun CameraViewPage() {
                             exoPlayer = this,
                             modifier = Modifier
                                 .fillMaxSize()
-                        )
+                        ) {
+                            isPlay = it
+                        }
                     }
                 }
             }
@@ -150,24 +164,45 @@ fun CameraViewPage() {
             }
 
             if (mode == FileType.Video) {
-                Box(
-                    contentAlignment = Alignment.Center,
-                    modifier = Modifier
-                        .align(Alignment.Center)
-                        .size(60.sdp)
-                        .background(Color.White, CircleShape)
-                        .clickable {
-                            contentUri?.let {
-                                exoPlayer?.replay(it)
-                            }
-                        }
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.PlayArrow,
-                        contentDescription = "播放",
+                if (isPlay) {
+                    Box(
                         modifier = Modifier
-                            .size(34.sdp)
-                    )
+                            .align(Alignment.Center)
+                            .size(60.sdp)
+                            .background(Color.White, CircleShape)
+                            .drawBehind {
+                                drawRect(
+                                    color = Color.Black,
+                                    size = size / 2f,
+                                    topLeft = Offset(size.width / 2f, size.height / 2f).div(2f)
+                                )
+                            }
+                            .clickable {
+                                exoPlayer?.pause()
+                            }
+                    ){}
+                } else {
+                    Box(
+                        contentAlignment = Alignment.Center,
+                        modifier = Modifier
+                            .align(Alignment.Center)
+                            .size(60.sdp)
+                            .background(Color.White, CircleShape)
+                            .clickable {
+                                contentUri?.let {
+                                    exoPlayer?.apply{
+                                        replay(it)
+                                    }
+                                }
+                            }
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.PlayArrow,
+                            contentDescription = "播放",
+                            modifier = Modifier
+                                .size(34.sdp)
+                        )
+                    }
                 }
             }
 
