@@ -26,9 +26,15 @@ import androidx.camera.video.Recording
 import androidx.camera.video.VideoCapture
 import androidx.camera.video.VideoRecordEvent
 import androidx.camera.view.PreviewView
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.interaction.Interaction
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -58,6 +64,7 @@ import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
@@ -84,7 +91,8 @@ import java.util.Locale
 const val FILENAME_FORMAT = "yyyy-MM-dd-HH-mm-ss-SSS"
 
 val cameraShotContentUriSubject = MutableStateFlow<Uri?>(null)
-val cameraShotModeSubject = MutableStateFlow<FileType>(FileType.Image)
+//val cameraShotModeSubject = MutableStateFlow<FileType>(FileType.Image)
+val cameraShotModeSubject = MutableStateFlow<FileType>(FileType.Video)
 
 fun Context.startCamera(
     cameraSelector: CameraSelector,
@@ -179,6 +187,7 @@ fun Context.takeVideo(
         .start(ContextCompat.getMainExecutor(this), onResult)
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @androidx.compose.ui.tooling.preview.Preview
 @Composable
 fun CameraShotPage() {
@@ -247,13 +256,21 @@ fun CameraShotPage() {
         mutableStateOf(false)
     }
 
+    // 最长 录制 15 秒
+    val maxDurationMs = 15 * 1000
+
     LaunchedEffect(isRecord) {
         if (isRecord) {
             durationMs = 0
             launch(Dispatchers.IO) {
+                val delayMs = 100L
                 while (true) {
-                    delay(1000)
-                    durationMs += 1000
+                    delay(delayMs)
+                    durationMs += delayMs.toInt()
+
+                    if (durationMs > maxDurationMs) {
+                        recording?.stop()
+                    }
                 }
             }
         }
@@ -424,37 +441,12 @@ fun CameraShotPage() {
                     }
                 }
 
-                Box(
-                    modifier = Modifier
-                        .align(Alignment.Center)
-                        .size(60.sdp)
-                        .drawBehind {
-                            val center = Offset(size.width, size.height).div(2f)
-                            drawCircle(
-                                color = if (mode == FileType.Video) Color(0xFFF33636) else Color.White,
-                                radius = (size.width * if (isRecord) 0.73f else 0.833f) / 2f,
-                                center = center,
-                            )
-                            drawCircle(
-                                color = Color.White,
-                                radius = size.width / 2f,
-                                center = center,
-                                style = Stroke(
-                                    width = if (isRecord) 4f.sf else 4.9f.sf,
-                                )
-                            )
-                        }
-
-                        .clickable {
-                            if (mode == FileType.Image) {
-                                context.takePhoto(imageCapture) {
-                                    cameraShotContentUriSubject.value = it
-                                    routeTo("demo/camera-view")
-                                }
-                            } else {
-                                if (isRecord) {
-                                    recording?.stop()
-                                } else {
+                val interactionSource = remember { MutableInteractionSource() }
+                LaunchedEffect(interactionSource) {
+                    interactionSource.interactions.collect {
+                        when(it) {
+                            is PressInteraction.Press -> {
+                                if (!isRecord) {
                                     recording = context.takeVideo(videoCapture) {
                                         when (it) {
                                             is VideoRecordEvent.Start -> {
@@ -474,6 +466,51 @@ fun CameraShotPage() {
                                             }
                                         }
                                     }
+                                }
+                            }
+                            is PressInteraction.Release -> {
+                                if (isRecord) {
+                                    recording?.stop()
+                                }
+                            }
+                        }
+                    }
+                }
+
+                Box(
+                    modifier = Modifier
+                        .align(Alignment.Center)
+                        .size(60.sdp)
+                        .drawBehind {
+                            val center = Offset(size.width, size.height).div(2f)
+                            drawArc(
+                                color = Color(0xFF33FF33),
+                                startAngle = -90f,
+                                sweepAngle = 360f * (durationMs.toFloat() / maxDurationMs),
+                                useCenter = true
+                            )
+                            drawCircle(
+                                color = if (mode == FileType.Video) Color(0xFFF33636) else Color.White,
+                                radius = (size.width * if (isRecord) 0.73f else 0.833f) / 2f,
+                                center = center,
+                            )
+                            drawCircle(
+                                color = Color.White,
+                                radius = size.width / 2f,
+                                center = center,
+                                style = Stroke(
+                                    width = if (isRecord) 4f.sf else 4.9f.sf,
+                                )
+                            )
+                        }
+                        .clickable(
+                            interactionSource = interactionSource,
+                            indication = null,
+                        ){
+                            if (mode == FileType.Image) {
+                                context.takePhoto(imageCapture) {
+                                    cameraShotContentUriSubject.value = it
+                                    routeTo("demo/camera-view")
                                 }
                             }
                         }
