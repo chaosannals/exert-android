@@ -16,6 +16,9 @@ import com.example.jcm3ui.ui.theme.Jcm3uiTheme
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+
+
         setContent {
             Jcm3uiTheme {
                 Surface(

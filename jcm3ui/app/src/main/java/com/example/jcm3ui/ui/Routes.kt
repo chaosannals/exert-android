@@ -8,6 +8,7 @@ import com.example.jcm3ui.ui.page.demo.CameraShotPage
 import com.example.jcm3ui.ui.page.demo.CameraViewPage
 import com.example.jcm3ui.ui.page.demo.FilePickPage
 import com.example.jcm3ui.ui.page.demo.FileViewPage
+import com.example.jcm3ui.ui.page.demo.PopupMakeDialogPage
 
 fun NavGraphBuilder.buildRootGraph() {
     composable("home") {
@@ -28,6 +29,9 @@ fun NavGraphBuilder.buildDemoGraph() {
         }
         composable("demo/camera-view") {
             CameraViewPage()
+        }
+        composable("demo/popup-make-dialog") {
+            PopupMakeDialogPage()
         }
     }
 }
