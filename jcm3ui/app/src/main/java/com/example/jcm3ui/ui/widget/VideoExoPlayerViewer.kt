@@ -72,7 +72,7 @@ fun rememberExoPlayer(): ExoPlayer? {
 }
 
 
-@OptIn(UnstableApi::class) @Composable
+@Composable
 fun VideoExoPlayerViewer(
     uri: Uri,
     modifier: Modifier = Modifier,

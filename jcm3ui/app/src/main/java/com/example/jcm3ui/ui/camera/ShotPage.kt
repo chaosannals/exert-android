@@ -76,7 +76,6 @@ import com.example.jcm3ui.cameraActivityShotPhotoEventSubject
 import com.example.jcm3ui.cameraActivityShotTypeSubject
 import com.example.jcm3ui.cameraActivityShotVideoEventSubject
 import com.example.jcm3ui.cameraRouteTo
-import com.example.jcm3ui.ui.page.demo.FILENAME_FORMAT
 import com.example.jcm3ui.ui.page.demo.FileType
 import com.example.jcm3ui.ui.page.demo.formatDuration
 import com.example.jcm3ui.ui.sdp
@@ -87,6 +86,8 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.util.Locale
+
+const val FILENAME_FORMAT = "yyyy-MM-dd-HH-mm-ss-SSS"
 
 fun Context.startCamera(
     cameraSelector: CameraSelector,
