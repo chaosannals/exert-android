@@ -40,6 +40,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -474,15 +475,34 @@ fun FilePickBoxPreview() {
 
 val filePickSelectItemsSubject = MutableStateFlow<List<FileStat>>(listOf())
 
+@Composable
+fun MutableMap<Uri, Bitmap>.rememberThumb(context: Context, uri: Uri): Bitmap? {
+    return remember(uri) {
+        if (!contains(uri)) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                val result = context.contentResolver.loadThumbnail(
+                    uri,
+                    Size(256, 256),
+                    null
+                )
+                put(uri, result)
+            } else {
+                null
+            }
+        }
+        get(uri)
+    }
+}
+
 @Preview()
 @Composable
 fun FilePickPage() {
     val context = LocalContext.current
     val inspectionMode = LocalInspectionMode.current
 
-//    val thumbnailMap = remember() {
-//        mutableStateMapOf<Uri, Bitmap>()
-//    }
+    val thumbnailMap = remember() {
+        mutableStateMapOf<Uri, Bitmap>()
+    }
 
     val imageLoader by remember(context) {
         derivedStateOf {
@@ -733,17 +753,18 @@ fun FilePickPage() {
                         }
                     },
                     imageLoader=imageLoader,
-                    thumbnail = remember(stat) {
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                            context.contentResolver.loadThumbnail(
-                                stat.contentUri,
-                                Size(256, 256),
-                                null
-                            )
-                        } else {
-                            null
-                        }
-                    }
+                    thumbnail = thumbnailMap.rememberThumb(context = context, uri = stat.contentUri),
+//                    thumbnail = remember(stat) {
+//                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+//                            context.contentResolver.loadThumbnail(
+//                                stat.contentUri,
+//                                Size(256, 256),
+//                                null
+//                            )
+//                        } else {
+//                            null
+//                        }
+//                    }
                 )
             }
             items(endPaddingCount) {
