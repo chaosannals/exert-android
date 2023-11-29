@@ -283,3 +283,17 @@ Auto-detect proxy settings:
 腾讯： https://mirrors.cloud.tencent.com/AndroidSDK/
 阿里： https://mirrors.aliyun.com/android.googlesource.com/
 ```
+
+## 常见报错
+
+```
+error: string too large to encode using UTF-8 written instead as 'STRING_TOO_LARGE'.
+```
+
+这个是由于有一些文件太大，Java 限制的内存太少了。
+
+配置 gradle.properties 把内存加大到不报错。
+
+```ini
+org.gradle.jvmargs=-Xmx4096m -Dfile.encoding=UTF-8
+```
