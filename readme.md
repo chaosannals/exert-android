@@ -290,10 +290,19 @@ Auto-detect proxy settings:
 error: string too large to encode using UTF-8 written instead as 'STRING_TOO_LARGE'.
 ```
 
+注：仍然没有解决，只要是新项目就不会，但是 2022 年建的项目升级开发库后就会。
+
+注：以下的操作有时候有效。但是还是会报这个错。
+
+注：这个报错不会影响到编译，只会出现一条报错。但是却影响到任务组合，如果 gradle 脚本组合使用了编译任务，会不执行之后的操作，第二次执行时，因为此任务已经做过有缓存会被跳过，得以继续。所以需要2次才能执行完组合任务。
+
 这个是由于有一些文件太大，Java 限制的内存太少了。
 
 配置 gradle.properties 把内存加大到不报错。
 
+
 ```ini
 org.gradle.jvmargs=-Xmx4096m -Dfile.encoding=UTF-8
+
+org.gradle.jvmargs=-Xmx8192m -Dfile.encoding=UTF-8
 ```
