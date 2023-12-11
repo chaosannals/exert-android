@@ -508,7 +508,11 @@ fun FilePickPage() {
         derivedStateOf {
             ImageLoader.Builder(context)
                 .components {
-                    add(ImageDecoderDecoder.Factory())
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                        add(ImageDecoderDecoder.Factory())
+                    } else {
+                        add(GifDecoder.Factory())
+                    }
                     add(VideoFrameDecoder.Factory())
                 }.build()
         }
