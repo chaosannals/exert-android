@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<paths xmlns:android="http://schemas.android.com/apk/res/android">
+    <!--  FileProvider.getUriForFile 使用时，新建 File 里面填的是 path ，所以 name 好像没啥用  -->
+
+    <!--  Context.getFilesDir()  -->
+    <files-path name="my_log" path="logs/" />
+
+    <!--  Context.getCacheDir()  -->
+    <cache-path name="my_cache" path="caches/"/>
+
+    <!--  Environment.getExternalStorageDirectory()  -->
+    <external-path name="my_ex" path="ex/"/>
+
+    <!--  Context.getExternalFilesDir(String?)  -->
+    <external-files-path name="my_ex_files" path="ex_files/"/>
+
+    <!--  Context.getExternalCacheDir()  -->
+    <external-cache-path name="my_ex_cache" path="ex_cache/"/>
+
+    <!--  Context.getExternalMediaDirs()  -->
+    <external-media-path name="my_ex_media" path="ex_media/" />
+</paths>

@@ -84,6 +84,9 @@ dependencies {
     implementation("io.coil-kt:coil-svg:$coilVersion")
     implementation("io.coil-kt:coil-video:$coilVersion")
 
+    // 压缩 这个库发布在 www.jitpack.io 需要配置源
+    implementation("com.github.yellowcath:VideoProcessor:2.4.2")
+
     testImplementation("junit:junit:4.13.2")
 
     androidTestImplementation("androidx.test.ext:junit:1.1.5")

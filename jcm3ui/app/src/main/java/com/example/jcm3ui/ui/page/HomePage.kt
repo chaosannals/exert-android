@@ -65,5 +65,6 @@ fun HomePage() {
         HomeButton("文件选择", "demo/file-pick")
         HomeButton("拍摄", "demo/camera-shot")
         HomeButton(title = "Popup -> Dialog 层", path = "demo/popup-make-dialog")
+        HomeButton(title = "压缩", path = "demo/compress")
     }
 }
