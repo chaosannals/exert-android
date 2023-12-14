@@ -2,6 +2,7 @@ plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
     id("androidx.navigation.safeargs")
+    id("kotlinx-serialization")
 }
 
 android {
@@ -61,6 +62,9 @@ dependencies {
     implementation("androidx.compose.ui:ui-tooling-preview")
     implementation("androidx.compose.material3:material3")
 
+    //
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.4.1")
+
     val navVersion = "2.7.5"
     implementation("androidx.navigation:navigation-compose:$navVersion")
 
@@ -84,8 +88,11 @@ dependencies {
     implementation("io.coil-kt:coil-svg:$coilVersion")
     implementation("io.coil-kt:coil-video:$coilVersion")
 
-    // 压缩 这个库发布在 www.jitpack.io 需要配置源
+    // 视频压缩 这个库没发布在中央仓库，用 www.jitpack.io 源
     implementation("com.github.yellowcath:VideoProcessor:2.4.2")
+
+    // 图片压缩 这个库没发布在中央仓库，源丢失了，可能发布的 jcenter
+//    implementation("top.zibin:Luban:1.1.8")
 
     testImplementation("junit:junit:4.13.2")
 

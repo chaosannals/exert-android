@@ -27,6 +27,8 @@ class PickActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        val type = intent.getStringExtra("type")
+
         setContent {
             val navController = rememberNavController()
 
