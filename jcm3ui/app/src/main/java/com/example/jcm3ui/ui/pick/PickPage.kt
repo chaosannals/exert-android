@@ -124,14 +124,15 @@ import java.io.File
 
 // 参数
 val pickPagePickMaxCount = MutableStateFlow(9)
+val filePickSelectItemsSubject = MutableStateFlow<List<FileStat>>(listOf())
 
 // 提到全局后性能提升了，状态保留，返回时滚动才会在原地。
 private val pickPageGridStart = MutableStateFlow(0)
 private val pickPageGridOffset = MutableStateFlow(0)
 private val pickPageFileStats = MutableStateFlow<List<FileStat>>(listOf())
 private val pickPageFilter = MutableStateFlow(FileFilter.All)
-private val pickPageUpdateAt = MutableStateFlow(0L)
-private val pickPageUpdateEvent = MutableSharedFlow<Long>()
+//private val pickPageUpdateAt = MutableStateFlow(0L)
+//private val pickPageUpdateEvent = MutableSharedFlow<Long>()
 private val pickPageUpdateScope = CoroutineScope(Dispatchers.IO)
 
 enum class FileFilter(
@@ -498,25 +499,32 @@ fun FilePickBox(
 
             val context = LocalContext.current
 
-            AsyncImage(
+            var updateAt by rememberSaveable(stat.thumbPath) {
+                mutableLongStateOf(0L)
+            }
+
+            key(updateAt) {
+                AsyncImage(
 //                model = stat.contentUri,
-                model = stat.thumbPath,
+                    model = stat.thumbPath,
 //                placeholder = rememberAsyncImagePainter(model = stat.contentUri),
-                onError = {
-                    pickPageUpdateScope.launch {
-                        if (context.ensureCache(stat) > 0) {
-                            val end = System.currentTimeMillis()
-                            pickPageUpdateEvent.emit(end)
+                    onError = {
+                        pickPageUpdateScope.launch {
+                            if (context.ensureCache(stat) > 0) {
+//                                val end = System.currentTimeMillis()
+//                                pickPageUpdateEvent.emit(end)
+                                updateAt = System.currentTimeMillis()
+                            }
                         }
-                    }
-                },
-                imageLoader = imageLoader,
-                contentDescription = "文件",
-                contentScale = ContentScale.Crop,
-                alignment = Alignment.Center,
-                modifier = Modifier
-                    .fillMaxSize()
-            )
+                    },
+                    imageLoader = imageLoader,
+                    contentDescription = "文件",
+                    contentScale = ContentScale.Crop,
+                    alignment = Alignment.Center,
+                    modifier = Modifier
+                        .fillMaxSize()
+                )
+            }
 
             if (stat.type == FileType.Video) {
                 Row (
@@ -600,8 +608,6 @@ fun FilePickBoxPreview() {
     )
 }
 
-val filePickSelectItemsSubject = MutableStateFlow<List<FileStat>>(listOf())
-
 // 没用到
 class ThumbInterceptor(
     private val context: Context,
@@ -666,15 +672,15 @@ fun PickPage(
 
     val pickMaxCount by pickPagePickMaxCount.collectAsState()
 
-    val updateAt by pickPageUpdateAt.collectAsState()
-    LaunchedEffect(updateAt) {
-        pickPageUpdateEvent.collect {
-            val d = it - updateAt
-            if (d > 1000) {
-                pickPageUpdateAt.value = it
-            }
-        }
-    }
+//    val updateAt by pickPageUpdateAt.collectAsState()
+//    LaunchedEffect(updateAt) {
+//        pickPageUpdateEvent.collect {
+//            val d = it - updateAt
+//            if (d > 1000) {
+//                pickPageUpdateAt.value = it
+//            }
+//        }
+//    }
 
     val imageLoader by remember(context) {
         derivedStateOf {
@@ -948,16 +954,7 @@ fun PickPage(
             }
         }
 
-        key(updateAt) {
-//            LazyVerticalStaggeredGrid(
-//                columns =  StaggeredGridCells.Fixed(columnCount),
-//                modifier = Modifier
-//                    .fillMaxWidth()
-//                    .weight(1f)
-//                    .background(Color(0xFFF8F8F8)),
-//                horizontalArrangement = Arrangement.SpaceBetween,
-//            ) {
-
+//        key(updateAt) {
             LazyVerticalGrid(
                 state = gridState,
                 columns = GridCells.Fixed(columnCount),
@@ -1016,7 +1013,7 @@ fun PickPage(
                     }
                 }
             }
-        }
+//        }
 
         // 底部
         Row (

@@ -142,7 +142,7 @@ fun VideoExoPlayerViewer(
         if (!isPlay) {
             AsyncImage(
                 model = uri,
-                contentDescription = "小图",
+                contentDescription = "图",
                 contentScale= ContentScale.Fit,
                 alignment = Alignment.Center,
                 imageLoader=imageLoader,

@@ -1,8 +1,12 @@
 package com.example.jcm3ui.ui.camera
 
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
+import android.graphics.BitmapFactory
+import android.net.Uri
 import android.os.Build
+import android.provider.MediaStore
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -45,11 +49,47 @@ import com.example.jcm3ui.cameraActivityShotContentUriSubject
 import com.example.jcm3ui.cameraActivityShotTypeSubject
 import com.example.jcm3ui.cameraRouteTo
 import com.example.jcm3ui.ui.page.demo.FileType
+import com.example.jcm3ui.ui.page.demo.VideoInfo
 import com.example.jcm3ui.ui.sdp
 import com.example.jcm3ui.ui.ssp
 import com.example.jcm3ui.ui.widget.VideoExoPlayerViewer
 import com.example.jcm3ui.ui.widget.rememberExoPlayer
 import com.example.jcm3ui.ui.widget.replay
+
+data class FilePickInfo(
+    val uri: String,
+    val size: Int,
+    val type: String,
+    val ext: String,
+    val duration: Float?=null,
+)
+
+private fun Context.getFileInfo(uri: Uri): FilePickInfo? {
+    val projection = arrayOf(
+        MediaStore.MediaColumns.SIZE,
+        MediaStore.MediaColumns.DATA,
+        MediaStore.MediaColumns.DURATION,
+        MediaStore.MediaColumns.MIME_TYPE,
+    )
+    return contentResolver.query(uri, projection, null, null, null)?.use {
+        val sizeIndex = it.getColumnIndexOrThrow(MediaStore.MediaColumns.SIZE)
+        val dataIndex = it.getColumnIndexOrThrow(MediaStore.MediaColumns.DATA)
+        val durationIndex = it.getColumnIndexOrThrow(MediaStore.MediaColumns.DURATION)
+        val mimeIndex = it.getColumnIndexOrThrow(MediaStore.MediaColumns.MIME_TYPE)
+        it.moveToFirst()
+        val data = it.getString(dataIndex)
+        val mime = it.getString(mimeIndex)
+        val size = it.getInt(sizeIndex)
+        val duration = it.getInt(durationIndex)
+        return FilePickInfo(
+            uri = uri.toString(),
+            size = size,
+            type = if (mime.contains("image")) "image" else "video",
+            ext = data.substringAfter(".", ""),
+            duration = duration.div(1000f)
+        )
+    }
+}
 
 @Preview
 @Composable
@@ -219,8 +259,14 @@ fun ViewPage() {
                     .align(Alignment.CenterEnd)
                     .clickable {
                         (context as? Activity)?.apply {
-                            val data = Intent()
-                            data.putExtra("uri", contentUri.toString())
+                            val info = getFileInfo(contentUri!!)!!
+                            val data = Intent().apply {
+                                putExtra("uri", contentUri.toString())
+                                putExtra("size", info.size)
+                                putExtra("type", info.type)
+                                putExtra("ext", info.ext)
+                                putExtra("duration", info.duration)
+                            }
                             setResult(Activity.RESULT_OK, data)
                             finish()
                         }
