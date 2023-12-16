@@ -90,5 +90,10 @@ fun HomePage() {
         HomeButton("拍摄", "demo/camera-shot")
         HomeButton(title = "Popup -> Dialog 层", path = "demo/popup-make-dialog")
         HomeButton(title = "压缩", path = "demo/compress")
+        HomeButton(title = "缓存", path = "demo/cache")
+
+        HomeButton(title = "布局（LazyVerticalGird）", path = "layout/lazy-vertical-grid")
+        HomeButton(title = "布局（LazyVerticalStaggeredGrid）", path = "layout/lazy-vertical-staggered-grid")
+        HomeButton(title = "布局（CustomDrawLazyVerticalGird）", path = "layout/custom-draw-lazy-vertical-grid")
     }
 }

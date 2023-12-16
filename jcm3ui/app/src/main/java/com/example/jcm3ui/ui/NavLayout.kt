@@ -53,5 +53,6 @@ fun NavLayout() {
     ) {
         buildRootGraph()
         buildDemoGraph()
+        buildLayoutGraph()
     }
 }
