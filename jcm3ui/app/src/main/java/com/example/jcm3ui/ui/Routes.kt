@@ -11,6 +11,7 @@ import com.example.jcm3ui.ui.page.demo.CompressPage
 import com.example.jcm3ui.ui.page.demo.FilePickPage
 import com.example.jcm3ui.ui.page.demo.FileViewPage
 import com.example.jcm3ui.ui.page.demo.PopupMakeDialogPage
+import com.example.jcm3ui.ui.page.demo.ThumbnailPage
 import com.example.jcm3ui.ui.page.layout.CustomDrawLazyVerticalGridPage
 import com.example.jcm3ui.ui.page.layout.LazyVerticalGridPage
 import com.example.jcm3ui.ui.page.layout.LazyVerticalStaggeredGridPage
@@ -43,6 +44,9 @@ fun NavGraphBuilder.buildDemoGraph() {
         }
         composable("demo/cache") {
             CachePage()
+        }
+        composable("demo/thumbnail") {
+            ThumbnailPage()
         }
     }
 }

@@ -146,6 +146,8 @@ private fun Context.compressVideo(source: Uri, target: Uri, sizeLimit: Int) {
 }
 
 
+
+
 // 这种方式好像已经很少被使用了。
 private fun Context.makeCache(name: String): Uri {
     val dir = File(cacheDir, "caches") // caches 是 file_paths.xml 里 path 值
@@ -180,9 +182,9 @@ private fun Context.makeVideo(name: String): Uri? {
 private fun Context.makeVideoPath(name: String): String? {
     return makeVideo(name)?.let {
         val projection = arrayOf(MediaStore.Video.Media.DATA)
-        contentResolver.query(it, projection, null, null, null)?.run {
-            val dataIndex = getColumnIndexOrThrow(MediaStore.Video.Media.DATA)
-            moveToFirst()
+        contentResolver.query(it, projection, null, null, null)?.use {
+            val dataIndex = it.getColumnIndexOrThrow(MediaStore.Video.Media.DATA)
+            it.moveToFirst()
             getString(dataIndex)
         }
     }

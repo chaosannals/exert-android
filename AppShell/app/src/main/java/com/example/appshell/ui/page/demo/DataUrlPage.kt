@@ -16,9 +16,9 @@ import com.example.appshell.ui.widget.DesignPreview
 import java.time.format.TextStyle
 
 // 完全正则匹配
-private val DATA_URL_PATTERN = Regex("data:(.+?)(;base64)?,(.+)")
+private val DATA_URL_PATTERN = Regex("data:(.+?)(;base64)?,(.+)", RegexOption.DOT_MATCHES_ALL)
 // 只正则头部信息。
-private val DATA_URL_HEAD_PATTERN = Regex("data:(.+?)(;base64)?")
+private val DATA_URL_HEAD_PATTERN = Regex("data:(.+?)(;base64)?", RegexOption.DOT_MATCHES_ALL)
 
 data class DataUrlInfo (
     val mime: String,
