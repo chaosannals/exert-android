@@ -54,6 +54,7 @@ import java.io.ByteArrayOutputStream
 import kotlin.math.ceil
 
 private data class ContentUriInfo(
+    val data: String,
     val mimeType: String,
 ) {
 
@@ -71,6 +72,7 @@ private fun Context.getContentUriInfo(uri: Uri): ContentUriInfo? {
         val data = it.getString(dataIndex)
         val mime = it.getString(mimeIndex)
         return ContentUriInfo(
+            data = data,
             mimeType = mime,
         )
     }

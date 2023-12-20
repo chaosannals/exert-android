@@ -11,7 +11,7 @@ android {
 
     defaultConfig {
         applicationId = "com.example.jcm3ui"
-        minSdk = 24
+        minSdk = 26
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
@@ -93,6 +93,19 @@ dependencies {
 
     // 图片压缩 这个库没发布在中央仓库，源丢失了，可能发布的 jcenter
 //    implementation("top.zibin:Luban:1.1.8")
+
+    val ktorVersion = "2.3.7"
+    // ktor clien
+    implementation("io.ktor:ktor-client-core:$ktorVersion")
+//    implementation("io.ktor:ktor-client-okhttp:$ktorVersion") // 服务器传输后直接断开会抛出异常。
+    implementation("io.ktor:ktor-client-android:$ktorVersion")
+    implementation("io.ktor:ktor-client-cio:$ktorVersion")
+
+    // ktor server
+    implementation("io.ktor:ktor-server-jetty:$ktorVersion") // 至少 minSDK26
+    implementation("io.ktor:ktor-server-cors:$ktorVersion") // 跨域
+    implementation("io.ktor:ktor-server-compression:$ktorVersion") // 压缩
+    implementation("io.ktor:ktor-network-tls-certificates:$ktorVersion") // 证书 SSL HTTPS
 
     testImplementation("junit:junit:4.13.2")
 
