@@ -24,6 +24,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import io.ktor.client.HttpClient
+import io.ktor.client.engine.android.Android
 import io.ktor.client.engine.cio.CIO
 import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.plugins.onDownload
@@ -68,8 +69,11 @@ import kotlin.io.path.name
 import kotlinx.serialization.encodeToString
 
 // 客户端
-private val httpClient = HttpClient(CIO) {
-    install(HttpTimeout)
+private val httpClient = HttpClient(Android) {
+//    install(HttpTimeout)
+//    engine {
+//        connectTimeout = 400000
+//    }
 }
 
 private val httpClientScope = CoroutineScope(Dispatchers.IO)
@@ -225,9 +229,9 @@ private suspend fun Context.uploadContent(target: String, uri: Uri, onProcess: (
         val fs = getContentSize(uri)
         openInputStream(uri)?.use {input ->
             val r = httpClient.put(target) {
-                timeout {
-                    requestTimeoutMillis = 100000
-                }
+//                timeout {
+//                    requestTimeoutMillis = 100000
+//                }
                 headers.run {
                     fs?.let {
                         append(HttpHeaders.ContentLength, "$it")
