@@ -7,6 +7,7 @@ import android.content.Context
 import android.net.Uri
 import android.os.Build
 import android.provider.MediaStore
+import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Column
@@ -25,21 +26,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.android.Android
-import io.ktor.client.engine.cio.CIO
-import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.plugins.onDownload
 import io.ktor.client.plugins.onUpload
-import io.ktor.client.plugins.timeout
 import io.ktor.client.request.get
 import io.ktor.client.request.put
 import io.ktor.client.request.setBody
 import io.ktor.client.statement.bodyAsText
-import io.ktor.client.utils.EmptyContent.headers
 import io.ktor.http.ContentDisposition
 import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
-import io.ktor.http.contentLength
 import io.ktor.http.contentType
 import io.ktor.server.application.call
 import io.ktor.server.application.install
@@ -125,6 +121,7 @@ private fun Context.insertCoverFormCache(
     name: String,
     mime: String,
     cache: String,
+    finalize: File.() -> Unit,
 ) {
     val contentValues = ContentValues().apply {
         put(MediaStore.MediaColumns.DISPLAY_NAME, name)
@@ -154,9 +151,33 @@ private fun Context.insertCoverFormCache(
                     inputStream().use { input ->
                         input.copyTo(output)
                     }
-                    delete()
+                    finalize()
                 }
             }
+        }
+    }
+}
+
+private fun Context.moveToDownloadFolder(
+    name: String,
+    cache: String,
+) {
+    val dir = File(dataDir, "Download").run {
+        if (exists().not()) {
+            mkdirs()
+        }
+        File(this, "Jcm3ui").apply {
+            if (exists().not()) {
+                mkdirs()
+            }
+        }
+    }
+    File(dir, name).outputStream().use {output->
+        File(cache).run{
+            inputStream().use {input ->
+                input.copyTo(output)
+            }
+            delete()
         }
     }
 }
@@ -194,31 +215,15 @@ private suspend fun Context.downloadContent(url: String, onProcess: (Long) -> Un
         else -> {
             val base = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q)
                 MediaStore.Downloads.EXTERNAL_CONTENT_URI else null
-            Pair("Downloads/Jcm3Ui", base)
+            Pair("Download/Jcm3Ui", base)
         }
     }.let {(folder, base) ->
         if (base == null) {
-            val dir = File(dataDir, "Download").apply {
-                if (exists().not()) {
-                    mkdirs()
-                }
-            }
-            File(dir, path.name).outputStream().use {output->
-                File(cache).run{
-                    inputStream().use {input ->
-                        input.copyTo(output)
-                    }
-                    delete()
-                }
-            }
+            moveToDownloadFolder(path.name, cache)
         } else {
-            insertCoverFormCache(
-                base,
-                folder,
-                path.name,
-                mime,
-                cache
-            )
+            insertCoverFormCache(base,folder,path.name,mime,cache){
+                delete()
+            }
         }
     }
 }
@@ -287,7 +292,7 @@ fun HttpPage() {
                                     respondOutputStream(
                                         ContentType.parse("image/png"),
                                         HttpStatusCode.OK,
-                                        length
+                                        length // Content-Length
                                     ) {
                                         val buffer = ByteArray(512)
                                         while (true) {
@@ -301,6 +306,47 @@ fun HttpPage() {
                                         }
                                     }
                                 }
+                            }
+                        }
+                        get("/test.zip") {
+                            try {
+                                call.run {
+                                    val path = "attachments/test.zip"
+                                    // assets 被压缩的无法使用 openFd ，详见 build.gradle androidResources noCompress, 但是这个设置一开始不起效，之后去掉又不报错了。
+                                    val length = context.assets.openFd(path).use { it.length }
+                                    response.headers.run {
+                                        append(
+                                            HttpHeaders.ContentDisposition,
+                                            ContentDisposition.Attachment.withParameter(
+                                                ContentDisposition.Parameters.FileName,
+                                                "test.zip"
+                                            ).withParameter(
+                                                ContentDisposition.Parameters.Size,
+                                                "$length"
+                                            ).toString()
+
+                                        )
+                                    }
+                                    context.assets.open(path).use { input ->
+                                        respondOutputStream(
+                                            ContentType.parse("application/zip"),
+                                            HttpStatusCode.OK,
+                                            length // png 可以，zip 不知道为什么前端拿不到。
+                                        ) {
+                                            val buffer = ByteArray(512)
+                                            while (true) {
+                                                val i = input.read(buffer)
+                                                if (i == -1) {
+                                                    break
+                                                }
+                                                write(buffer, 0, i)
+                                                //delay(1) // 延迟，让客户端显示进度条
+                                            }
+                                        }
+                                    }
+                                }
+                            } catch (t: Throwable) {
+                                Log.d("error", t.message?: "null")
                             }
                         }
 
@@ -371,6 +417,17 @@ fun HttpPage() {
             }
         ) {
             Text("下载 png")
+        }
+        Button(
+            onClick = {
+                httpClientScope.launch {
+                    context.downloadContent("http://127.0.0.1:8080/test.zip") {
+                        downloadProcess = it
+                    }
+                }
+            }
+        ) {
+            Text("下载 zip")
         }
         Text("download: $downloadProcess %")
 

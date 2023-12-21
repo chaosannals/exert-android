@@ -50,6 +50,19 @@ android {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
     }
+
+    // 不起效，assets 里的 zip 文件还是会被压缩导致不能 openFd 拿到大小。
+    // 但是之后 openFd 打开 zip 又不报错了。（可能是缓存 bug）
+//    androidResources {
+//        noCompress.add("zip")
+////        ignoreAssetsPatterns.add("!**/*.zip")
+//    }
+
+//    androidComponents {
+//        onVariants(selector().all()) {
+//            it.androidResources.noCompress.add(".zip")
+//        }
+//    }
 }
 
 dependencies {
