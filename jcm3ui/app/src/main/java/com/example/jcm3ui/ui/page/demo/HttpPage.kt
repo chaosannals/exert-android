@@ -9,7 +9,6 @@ import android.os.Build
 import android.provider.MediaStore
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.navigationBarsPadding
@@ -18,6 +17,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -25,13 +25,20 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.cio.CIO
+import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.plugins.onDownload
+import io.ktor.client.plugins.onUpload
+import io.ktor.client.plugins.timeout
 import io.ktor.client.request.get
+import io.ktor.client.request.put
+import io.ktor.client.request.setBody
 import io.ktor.client.statement.bodyAsText
+import io.ktor.client.utils.EmptyContent.headers
 import io.ktor.http.ContentDisposition
 import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
+import io.ktor.http.contentLength
 import io.ktor.http.contentType
 import io.ktor.server.application.call
 import io.ktor.server.application.install
@@ -41,26 +48,43 @@ import io.ktor.server.engine.embeddedServer
 import io.ktor.server.jetty.Jetty
 import io.ktor.server.plugins.compression.Compression
 import io.ktor.server.plugins.cors.routing.CORS
+import io.ktor.server.request.contentLength
 import io.ktor.server.response.respondOutputStream
 import io.ktor.server.response.respondText
 import io.ktor.server.routing.get
+import io.ktor.server.routing.put
 import io.ktor.server.routing.routing
 import io.ktor.util.InternalAPI
-import io.ktor.util.extension
 import io.ktor.utils.io.jvm.nio.copyTo
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.serialization.json.Json
 import java.io.File
 import java.io.RandomAccessFile
 import java.util.UUID
 import kotlin.io.path.Path
 import kotlin.io.path.name
+import kotlinx.serialization.encodeToString
 
 // 客户端
-private val httpClient = HttpClient(CIO) {}
+private val httpClient = HttpClient(CIO) {
+    install(HttpTimeout)
+}
 
 private val httpClientScope = CoroutineScope(Dispatchers.IO)
+
+private fun ContentResolver.getContentSize(
+    uri: Uri
+): Int? {
+    val projection = arrayOf(
+        MediaStore.MediaColumns.SIZE,
+    )
+    return query(uri, projection, null, null, null)?.use {
+        val dataIndex = it.getColumnIndexOrThrow(MediaStore.MediaColumns.SIZE)
+        return if (it.moveToFirst()) it.getInt(dataIndex) else null
+    }
+}
 
 private fun ContentResolver.getContentData(
     base: Uri,
@@ -195,6 +219,31 @@ private suspend fun Context.downloadContent(url: String, onProcess: (Long) -> Un
     }
 }
 
+private suspend fun Context.uploadContent(target: String, uri: Uri, onProcess: (Long) -> Unit): String?  {
+    return contentResolver.run {
+        //val fs = openFileDescriptor(uri, "rs")?.use { it.statSize } ?: 1 // 这个需要 MANAGE_DOCUMENTS 权限
+        val fs = getContentSize(uri)
+        openInputStream(uri)?.use {input ->
+            val r = httpClient.put(target) {
+                timeout {
+                    requestTimeoutMillis = 100000
+                }
+                headers.run {
+                    fs?.let {
+                        append(HttpHeaders.ContentLength, "$it")
+                    }
+                }
+                onUpload { b, c ->
+                    onProcess((b * 99).floorDiv(c))
+                }
+                setBody(input)
+            }
+            onProcess(100)
+            r.bodyAsText()
+        }
+    }
+}
+
 @Composable
 fun HttpPage() {
     val context = LocalContext.current
@@ -208,6 +257,7 @@ fun HttpPage() {
                 connector {
                     host = "0.0.0.0"
                     port = 8080
+
                 }
                 module {
                     install(CORS)
@@ -246,6 +296,20 @@ fun HttpPage() {
                                             //delay(1) // 延迟，让客户端显示进度条
                                         }
                                     }
+                                }
+                            }
+                        }
+
+                        put("upload") {
+
+                            call.run {
+                                respondText(
+                                    ContentType.parse("application/json"),
+                                    HttpStatusCode.OK,
+                                ) {
+                                    Json.encodeToString(mapOf(
+                                        "length" to request.contentLength()
+                                    ))
                                 }
                             }
                         }
@@ -290,20 +354,47 @@ fun HttpPage() {
         }
         Text(text=result)
 
-        var process by remember {
-            mutableStateOf(0L)
+        var downloadProcess by remember {
+            mutableLongStateOf(0L)
         }
         Button(
             onClick = {
                 httpClientScope.launch {
                     context.downloadContent("http://127.0.0.1:8080/test.png") {
-                        process = it
+                        downloadProcess = it
                     }
                 }
             }
         ) {
             Text("下载 png")
         }
-        Text("$process %")
+        Text("download: $downloadProcess %")
+
+        var uploadProcess by remember {
+            mutableLongStateOf(0L)
+        }
+        var uploadResult by remember {
+            mutableStateOf<String?>("")
+        }
+        val uploadLauncher = rememberLauncherForActivityResult(
+            contract =  ActivityResultContracts.GetContent()
+        ) {
+            it?.let {
+                httpClientScope.launch {
+                    uploadResult = context.uploadContent("http://127.0.0.1:8080/upload", it) {
+                        uploadProcess = it
+                    }
+                }
+            }
+        }
+        Button(
+            onClick = {
+                uploadLauncher.launch("*/*")
+            }
+        ) {
+            Text("上传")
+        }
+        Text("upload: $uploadProcess %")
+        Text("result: $uploadResult")
     }
 }
