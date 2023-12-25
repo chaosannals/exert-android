@@ -4,6 +4,7 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import androidx.navigation.navigation
 import com.example.jcm3ui.ui.page.HomePage
+import com.example.jcm3ui.ui.page.demo.AudioRecordPage
 import com.example.jcm3ui.ui.page.demo.CachePage
 import com.example.jcm3ui.ui.page.demo.CameraShotPage
 import com.example.jcm3ui.ui.page.demo.CameraViewPage
@@ -55,6 +56,9 @@ fun NavGraphBuilder.buildDemoGraph() {
         }
         composable("demo/intent") {
             IntentPage()
+        }
+        composable("demo/audio-record") {
+            AudioRecordPage()
         }
     }
 }

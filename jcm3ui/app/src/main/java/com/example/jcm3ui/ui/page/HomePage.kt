@@ -94,6 +94,7 @@ fun HomePage() {
         HomeButton(title = "缩略（等比）", path = "demo/thumbnail")
         HomeButton(title = "Http", path = "demo/http")
         HomeButton(title = "Intent", path = "demo/intent")
+        HomeButton(title = "录音", path = "demo/audio-record")
 
         HomeButton(title = "布局（LazyVerticalGird）", path = "layout/lazy-vertical-grid")
         HomeButton(title = "布局（LazyVerticalStaggeredGrid）", path = "layout/lazy-vertical-staggered-grid")

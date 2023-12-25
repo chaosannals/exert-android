@@ -30,6 +30,11 @@ android {
                 "proguard-rules.pro"
             )
         }
+
+        // 覆盖默认配置，默认配置会强制要求等待 adb 。
+        debug {
+            isDebuggable = true
+        }
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8

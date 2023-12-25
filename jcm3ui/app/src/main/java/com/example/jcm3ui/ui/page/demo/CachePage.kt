@@ -30,7 +30,7 @@ import java.io.File
 // 注：缓存文件不应该转 contentUri，contentUri 是被 contentResolver 管理的资源
 // 注册 contentUri 就会被写入 数据库，被系统认为是 媒体资源，然后被其他程序检索到。（此时相册就花花一片缓存文件）
 
-// contentUri 必须是本地文件，路径里有 data user ${applicationId} （小米上文件浏览器路径没找到）
+// contentUri 必须是本地文件，路径里有 data user ${applicationId}
 private fun Context.copyToCache(contentUri: Uri): String {
     return File(cacheDir, "cache.jpg").run {
         outputStream().use { output ->
