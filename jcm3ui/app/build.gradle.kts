@@ -31,10 +31,12 @@ android {
             )
         }
 
+        // 高版本 Android Studio 的断点查看闭包变量值功能，会强制等待 adb
         // 覆盖默认配置，默认配置会强制要求等待 adb 。
-        debug {
-            isDebuggable = true
-        }
+        // 覆盖默认配置又会丢失 断点调试数据的获取。
+//        debug {
+//            isDebuggable = true
+//        }
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
@@ -57,11 +59,11 @@ android {
     }
 
     // 不起效，assets 里的 zip 文件还是会被压缩导致不能 openFd 拿到大小。
-    // 但是之后 openFd 打开 zip 又不报错了。（可能是缓存 bug）
-//    androidResources {
-//        noCompress.add("zip")
-////        ignoreAssetsPatterns.add("!**/*.zip")
-//    }
+    // 修改后要卸载 app 后重装起效。
+    androidResources {
+        noCompress.add("zip")
+//        ignoreAssetsPatterns.add("!**/*.zip")
+    }
 
 //    androidComponents {
 //        onVariants(selector().all()) {

@@ -29,13 +29,16 @@ import io.ktor.client.engine.android.Android
 import io.ktor.client.plugins.onDownload
 import io.ktor.client.plugins.onUpload
 import io.ktor.client.request.get
+import io.ktor.client.request.prepareGet
 import io.ktor.client.request.put
 import io.ktor.client.request.setBody
+import io.ktor.client.statement.bodyAsChannel
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentDisposition
 import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
+import io.ktor.http.contentLength
 import io.ktor.http.contentType
 import io.ktor.server.application.call
 import io.ktor.server.application.install
@@ -52,6 +55,9 @@ import io.ktor.server.routing.get
 import io.ktor.server.routing.put
 import io.ktor.server.routing.routing
 import io.ktor.util.InternalAPI
+import io.ktor.utils.io.core.isEmpty
+import io.ktor.utils.io.core.isNotEmpty
+import io.ktor.utils.io.core.readBytes
 import io.ktor.utils.io.jvm.nio.copyTo
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -63,6 +69,7 @@ import java.util.UUID
 import kotlin.io.path.Path
 import kotlin.io.path.name
 import kotlinx.serialization.encodeToString
+import java.nio.ByteBuffer
 
 // 客户端
 private val httpClient = HttpClient(Android) {
@@ -185,16 +192,31 @@ private fun Context.moveToDownloadFolder(
 
 @OptIn(InternalAPI::class)
 private suspend fun Context.downloadToCache(url: String, onProcess: (Long) -> Unit): Pair<String, String> {
-    val response = httpClient.get(url) {
-        onDownload { b, c ->
-            onProcess((b * 99).floorDiv(c))
-        }
-    }
-    val mime = response.contentType().toString()
     val cache = UUID.randomUUID().toString()
-    RandomAccessFile(File(externalCacheDir, cache), "rws").channel.use {
-        response.content.copyTo(it)
+    val mime = httpClient.prepareGet(url).execute {
+        val total = it.contentLength()?: 1
+        var count = 0
+        File(externalCacheDir, cache).outputStream().use { output ->
+            it.bodyAsChannel().let {channel ->
+                while(channel.isClosedForRead.not()) {
+                    val packet = channel.readRemaining(1024)
+                    while (packet.isNotEmpty) {
+                        val bytes = packet.readBytes()
+                        count += bytes.size
+                        output.write(bytes)
+                        onProcess((count * 99).floorDiv(total))
+                    }
+                }
+            }
+        }
+        it.contentType().toString()
     }
+
+    // 随机访问导致全读
+//    RandomAccessFile(File(externalCacheDir, cache), "rws").channel.use {
+//        response.content.copyTo(it)
+//    }
+
     onProcess(100)
     return Pair(cache, mime)
 }
@@ -312,7 +334,7 @@ fun HttpPage() {
                             try {
                                 call.run {
                                     val path = "attachments/test.zip"
-                                    // assets 被压缩的无法使用 openFd ，详见 build.gradle androidResources noCompress, 但是这个设置一开始不起效，之后去掉又不报错了。
+                                    // assets 被压缩的无法使用 openFd ，详见 build.gradle androidResources noCompress, 修改后要卸载重装。
                                     val length = context.assets.openFd(path).use { it.length }
                                     response.headers.run {
                                         append(
@@ -320,18 +342,21 @@ fun HttpPage() {
                                             ContentDisposition.Attachment.withParameter(
                                                 ContentDisposition.Parameters.FileName,
                                                 "test.zip"
-                                            ).withParameter(
-                                                ContentDisposition.Parameters.Size,
-                                                "$length"
+//                                            ).withParameter( // zip 不行，响应头部不带
+//                                                ContentDisposition.Parameters.Size,
+//                                                "$length"
                                             ).toString()
-
                                         )
+//                                        append( // zip 不行， 响应头部不带
+//                                            HttpHeaders.ContentLength,
+//                                            "$length"
+//                                        )
                                     }
                                     context.assets.open(path).use { input ->
                                         respondOutputStream(
                                             ContentType.parse("application/zip"),
                                             HttpStatusCode.OK,
-                                            length // png 可以，zip 不知道为什么前端拿不到。
+                                            contentLength = length // png 可以，zip 不知道为什么前端拿不到，响应头部不带。
                                         ) {
                                             val buffer = ByteArray(512)
                                             while (true) {
