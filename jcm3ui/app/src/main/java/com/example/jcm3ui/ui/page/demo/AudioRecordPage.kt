@@ -1,6 +1,7 @@
 package com.example.jcm3ui.ui.page.demo
 
 import android.Manifest
+import android.media.MediaMetadataRetriever
 import android.media.MediaPlayer
 import android.media.MediaRecorder
 import android.net.Uri
@@ -15,6 +16,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -24,6 +26,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.io.File
 import java.io.IOException
 import java.util.UUID
 
@@ -47,8 +50,13 @@ fun AudioRecordPage() {
     val audioUri = remember(audioMp4Path) {
         Uri.parse(audioMp4Path)
     }
+    var audioSize by remember {
+        mutableLongStateOf(0L)
+    }
+    var audioDuration by remember {
+        mutableLongStateOf(0L)
+    }
 
-    val recordScope = rememberCoroutineScope()
     var recorder: MediaRecorder? by remember(context) {
         mutableStateOf(null)
     }
@@ -71,9 +79,7 @@ fun AudioRecordPage() {
             } catch (e: IOException) {
                 Log.e("record", "prepar() failed: ${e.message}")
             }
-            recordScope.launch(Dispatchers.IO) {
-                start()
-            }
+            start()
         }
     }
     val stopRecord by rememberUpdatedState {
@@ -82,6 +88,11 @@ fun AudioRecordPage() {
             release()
         }
         recorder = null
+        audioSize = File(audioMp4Path).length()
+        audioDuration = MediaMetadataRetriever().run {
+            setDataSource(context, Uri.parse(audioMp4Path))
+            extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)?.toLongOrNull()?: 0
+        }
     }
 
     var player:MediaPlayer? by remember(context) {
@@ -109,6 +120,8 @@ fun AudioRecordPage() {
     ) {
         Text("path: $audioMp4Path")
         Text("uri: $audioUri")
+        Text("size: $audioSize")
+        Text("duration: $audioDuration")
 
         Button(
             onClick = {
