@@ -114,6 +114,13 @@ dependencies {
     // 图片压缩 这个库没发布在中央仓库，源丢失了，可能发布的 jcenter
 //    implementation("top.zibin:Luban:1.1.8")
 
+    // 音频转换 未发布中心仓库，用 https://jitpack.io
+    //implementation("com.github.adrielcafe:ffmpeg-android-java:v0.3.2") // 没仓库
+//    implementation("com.github.adrielcafe:AndroidAudioConverter:0.0.8")
+//    implementation("io.auxo.ame:ame-lite:0.1")
+
+    implementation("nl.bravobit:android-ffmpeg:1.1.7")
+
     val ktorVersion = "2.3.7"
     // ktor clien
     implementation("io.ktor:ktor-client-core:$ktorVersion")

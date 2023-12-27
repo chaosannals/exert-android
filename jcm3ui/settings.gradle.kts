@@ -1,5 +1,8 @@
 import java.net.URI
 
+include(":app:ffmpeglib")
+
+
 pluginManagement {
     repositories {
         google()

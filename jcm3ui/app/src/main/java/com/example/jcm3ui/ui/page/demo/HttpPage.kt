@@ -1,7 +1,9 @@
 package com.example.jcm3ui.ui.page.demo
 
 import android.Manifest
+import android.app.RecoverableSecurityException
 import android.content.ContentResolver
+import android.content.ContentUris
 import android.content.ContentValues
 import android.content.Context
 import android.net.Uri
@@ -9,6 +11,7 @@ import android.os.Build
 import android.provider.MediaStore
 import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -26,7 +29,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.android.Android
-import io.ktor.client.plugins.onDownload
 import io.ktor.client.plugins.onUpload
 import io.ktor.client.request.get
 import io.ktor.client.request.prepareGet
@@ -55,21 +57,17 @@ import io.ktor.server.routing.get
 import io.ktor.server.routing.put
 import io.ktor.server.routing.routing
 import io.ktor.util.InternalAPI
-import io.ktor.utils.io.core.isEmpty
 import io.ktor.utils.io.core.isNotEmpty
 import io.ktor.utils.io.core.readBytes
-import io.ktor.utils.io.jvm.nio.copyTo
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 import java.io.File
-import java.io.RandomAccessFile
 import java.util.UUID
 import kotlin.io.path.Path
 import kotlin.io.path.name
 import kotlinx.serialization.encodeToString
-import java.nio.ByteBuffer
 
 // 客户端
 private val httpClient = HttpClient(Android) {
@@ -93,34 +91,101 @@ private fun ContentResolver.getContentSize(
     }
 }
 
-private fun ContentResolver.getContentData(
+private fun ContentResolver.getContentUriAndData(
     base: Uri,
     where: String,
     args: Array<String>
-): String? {
+): Pair<Uri, String>? {
     val projection = arrayOf(
+        MediaStore.MediaColumns._ID,
         MediaStore.MediaColumns.DATA,
     )
     return query(base, projection, where, args, null)?.use {
+        val idIndex = it.getColumnIndexOrThrow(MediaStore.MediaColumns._ID)
         val dataIndex = it.getColumnIndexOrThrow(MediaStore.MediaColumns.DATA)
-        return if (it.moveToFirst()) it.getString(dataIndex) else null
+        return if (it.moveToFirst()) {
+            val id = it.getLong(idIndex)
+            val data = it.getString(dataIndex)
+            val contentUri = ContentUris.withAppendedId(
+                MediaStore.Images.Media.EXTERNAL_CONTENT_URI, id
+            )
+            Pair(contentUri, data)
+        } else null
     }
 }
 
-private fun ContentResolver.deleteOrExists(
+private fun Context.deleteOrExists(
     base: Uri,
     where: String,
     args: Array<String>
 ) {
-    getContentData(base, where, args)?.let {absPath ->
-        delete(
-            base,
-            "${MediaStore.MediaColumns.DATA} =?", // 这是 SQL 的 where 条件
-            arrayOf(absPath), // where 参数，占位符 ？
-        )
-        File(absPath).delete()
+    contentResolver.getContentUriAndData(base, where, args)?.let { (contentUri, absPath) ->
+        // 删除必须用 contentUri ，加条件只能查到本次 APP 生命周期内操作的文件，其他 APP 或 上次打开 APP 操作的无效。
+
+        try {
+            contentResolver.delete(
+                contentUri,
+                null,
+                null,
+            )
+            File(absPath).delete()
+        } catch (se: SecurityException) {
+            // TODO
+//            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+//                // 要删除 安卓 10 后 内容文件一般程序是没有权限的，需要发送给系统，让系统删除
+//                val rse = se as RecoverableSecurityException
+//                val request = IntentSenderRequest.Builder(rse.userAction.actionIntent.intentSender)
+//                    .build()
+//
+//            }
+        }
     }
 }
+
+//// 因为上面的deleteOrExists 里 ContentResolver.query 带查询条件的只能查到自己本次插入的，以前别人插入或者上次打开 APP 插入的都查不到。
+//private fun ContentResolver.findByNameAndFolder(
+//    base: Uri,
+//    name: String,
+//    folder: String,
+//) : List<String> {
+//    val projection = arrayOf(
+//        MediaStore.MediaColumns.DATA,
+//        MediaStore.MediaColumns.DISPLAY_NAME,
+//        MediaStore.MediaColumns.RELATIVE_PATH,
+//    )
+//    val result = mutableListOf<String>()
+//    query(base, projection, null, null,null)?.use { cursor ->
+//        val dataColumn = cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DATA)
+//        val displayNameColumn = cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DISPLAY_NAME)
+//        val relativePathColumn = cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.RELATIVE_PATH)
+//        if (cursor.moveToFirst()) {
+//            do {
+//                val data = cursor.getString(dataColumn)
+//                val displayName = cursor.getString(displayNameColumn)
+//                val relativePath = cursor.getString(relativePathColumn)
+//                if (displayName.contentEquals(name, ignoreCase = true) && relativePath.contentEquals(folder, ignoreCase = true)) {
+//                    result.add(data)
+//                }
+//            } while (cursor.moveToNext())
+//        }
+//    }
+//    return result
+//}
+//// 因为上面的deleteOrExists 里 ContentResolver.query 带查询条件的只能查到自己本次插入的，以前别人插入或者上次打开 APP 插入的都查不到。
+//private fun ContentResolver.deleteOrExists2(
+//    base: Uri,
+//    name: String,
+//    folder: String,
+//) {
+//    findByNameAndFolder(base, name, folder).forEach { absPath ->
+//        delete(
+//            base,
+//            "${MediaStore.MediaColumns.DATA} =?", // 这是 SQL 的 where 条件
+//            arrayOf(absPath), // where 参数，占位符 ？
+//        )
+//        File(absPath).delete()
+//    }
+//}
 
 private fun Context.insertCoverFormCache(
     base: Uri,
@@ -144,10 +209,15 @@ private fun Context.insertCoverFormCache(
     contentResolver.run {
         deleteOrExists(
             base,
-            // ${MediaStore.MediaColumns.RELATIVE_PATH} =? 居然匹配不到，要改用 LIKE %%
-            "${MediaStore.MediaColumns.DISPLAY_NAME} =? AND ${MediaStore.MediaColumns.RELATIVE_PATH} LIKE ?", // 这是 SQL 的 where 条件
-            arrayOf(name, "%${folder}%") // where 参数，占位符 ？
+            // 如果不是本次添加的，不能通过条件查到。
+//            "${MediaStore.MediaColumns.DISPLAY_NAME} =? COLLATE NOCASE AND ${MediaStore.MediaColumns.RELATIVE_PATH} =? COLLATE NOCASE", // 这是 SQL 的 where 条件
+//            arrayOf(name, folder) // where 参数，占位符 ？
+//            "${MediaStore.MediaColumns.DISPLAY_NAME} = ? AND ${MediaStore.MediaColumns.RELATIVE_PATH} = ? ",
+//            arrayOf(name, folder)
+            "${MediaStore.MediaColumns.DISPLAY_NAME} = ?",
+            arrayOf(name)
         )
+//        deleteOrExists2(base, name, folder)
 
         insert(
             base,
@@ -229,14 +299,31 @@ private suspend fun Context.downloadContent(url: String, onProcess: (Long) -> Un
     val path = Path(uri.path!!)
     when {
         mime.contains("image", ignoreCase = true) -> {
-            Pair("Pictures/Jcm3Ui", MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
+            Pair(
+                "Pictures/Jcm3Ui",
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    MediaStore.Images.Media.getContentUri(MediaStore.VOLUME_EXTERNAL)
+                } else {
+                    MediaStore.Images.Media.EXTERNAL_CONTENT_URI
+                }
+            )
         }
         mime.contains("video", ignoreCase = true) -> {
-            Pair("Movies/Jcm3Ui", MediaStore.Video.Media.EXTERNAL_CONTENT_URI)
+            Pair(
+                "Movies/Jcm3Ui",
+                // 高版本如果不适用此API ，那么每次打开 APP 都是隔离的。
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    MediaStore.Video.Media.getContentUri(MediaStore.VOLUME_EXTERNAL)
+                } else {
+                    MediaStore.Video.Media.EXTERNAL_CONTENT_URI
+                }
+            )
         }
         else -> {
             val base = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q)
-                MediaStore.Downloads.EXTERNAL_CONTENT_URI else null
+//                MediaStore.Downloads.EXTERNAL_CONTENT_URI
+                MediaStore.Downloads.getContentUri(MediaStore.VOLUME_EXTERNAL)
+            else null
             Pair("Download/Jcm3Ui", base)
         }
     }.let {(folder, base) ->
@@ -402,9 +489,18 @@ fun HttpPage() {
 
     LaunchedEffect(Unit) {
         permissionLauncher.launch(
-            arrayOf(
-                Manifest.permission.INTERNET,
-            )
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                arrayOf(
+                    Manifest.permission.READ_MEDIA_IMAGES,
+                    Manifest.permission.READ_MEDIA_VIDEO,
+                )
+            } else {
+                arrayOf(
+                    Manifest.permission.INTERNET,
+                    Manifest.permission.READ_EXTERNAL_STORAGE,
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE
+                )
+            }
         )
     }
 

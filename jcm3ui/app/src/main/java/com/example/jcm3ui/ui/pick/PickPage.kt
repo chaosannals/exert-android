@@ -2,6 +2,7 @@ package com.example.jcm3ui.ui.pick
 
 import android.Manifest
 import android.app.Activity
+import android.app.RecoverableSecurityException
 import android.content.ContentUris
 import android.content.Context
 import android.content.Intent
@@ -16,6 +17,7 @@ import android.provider.MediaStore
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.collection.LruCache
 import androidx.compose.foundation.BorderStroke
@@ -116,6 +118,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Contextual
 import kotlinx.serialization.Serializable
@@ -662,6 +665,8 @@ class ThumbInterceptor(
 //    }
 //}
 
+//val deleteQueueFlow = MutableSharedFlow<Uri>()
+
 @Preview()
 @Composable
 fun PickPage(
@@ -793,6 +798,30 @@ fun PickPage(
             filterOptions.addAll(f)
         }
     }
+
+//    var deleteUri: Uri? by remember {
+//        mutableStateOf(null)
+//    }
+
+    val deleteSenderLauncher = rememberLauncherForActivityResult(
+        contract =  ActivityResultContracts.StartIntentSenderForResult()
+    ) {
+        if (it.resultCode == Activity.RESULT_OK) {
+            Toast.makeText(context, "用户同意删除: ${it.data}", Toast.LENGTH_SHORT).show()
+        } else {
+            // 真机测试是 Activity.RESULT_CANCELED
+            Toast.makeText(context, "用户拒绝删除: ${it.resultCode}", Toast.LENGTH_SHORT).show()
+        }
+        if (it.resultCode == Activity.RESULT_CANCELED) {
+            Toast.makeText(context, "用户拒绝", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+//    LaunchedEffect(Unit) {
+//        deleteQueueFlow.collect {
+//
+//        }
+//    }
 
     Column(
         modifier = Modifier
@@ -1032,6 +1061,40 @@ fun PickPage(
                     pickRouteTo("view")
                 }
             )
+
+            Box(
+                contentAlignment = Alignment.Center,
+                modifier = Modifier
+                    .size(100.sdp, 34.sdp)
+                    .background(Color(0xFFFF4411), RoundedCornerShape(17.sdp))
+                    .clickable {
+                        (context as? Activity)?.apply {
+                            selectItems.forEach { fs ->
+                                try {
+                                    contentResolver.delete(fs.contentUri, null, null)
+                                } catch (se: SecurityException) {
+                                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                                        val rse = se as RecoverableSecurityException
+                                        val request = IntentSenderRequest
+                                            .Builder(rse.userAction.actionIntent.intentSender)
+                                            .build()
+
+                                        // TODO 同步化， 这里无法传参，导致用户确认后回调不知道哪个 同意 哪个 拒绝。
+                                        deleteSenderLauncher.launch(request)
+                                    }
+                                }
+                            }
+                            filePickSelectItemsSubject.value = listOf()
+                        }
+                    }
+            ) {
+                Text(
+                    text="删除(${selectItems.size})",
+                    color = Color.White,
+                    fontSize = 14.ssp,
+                )
+            }
+
             Box(
                 contentAlignment = Alignment.Center,
                 modifier = Modifier
