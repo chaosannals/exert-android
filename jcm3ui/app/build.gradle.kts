@@ -119,7 +119,7 @@ dependencies {
 //    implementation("com.github.adrielcafe:AndroidAudioConverter:0.0.8")
 //    implementation("io.auxo.ame:ame-lite:0.1")
 
-    implementation("nl.bravobit:android-ffmpeg:1.1.7")
+//    implementation("nl.bravobit:android-ffmpeg:1.1.7")  // 没仓库
 
     val ktorVersion = "2.3.7"
     // ktor clien

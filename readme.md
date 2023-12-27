@@ -1,5 +1,13 @@
 # android
 
+## 图标生成
+
+[AndroidAssetStudio](https://github.com/romannurik/AndroidAssetStudio)
+
+这个项目是个网页项目他的 github.io 可以生成图标文件。
+
+Android Studio 自带的工具导入图片可以，导入图标后会有一些机型有问题。
+
 ## WebView chrome 远程调试
 
 PC 网页打开 chrome://inspect/#devices
