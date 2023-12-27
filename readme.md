@@ -8,6 +8,9 @@
 
 Android Studio 自带的工具导入图片可以，导入图标后会有一些机型有问题。
 
+AndroidAssetStudio 不维护，又推荐了这个，界面基本类似，感觉更高大上了。还支持 ios 的图标。
+[icon kitchen](https://icon.kitchen/)
+
 ## WebView chrome 远程调试
 
 PC 网页打开 chrome://inspect/#devices
