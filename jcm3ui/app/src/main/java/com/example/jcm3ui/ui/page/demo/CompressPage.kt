@@ -1,15 +1,18 @@
 package com.example.jcm3ui.ui.page.demo
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.content.ContentValues
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.media.MediaCodec
 import android.media.MediaCodecInfo
 import android.media.MediaCodecList
 import android.media.MediaExtractor
 import android.media.MediaFormat
 import android.media.MediaMetadataRetriever
+import android.media.MediaMuxer
 import android.net.Uri
 import android.os.Build
 import android.provider.MediaStore
@@ -28,6 +31,7 @@ import androidx.core.content.FileProvider
 import coil.compose.AsyncImage
 import com.hw.videoprocessor.VideoProcessor
 import java.io.File
+import java.nio.ByteBuffer
 import java.util.UUID
 
 private const val MIME_TYPE = "video/avc"
@@ -109,6 +113,43 @@ private fun MediaCodecInfo.getColorFormat(mimeType: String= MIME_TYPE): Int {
         }
     }
     return result
+}
+
+//
+@SuppressLint("WrongConstant")
+private fun Context.copySample(source: Uri, trackId: Int) {
+    val extractor = MediaExtractor()
+    extractor.setDataSource(this, source, mapOf())
+    val byteBuffer = ByteBuffer.allocate(400 * 1024)
+    File(externalCacheDir, "video-cache").inputStream().use{
+        val mediaMuxer = MediaMuxer(it.fd, MediaMuxer.OutputFormat.MUXER_OUTPUT_MPEG_4)
+        val trackFormat = extractor.getTrackFormat(trackId)
+        val index = mediaMuxer.addTrack(trackFormat)
+        val bufferInfo = MediaCodec.BufferInfo()
+        val sampleTime = extractor.sampleTime
+
+        extractor.selectTrack(trackId)
+        mediaMuxer.start()
+        //
+        while (true) {
+            val dataCount = extractor.readSampleData(byteBuffer, 0)
+            if (dataCount < 0) {
+                break
+            }
+            bufferInfo.apply {
+                size = dataCount
+                offset = 0
+                flags = extractor.sampleFlags
+                presentationTimeUs += sampleTime
+            }
+            mediaMuxer.writeSampleData(index, byteBuffer, bufferInfo)
+            extractor.advance()
+        }
+        //
+        mediaMuxer.stop()
+        mediaMuxer.release()
+        extractor.release()
+    }
 }
 
 // 压缩视频
