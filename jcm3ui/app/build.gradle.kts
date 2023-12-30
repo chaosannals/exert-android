@@ -11,8 +11,10 @@ android {
 
     defaultConfig {
         applicationId = "com.example.jcm3ui"
-        minSdk = 26
-        targetSdk = 34
+        minSdk = 26 // 这个如果要进应用商店，大概率也要大于等于30，虽然明文规定是 TargetSdkVesion>=30
+        // 其实这个规定应该是在应用商店的审核早就实行了一部分，因为很多带了旧权限的都不过审。
+        targetSdk = 34 // 修改这个版本可以让 APP 使用旧的无需权限API（如文件），但是过不了审核。
+        // 国家要求在 2024 年 1月起把 API 低于 30 的都不能上架应用商店。而这些需要权限基本都在这个版本加入。
         versionCode = 1
         versionName = "1.0"
 

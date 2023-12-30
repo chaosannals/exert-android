@@ -17,6 +17,11 @@
 
     <uses-permission android:name="android.permission.INTERNET" />
 
+<!--  旧的废弃 API 使用仅获取相机信息  -->
+    <uses-feature android:name="android.hardware.camera" android:required="false"/>
+<!--  获取 GPS 信息  -->
+    <uses-feature android:name="android.hardware.location.gps" android:required="false"/>
+
     <application
         android:usesCleartextTraffic="true"
         android:requestLegacyExternalStorage="true"

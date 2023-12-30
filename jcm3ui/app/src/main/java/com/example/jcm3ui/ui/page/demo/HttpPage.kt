@@ -1,25 +1,28 @@
 package com.example.jcm3ui.ui.page.demo
 
 import android.Manifest
-import android.app.RecoverableSecurityException
 import android.content.ContentResolver
 import android.content.ContentUris
 import android.content.ContentValues
 import android.content.Context
+import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import android.provider.MediaStore
 import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.material3.Button
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -27,10 +30,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.core.content.FileProvider
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.android.Android
 import io.ktor.client.plugins.onUpload
 import io.ktor.client.request.get
+import io.ktor.client.request.head
 import io.ktor.client.request.prepareGet
 import io.ktor.client.request.put
 import io.ktor.client.request.setBody
@@ -54,6 +59,7 @@ import io.ktor.server.request.contentLength
 import io.ktor.server.response.respondOutputStream
 import io.ktor.server.response.respondText
 import io.ktor.server.routing.get
+import io.ktor.server.routing.head
 import io.ktor.server.routing.put
 import io.ktor.server.routing.routing
 import io.ktor.util.InternalAPI
@@ -187,6 +193,45 @@ private fun Context.deleteOrExists(
 //    }
 //}
 
+private val existsDownloadsProjection = arrayOf(
+    MediaStore.Downloads._ID,
+    MediaStore.Downloads.RELATIVE_PATH,
+    MediaStore.MediaColumns.DISPLAY_NAME
+)
+private const val existsDownloadsRelativePath = "Download/Jcm3Ui"
+@RequiresApi(Build.VERSION_CODES.Q)
+// 无法获取下载目录。
+private fun Context.findInDownloads(fileName: String): Uri? {
+    return contentResolver.query(
+        MediaStore.Files.getContentUri(MediaStore.VOLUME_EXTERNAL),
+        existsDownloadsProjection,
+        null,
+        null,
+        null,
+    )?.use {
+        val idColumn = it.getColumnIndexOrThrow(MediaStore.Downloads._ID)
+        val displayNameColumn = it.getColumnIndexOrThrow(MediaStore.Downloads.DISPLAY_NAME)
+        val relativePathColumn = it.getColumnIndexOrThrow(MediaStore.Downloads.RELATIVE_PATH)
+        if (it.moveToFirst()) {
+            do {
+                val id = it.getLong(idColumn)
+                val displayName = it.getString(displayNameColumn)
+                val relativePath = it.getString(relativePathColumn)
+
+                Log.d("文件信息：", "$relativePath  => $displayName")
+
+                if (displayName.contentEquals(fileName, ignoreCase = true) && relativePath.contentEquals(existsDownloadsRelativePath, ignoreCase = true)) {
+                    return ContentUris.withAppendedId(
+                        MediaStore.Downloads.EXTERNAL_CONTENT_URI,
+                        id
+                    )
+                }
+            }  while (it.moveToNext())
+        }
+        return null
+    }
+}
+
 private fun Context.insertCoverFormCache(
     base: Uri,
     folder: String,
@@ -259,13 +304,11 @@ private fun Context.moveToDownloadFolder(
     }
 }
 
-
-@OptIn(InternalAPI::class)
 private suspend fun Context.downloadToCache(url: String, onProcess: (Long) -> Unit): Pair<String, String> {
     val cache = UUID.randomUUID().toString()
     val mime = httpClient.prepareGet(url).execute {
-        val total = it.contentLength()?: 1
-        var count = 0
+        val total = it.contentLength() ?: 1
+        var count = 0L
         File(externalCacheDir, cache).outputStream().use { output ->
             it.bodyAsChannel().let {channel ->
                 while(channel.isClosedForRead.not()) {
@@ -274,6 +317,7 @@ private suspend fun Context.downloadToCache(url: String, onProcess: (Long) -> Un
                         val bytes = packet.readBytes()
                         count += bytes.size
                         output.write(bytes)
+//                        onProcess((count.toFloat() / total * 99).toLong())
                         onProcess((count * 99).floorDiv(total))
                     }
                 }
@@ -324,7 +368,7 @@ private suspend fun Context.downloadContent(url: String, onProcess: (Long) -> Un
 //                MediaStore.Downloads.EXTERNAL_CONTENT_URI
                 MediaStore.Downloads.getContentUri(MediaStore.VOLUME_EXTERNAL)
             else null
-            Pair("Download/Jcm3Ui", base)
+            Pair(existsDownloadsRelativePath, base)
         }
     }.let {(folder, base) ->
         if (base == null) {
@@ -362,6 +406,48 @@ private suspend fun Context.uploadContent(target: String, uri: Uri, onProcess: (
     }
 }
 
+private suspend fun Context.downloadInternal(url: String, onProcess: (Long) -> Unit) {
+    val (cache, mime) = downloadToCache(url, onProcess)
+    val uri = Uri.parse(url)
+    val path = Path(uri.path!!)
+    getExternalFilesDir( "Download")?.apply {
+        if (isDirectory.not()) {
+            mkdirs()
+        }
+        val cacheFile = File(externalCacheDir, cache)
+        cacheFile.inputStream().use {input ->
+            File(this, path.name).outputStream().use {output->
+                input.copyTo(output, 1024)
+            }
+        }
+        onProcess(100)
+    }
+}
+
+private fun Context.openFormInternal(name: String) {
+    getExternalFilesDir("Download")?.run {
+        if (isDirectory) {
+            File(this, name).run {
+                if (isFile) {
+//                    Uri.fromFile(this)
+                    FileProvider.getUriForFile(
+                        this@openFormInternal,
+                        this@openFormInternal.applicationContext.packageName+".fileprovider",
+                        this)
+                } else null
+            }
+        } else null
+    }?.let {
+        val mime = contentResolver.getType(it)
+        val intent = Intent(Intent.ACTION_VIEW).apply {
+            setDataAndType(it, mime)
+            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        }
+        startActivity(intent)
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HttpPage() {
     val context = LocalContext.current
@@ -384,6 +470,7 @@ fun HttpPage() {
                         get("/") {
                             call.respondText { "Hello" }
                         }
+
                         get("/test.png") {
                             call.run {
                                 val path = "attachments/test.png"
@@ -417,10 +504,24 @@ fun HttpPage() {
                                 }
                             }
                         }
+
+                        val path = "attachments/test.zip"
+                        head("test.zip") {
+                            call.run {
+                                // assets 被压缩的无法使用 openFd ，详见 build.gradle androidResources noCompress, 修改后要卸载重装。
+                                val length = context.assets.openFd(path).use { it.length }
+                                response.headers.run {
+                                    append(
+                                        HttpHeaders.ContentLength,
+                                        "$length"
+                                    )
+                                }
+                                respondText { "" }
+                            }
+                        }
                         get("/test.zip") {
                             try {
                                 call.run {
-                                    val path = "attachments/test.zip"
                                     // assets 被压缩的无法使用 openFd ，详见 build.gradle androidResources noCompress, 修改后要卸载重装。
                                     val length = context.assets.openFd(path).use { it.length }
                                     response.headers.run {
@@ -434,10 +535,10 @@ fun HttpPage() {
 //                                                "$length"
                                             ).toString()
                                         )
-//                                        append( // zip 不行， 响应头部不带
-//                                            HttpHeaders.ContentLength,
-//                                            "$length"
-//                                        )
+                                        append( // zip 不行， 响应头部不带
+                                            HttpHeaders.ContentLength,
+                                            "$length"
+                                        )
                                     }
                                     context.assets.open(path).use { input ->
                                         respondOutputStream(
@@ -508,6 +609,17 @@ fun HttpPage() {
         mutableStateOf("")
     }
 
+    var existsName by remember() {
+        mutableStateOf("test.zip")
+    }
+    val existsUri by remember(context, existsName) {
+        derivedStateOf {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                context.findInDownloads(existsName)
+            } else null
+        }
+    }
+
     Column(
         modifier = Modifier
             .navigationBarsPadding()
@@ -551,6 +663,33 @@ fun HttpPage() {
             Text("下载 zip")
         }
         Text("download: $downloadProcess %")
+
+        Button(
+            onClick = {
+                httpClientScope.launch {
+                    context.downloadInternal("http://127.0.0.1:8080/test.zip") {
+                        downloadProcess = it
+                    }
+                }
+            }
+        ) {
+            Text("下载 zip (应用路径)")
+        }
+        Button(
+            onClick = {
+                context.openFormInternal("test.zip")
+            }
+        ) {
+            Text("打开 zip (应用路径)")
+        }
+
+        TextField(
+            value = existsName,
+            onValueChange = {
+                existsName = it
+            }
+        )
+        Text("exists: $existsUri")
 
         var uploadProcess by remember {
             mutableLongStateOf(0L)

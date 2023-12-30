@@ -1,5 +1,19 @@
 # android
 
+## 路径
+
+- dataDir 应用私有路径，只有 root 后才能看到
+- filesDir 应用私有路径，在 dataDir 里面，只有 root 后才能看到，放文件。
+- getExternalFilesDir(your_folder) 需要指定目录名,不需要 root 就可以查看，放文件。
+- cacheDir 应用私有路径，在 dataDir 里面，只有 root 后才能看到，放缓存。
+- externalCacheDir 应用私有路径，不需要 root 就可以查看，放缓存。
+
+要通过 Intent 分享内部路径的文件，高版本安卓需要用 FileProvider.getUriForFile 的同时把整个 扩展跟都暴露出去。
+
+```xml
+<external-path name="external_root" path="."/>
+```
+
 ## 图标生成
 
 [AndroidAssetStudio](https://github.com/romannurik/AndroidAssetStudio)

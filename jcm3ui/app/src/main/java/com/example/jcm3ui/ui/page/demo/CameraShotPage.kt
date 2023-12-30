@@ -3,11 +3,15 @@ package com.example.jcm3ui.ui.page.demo
 import android.Manifest
 import android.content.ContentValues
 import android.content.Context
+import android.hardware.Camera
+import android.hardware.camera2.CameraCharacteristics
+import android.hardware.camera2.CameraManager
 import android.icu.text.SimpleDateFormat
 import android.net.Uri
 import android.os.Build
 import android.provider.MediaStore
 import android.util.Log
+import android.util.SizeF
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -39,6 +43,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -67,6 +72,7 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.zIndex
@@ -193,6 +199,7 @@ fun Context.takeVideo(
 fun CameraShotPage() {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
+    val inspectionMode = LocalInspectionMode.current
 
     val imageLoader by remember(context) {
         derivedStateOf {
@@ -212,6 +219,27 @@ fun CameraShotPage() {
 
     var cameraSelector by remember {
         mutableStateOf(CameraSelector.DEFAULT_BACK_CAMERA)
+    }
+
+    val cameraManager: CameraManager? by remember(context, inspectionMode) {
+        derivedStateOf {
+            if (inspectionMode) null
+            else context.getSystemService(Context.CAMERA_SERVICE) as CameraManager
+        }
+    }
+    val cameraRatio by remember(cameraManager, cameraSelector) {
+        derivedStateOf {
+            cameraManager?.let {
+                val cid = if (cameraSelector == CameraSelector.DEFAULT_BACK_CAMERA)
+                    CameraCharacteristics.LENS_FACING_BACK
+                else CameraCharacteristics.LENS_FACING_FRONT
+
+                val cc = it.getCameraCharacteristics(it.cameraIdList[cid])
+                val size =
+                    cc.get(CameraCharacteristics.SENSOR_INFO_PHYSICAL_SIZE) ?: SizeF(10f, 16f)
+                size.height / size.width
+            } ?: (10f / 16f)
+        }
     }
 
     // cameraExecutor 是做图片和视频分析用的，此功能不需要分析。
@@ -323,8 +351,9 @@ fun CameraShotPage() {
         }
     }
 
-    Box(
-        contentAlignment = Alignment.Center,
+    Column(
+        verticalArrangement= Arrangement.Top,
+        horizontalAlignment= Alignment.CenterHorizontally,
         modifier = Modifier
             .fillMaxSize()
     ) {
@@ -332,7 +361,6 @@ fun CameraShotPage() {
             contentAlignment=Alignment.Center,
             modifier = Modifier
                 .zIndex(4f)
-                .align(Alignment.TopCenter)
                 .fillMaxWidth()
                 .height(64.sdp)
                 .background(Color(0xE5333333))
@@ -363,37 +391,38 @@ fun CameraShotPage() {
             }
         }
 
-        AndroidView(
-            factory = {
-                previewView.apply {
-                    layoutParams = LinearLayout.LayoutParams(
-                        ViewGroup.LayoutParams.MATCH_PARENT,
-                        ViewGroup.LayoutParams.MATCH_PARENT
-                    )
-                }
-            },
+        Box(
+            contentAlignment = Alignment.Center,
             modifier = Modifier
-                .fillMaxSize()
-        ) {
-
-        }
-
-
-        Column (
-            modifier = Modifier
-                .zIndex(4f)
-                .align(Alignment.BottomCenter)
+                .aspectRatio(cameraRatio)
                 .fillMaxWidth()
-        ){
+        ) {
+            AndroidView(
+                factory = {
+                    previewView.apply {
+                        layoutParams = LinearLayout.LayoutParams(
+                            ViewGroup.LayoutParams.MATCH_PARENT,
+                            ViewGroup.LayoutParams.MATCH_PARENT
+                        )
+                    }
+                },
+                modifier = Modifier
+                    .fillMaxSize()
+            ) {
+
+            }
+
             Row(
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.Bottom,
                 modifier = Modifier
+                    .zIndex(10f)
+                    .align(Alignment.BottomCenter)
                     .padding(bottom = 15.sdp)
                     .fillMaxWidth()
             ) {
                 val modes = remember {
-                    FileType.values().apply {
+                    FileType.entries.toTypedArray().apply {
                         reverse()
                     }
                 }
@@ -410,11 +439,18 @@ fun CameraShotPage() {
                     )
                 }
             }
+        }
+
+
+        Column (
+            modifier = Modifier
+                .zIndex(4f)
+                .fillMaxSize()
+        ){
             Box(
                 contentAlignment = Alignment.Center,
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .height(103.sdp)
+                    .fillMaxSize()
                     .background(Color(0xFF333333))
                     .padding(bottom = 13.sdp, start = 15.sdp, end = 15.sdp)
             ) {
@@ -506,7 +542,7 @@ fun CameraShotPage() {
                         .clickable(
                             interactionSource = interactionSource,
                             indication = null,
-                        ){
+                        ) {
                             if (mode == FileType.Image) {
                                 context.takePhoto(imageCapture) {
                                     cameraShotContentUriSubject.value = it
