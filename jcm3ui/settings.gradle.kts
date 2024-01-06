@@ -1,7 +1,6 @@
 import java.net.URI
 
-include(":app:ffmpeglib")
-
+// Android Studio 自动居然把 include 插到这里。。。。
 
 pluginManagement {
     repositories {
@@ -23,4 +22,5 @@ dependencyResolutionManagement {
 
 rootProject.name = "jcm3ui"
 include(":app")
- 
+include(":jcm3wv")
+include(":app:ffmpeglib")

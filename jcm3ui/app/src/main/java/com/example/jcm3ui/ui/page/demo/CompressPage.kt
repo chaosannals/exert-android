@@ -16,11 +16,14 @@ import android.media.MediaMuxer
 import android.net.Uri
 import android.os.Build
 import android.provider.MediaStore
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
@@ -30,6 +33,12 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.content.FileProvider
 import coil.compose.AsyncImage
 import com.hw.videoprocessor.VideoProcessor
+import com.hw.videoprocessor.util.InputSurface
+import com.hw.videoprocessor.util.OutputSurface
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.File
 import java.nio.ByteBuffer
 import java.util.UUID
@@ -115,45 +124,166 @@ private fun MediaCodecInfo.getColorFormat(mimeType: String= MIME_TYPE): Int {
     return result
 }
 
+private fun MediaMuxer.addTrackFrom(extractor: MediaExtractor, type: MediaTrackType): Int {
+    val trackId = extractor.getTrackFirstIndex(type)
+    if (trackId < 0) {
+        return -1
+    }
+    val trackFormat = extractor.getTrackFormat(trackId)
+    extractor.selectTrack(trackId)
+    return addTrack(trackFormat)
+}
+
 //
 @SuppressLint("WrongConstant")
-private fun Context.copySample(source: Uri, trackId: Int) {
-    val extractor = MediaExtractor()
-    extractor.setDataSource(this, source, mapOf())
-    val byteBuffer = ByteBuffer.allocate(400 * 1024)
-    File(externalCacheDir, "video-cache").inputStream().use{
-        val mediaMuxer = MediaMuxer(it.fd, MediaMuxer.OutputFormat.MUXER_OUTPUT_MPEG_4)
-        val trackFormat = extractor.getTrackFormat(trackId)
-        val index = mediaMuxer.addTrack(trackFormat)
-        val bufferInfo = MediaCodec.BufferInfo()
-        val sampleTime = extractor.sampleTime
-
-        extractor.selectTrack(trackId)
-        mediaMuxer.start()
-        //
-        while (true) {
-            val dataCount = extractor.readSampleData(byteBuffer, 0)
-            if (dataCount < 0) {
-                break
-            }
-            bufferInfo.apply {
-                size = dataCount
-                offset = 0
-                flags = extractor.sampleFlags
-                presentationTimeUs += sampleTime
-            }
-            mediaMuxer.writeSampleData(index, byteBuffer, bufferInfo)
-            extractor.advance()
+private fun MediaMuxer.copySample(extractor: MediaExtractor, index: Int) {
+    val bufferInfo = MediaCodec.BufferInfo()
+    val byteBuffer = ByteBuffer.allocate(1024 * 1024) // 这个太小的话 readSampleData 会失败
+    while (true) {
+        val dataCount = extractor.readSampleData(byteBuffer, 0)
+        if (dataCount < 0) {
+            break
         }
-        //
+        bufferInfo.apply {
+            size = dataCount
+            offset = 0
+            flags = extractor.sampleFlags
+            // extractor.sampleTime 是个状态，每次读取都不同。
+            presentationTimeUs = extractor.sampleTime
+        }
+        writeSampleData(index, byteBuffer, bufferInfo)
+        extractor.advance()
+    }
+}
+
+// 只把 视频的 声轨 和 视频轨 拷贝到新文件
+// 如果只有这2轨道，等于复制
+private fun Context.copyVideoAndAudio(source: Uri) {
+    val cachePath = "${UUID.randomUUID()}.mp4"
+    File(externalCacheDir, cachePath).outputStream().use {
+        val mediaMuxer = MediaMuxer(it.fd, MediaMuxer.OutputFormat.MUXER_OUTPUT_MPEG_4)
+
+        // 视频轨
+        val videoExtractor = MediaExtractor().apply {
+            setDataSource(this@copyVideoAndAudio, source, mapOf())
+        }
+        val videoTrack = mediaMuxer.addTrackFrom(videoExtractor, MediaTrackType.Video)
+
+        // 声轨
+        val audioExtractor = MediaExtractor().apply {
+            setDataSource(this@copyVideoAndAudio, source, mapOf())
+        }
+        val audioTrack = mediaMuxer.addTrackFrom(audioExtractor, MediaTrackType.Audio)
+        mediaMuxer.start() // 必须在轨道啥都配置好才能开始。
+
+        mediaMuxer.copySample(videoExtractor, videoTrack)
+        mediaMuxer.copySample(audioExtractor, audioTrack)
+
+        audioExtractor.release()
+        videoExtractor.release()
         mediaMuxer.stop()
         mediaMuxer.release()
-        extractor.release()
+    }
+}
+
+private fun MediaMuxer.addTrackFormat(extractor: MediaExtractor, type: MediaTrackType, format: MediaFormat): Int {
+    val trackId = extractor.getTrackFirstIndex(type)
+    if (trackId < 0) {
+        return -1
+    }
+    val trackFormat = extractor.getTrackFormat(trackId).apply {
+        setInteger(MediaFormat.KEY_WIDTH, 400)
+        setInteger(MediaFormat.KEY_HEIGHT, 225)
+        setInteger(MediaFormat.KEY_BIT_RATE, 30* 400* 225)
+        setInteger(MediaFormat.KEY_FRAME_RATE, 30)
+    }
+    extractor.selectTrack(trackId)
+    //Log.d("format", trackFormat.toString())
+    return addTrack(trackFormat)
+//    return addTrack(format)
+}
+
+@SuppressLint("WrongConstant")
+private fun MediaMuxer.resample(extractor: MediaExtractor, index: Int) {
+    val bufferInfo = MediaCodec.BufferInfo()
+    val byteBuffer = ByteBuffer.allocate(1024 * 1024) // 这个太小的话 readSampleData 会失败
+    while (true) {
+        val dataCount = extractor.readSampleData(byteBuffer, 0)
+        if (dataCount < 0) {
+            break
+        }
+        bufferInfo.apply {
+            size = dataCount
+            offset = 0
+            flags = extractor.sampleFlags
+//            flags = MediaCodec.BUFFER_FLAG_KEY_FRAME
+            // extractor.sampleTime 是个状态，每次读取都不同。
+            presentationTimeUs = extractor.sampleTime
+        }
+        writeSampleData(index, byteBuffer, bufferInfo)
+        extractor.advance()
+    }
+}
+
+private fun MediaMuxer.codeVideo(extractor: MediaExtractor, w: Int, h: Int) {
+    val trackId = extractor.getTrackFirstIndex(MediaTrackType.Video)
+    val inputFormat = extractor.getTrackFormat(trackId)
+
+    val fr = 30 // 30 帧
+    val br = w * h * fr // 30 帧
+    val videoFormat = MediaFormat.createVideoFormat(MediaFormat.MIMETYPE_VIDEO_AVC, w, h).apply {
+        setInteger(MediaFormat.KEY_COLOR_FORMAT, MediaCodecInfo.CodecCapabilities.COLOR_FormatSurface)
+        setInteger(MediaFormat.KEY_BIT_RATE, br)
+        setInteger(MediaFormat.KEY_FRAME_RATE, fr)
+//            setInteger(MediaFormat.KEY_I_FRAME_INTERVAL, 1) // 间隔单位秒
+    }
+    val encoder = MediaCodec.createEncoderByType(MediaFormat.MIMETYPE_VIDEO_AVC).apply {
+        configure(videoFormat, null, null, MediaCodec.CONFIGURE_FLAG_ENCODE)
+    }
+    val trackIndex = addTrack(videoFormat)
+    val inputSurface = InputSurface(encoder.createInputSurface()).apply {
+        makeCurrent()
+    }
+
+    val outputSurface = OutputSurface()
+    val decoder = MediaCodec.createDecoderByType(inputFormat.getString(MediaFormat.KEY_MIME)!!).apply {
+        configure(inputFormat, outputSurface.surface, null, 0)
+    }
+
+    ioScope.launch {
+        decoder.start()
+        val inputBufferIndex = decoder.dequeueInputBuffer(2500)
+        val inputBuffer = decoder.getInputBuffer(inputBufferIndex)
+        while (true) {
+            val chunkSize = extractor.readSampleData(inputBuffer!!, 0)
+            if (chunkSize < 0) {
+                decoder.queueInputBuffer(
+                    inputBufferIndex,
+                    0,
+                    0,
+                    0L,
+                    MediaCodec.BUFFER_FLAG_END_OF_STREAM
+                )
+                break
+            }
+            decoder.queueInputBuffer(inputBufferIndex, 0, chunkSize, extractor.sampleTime, 0)
+            extractor.advance()
+        }
+    }
+
+    ioScope.launch {
+        encoder.start()
+        val bufferInfo = MediaCodec.BufferInfo()
+        val outputBufferIndex = encoder.dequeueOutputBuffer(bufferInfo, 2500)
+        val outputBuffer = encoder.getOutputBuffer(outputBufferIndex)
     }
 }
 
 // 压缩视频
-private fun Context.compressVideo(source: Uri, target: Uri, sizeLimit: Int) {
+private fun Context.compressVideo(
+    source: Uri,
+    sizeLimit: Int,
+) {
     val retriever = MediaMetadataRetriever()
     retriever.setDataSource(this, source)
     val width = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH)!!.toInt()
@@ -171,18 +301,40 @@ private fun Context.compressVideo(source: Uri, target: Uri, sizeLimit: Int) {
     } else { // 长比宽大 以长为准
         Pair((sizeLimit * ratio).toInt(), sizeLimit)
     }
-    val br = w * h * 30 // 30 帧
+    val fr = 30 // 30 帧
+    val br = w * h * fr // 30 帧
 
-    val extractor = MediaExtractor()
-    extractor.setDataSource(this, source, mapOf())
+    val cachePath = "${UUID.randomUUID()}.mp4"
+    File(externalCacheDir, cachePath).outputStream().use {
+        val mediaMuxer = MediaMuxer(it.fd, MediaMuxer.OutputFormat.MUXER_OUTPUT_MPEG_4)
 
-    val videoIndex = extractor.getTrackFirstIndex(MediaTrackType.Video)
+        // 视频轨
+        val videoExtractor = MediaExtractor().apply {
+            setDataSource(this@compressVideo, source, mapOf())
+        }
+        // 重新定义视频轨的格式，压缩就是使用低配置再录制这轨
+        val videoFormat = MediaFormat.createVideoFormat(MediaFormat.MIMETYPE_VIDEO_AVC, w, h).apply {
+            setInteger(MediaFormat.KEY_COLOR_FORMAT, MediaCodecInfo.CodecCapabilities.COLOR_FormatSurface)
+            setInteger(MediaFormat.KEY_BIT_RATE, br)
+            setInteger(MediaFormat.KEY_FRAME_RATE, fr)
+//            setInteger(MediaFormat.KEY_I_FRAME_INTERVAL, 1) // 间隔单位秒
+        }
+//        val videoTrack = mediaMuxer.addTrackFormat(videoExtractor, MediaTrackType.Video, videoFormat)
 
-    if (videoIndex >= 0) {
-        val mci = getMediaCodecInfo()
-        val colorFormat = MediaCodecInfo.CodecCapabilities.COLOR_FormatSurface
+        // 声轨
+        val audioExtractor = MediaExtractor().apply {
+            setDataSource(this@compressVideo, source, mapOf())
+        }
+        val audioTrack = mediaMuxer.addTrackFrom(audioExtractor, MediaTrackType.Audio)
+        mediaMuxer.start() // 必须在轨道啥都配置好才能开始。
 
+//        mediaMuxer.copySample(videoExtractor, videoTrack)
+        mediaMuxer.copySample(audioExtractor, audioTrack)
 
+        mediaMuxer.stop()
+        mediaMuxer.release()
+        audioExtractor.release()
+        videoExtractor.release()
     }
 }
 
@@ -317,6 +469,8 @@ private fun Context.getPhotoSize(uri: Uri): Pair<Int, Int> {
     return Pair(bitmap?.width ?: 0, bitmap?.height ?: 0)
 }
 
+private val ioScope = CoroutineScope(Dispatchers.IO)
+
 @Preview
 @Composable
 fun CompressPage() {
@@ -413,6 +567,7 @@ fun CompressPage() {
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .verticalScroll(rememberScrollState())
     ) {
         Button(
             enabled = hasPermissions,
@@ -470,5 +625,47 @@ fun CompressPage() {
             model = bitmap,
             contentDescription = "图片"
         )
+
+        val copyVideoAndAudioLauncher = rememberLauncherForActivityResult(
+            contract = ActivityResultContracts.GetContent()
+        ) {
+            it?.let {
+                Toast.makeText(context, "start", Toast.LENGTH_SHORT).show()
+                ioScope.launch {
+                    context.copyVideoAndAudio(it)
+                    withContext(Dispatchers.Main) {
+                        Toast.makeText(context, "end", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
+        }
+        Button(
+            onClick = {
+                copyVideoAndAudioLauncher.launch("video/mp4")
+            }
+        ) {
+            Text(text = "复制双轨")
+        }
+
+        val videoCompressLauncher = rememberLauncherForActivityResult(
+            contract = ActivityResultContracts.GetContent()
+        ) {
+            it?.let {
+                Toast.makeText(context, "start", Toast.LENGTH_SHORT).show()
+                ioScope.launch {
+                    context.compressVideo(it, 400)
+                    withContext(Dispatchers.Main) {
+                        Toast.makeText(context, "end", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
+        }
+        Button(
+            onClick = {
+                videoCompressLauncher.launch("video/mp4")
+            }
+        ) {
+            Text(text = "压缩")
+        }
     }
 }

@@ -1,3 +1,6 @@
+val navVersion: String by rootProject.extra
+val media3Version: String by rootProject.extra
+
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
@@ -87,7 +90,6 @@ dependencies {
     //
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.4.1")
 
-    val navVersion = "2.7.5"
     implementation("androidx.navigation:navigation-compose:$navVersion")
 
     val media3Version="1.2.0"
