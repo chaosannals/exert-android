@@ -23,6 +23,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.platform.isDebugInspectorInfoEnabled
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -37,38 +38,44 @@ import com.example.jcm3wv.ui.widget.JcWebView
 @Composable
 fun WebViewPage() {
     val context = LocalContext.current
+    val inspectionMode = LocalInspectionMode.current
 
-    val webView by remember(context) {
+    val webView by remember(context, inspectionMode) {
         derivedStateOf {
-            WebView(context).apply {
-                settings.apply {
-                    javaScriptEnabled = true
-                    isDebugInspectorInfoEnabled = true
-                }
+            if (inspectionMode) null else {
+                WebView(context).apply {
+                    settings.apply {
+                        javaScriptEnabled = true
+                        isDebugInspectorInfoEnabled = true
+                    }
 
-                webViewClient = object : WebViewClient() {
+                    webViewClient = object : WebViewClient() {
 
-                }
-                webChromeClient = object: WebChromeClient() {
+                    }
+                    webChromeClient = object : WebChromeClient() {
 
+                    }
                 }
             }
         }
     }
 
     LaunchedEffect(Unit) {
-        webView.loadUrl("file:///android_asset/webroot/index.html")
+        webView?.loadUrl("file:///android_asset/webroot/index.html")
     }
 
     Box(
         contentAlignment= Alignment.Center,
-        modifier = Modifier,
+        modifier = Modifier
+            .fillMaxSize(),
     ) {
-        JcWebView(
-            webView = webView,
-            modifier = Modifier
-                .fillMaxSize()
-        )
+        webView?.let {
+            JcWebView(
+                webView = it,
+                modifier = Modifier
+                    .fillMaxSize()
+            )
+        }
 
         Column(
             modifier = Modifier
@@ -81,7 +88,7 @@ fun WebViewPage() {
                     .clip(CircleShape)
                     .background(Color.Red)
                     .clickable {
-                        val cgb = webView.canGoBack()
+                        val cgb = webView?.canGoBack()
                         Toast.makeText(context, "canGoBack: $cgb", Toast.LENGTH_SHORT).show()
                     }
             )
@@ -92,8 +99,10 @@ fun WebViewPage() {
                     .clip(CircleShape)
                     .background(Color.Gray)
                     .clickable {
-                        webView.webViewClient = object : WebViewClient() {}
-                        webView.webChromeClient = object : WebChromeClient() {}
+                        webView?.apply {
+                            webViewClient = object : WebViewClient() {}
+                            webChromeClient = object : WebChromeClient() {}
+                        }
                     }
             )
         }

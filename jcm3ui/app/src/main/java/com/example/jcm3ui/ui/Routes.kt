@@ -12,6 +12,7 @@ import com.example.jcm3ui.ui.page.demo.CompressPage
 import com.example.jcm3ui.ui.page.demo.FilePickPage
 import com.example.jcm3ui.ui.page.demo.FileViewPage
 import com.example.jcm3ui.ui.page.demo.HttpPage
+import com.example.jcm3ui.ui.page.demo.ImageToMp4Page
 import com.example.jcm3ui.ui.page.demo.IntentPage
 import com.example.jcm3ui.ui.page.demo.PopupMakeDialogPage
 import com.example.jcm3ui.ui.page.demo.ThumbnailPage
@@ -59,6 +60,9 @@ fun NavGraphBuilder.buildDemoGraph() {
         }
         composable("demo/audio-record") {
             AudioRecordPage()
+        }
+        composable("demo/image-to-mp4") {
+            ImageToMp4Page()
         }
     }
 }

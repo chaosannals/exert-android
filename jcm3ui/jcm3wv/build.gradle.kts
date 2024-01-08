@@ -12,7 +12,7 @@ android {
     defaultConfig {
         applicationId = "com.example.jcm3wv"
         minSdk = 24
-        targetSdk = 34
+        targetSdk = 34 // compose 1.5 要求 34
         versionCode = 1
         versionName = "1.0"
 

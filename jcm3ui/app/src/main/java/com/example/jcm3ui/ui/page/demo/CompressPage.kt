@@ -16,7 +16,6 @@ import android.media.MediaMuxer
 import android.net.Uri
 import android.os.Build
 import android.provider.MediaStore
-import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -42,6 +41,7 @@ import kotlinx.coroutines.withContext
 import java.io.File
 import java.nio.ByteBuffer
 import java.util.UUID
+import java.util.concurrent.atomic.AtomicBoolean
 
 private const val MIME_TYPE = "video/avc"
 
@@ -225,57 +225,124 @@ private fun MediaMuxer.resample(extractor: MediaExtractor, index: Int) {
     }
 }
 
-private fun MediaMuxer.codeVideo(extractor: MediaExtractor, w: Int, h: Int) {
-    val trackId = extractor.getTrackFirstIndex(MediaTrackType.Video)
-    val inputFormat = extractor.getTrackFormat(trackId)
-
-    val fr = 30 // 30 帧
-    val br = w * h * fr // 30 帧
-    val videoFormat = MediaFormat.createVideoFormat(MediaFormat.MIMETYPE_VIDEO_AVC, w, h).apply {
-        setInteger(MediaFormat.KEY_COLOR_FORMAT, MediaCodecInfo.CodecCapabilities.COLOR_FormatSurface)
-        setInteger(MediaFormat.KEY_BIT_RATE, br)
-        setInteger(MediaFormat.KEY_FRAME_RATE, fr)
-//            setInteger(MediaFormat.KEY_I_FRAME_INTERVAL, 1) // 间隔单位秒
-    }
+private fun MediaMuxer.codeVideo(
+    extractor: MediaExtractor,
+    trackIndex: Int,
+    videoFormat: MediaFormat,
+    inputFormat: MediaFormat,
+    durationUs: Long? = null
+) {
     val encoder = MediaCodec.createEncoderByType(MediaFormat.MIMETYPE_VIDEO_AVC).apply {
+        // TODO 这里报无效参数异常
         configure(videoFormat, null, null, MediaCodec.CONFIGURE_FLAG_ENCODE)
     }
-    val trackIndex = addTrack(videoFormat)
-    val inputSurface = InputSurface(encoder.createInputSurface()).apply {
-        makeCurrent()
-    }
 
-    val outputSurface = OutputSurface()
-    val decoder = MediaCodec.createDecoderByType(inputFormat.getString(MediaFormat.KEY_MIME)!!).apply {
-        configure(inputFormat, outputSurface.surface, null, 0)
-    }
+    val decodeDone = AtomicBoolean(false)
 
-    ioScope.launch {
+    ioScope.launch {// 解码
+        val outputSurface = OutputSurface()
+        val decoder = MediaCodec.createDecoderByType(inputFormat.getString(MediaFormat.KEY_MIME)!!).apply {
+            configure(inputFormat, outputSurface.surface, null, 0)
+        }
         decoder.start()
-        val inputBufferIndex = decoder.dequeueInputBuffer(2500)
-        val inputBuffer = decoder.getInputBuffer(inputBufferIndex)
-        while (true) {
-            val chunkSize = extractor.readSampleData(inputBuffer!!, 0)
-            if (chunkSize < 0) {
+
+        launch {  // 解码输入
+            while (true) {
+                val inputBufferIndexOrStatus = decoder.dequeueInputBuffer(2500)
+                if (inputBufferIndexOrStatus < 0) {
+                    break
+                }
+                val inputBuffer = decoder.getInputBuffer(inputBufferIndexOrStatus)
+                val chunkSize = extractor.readSampleData(inputBuffer!!, 0)
+                if (chunkSize < 0) {
+                    decoder.queueInputBuffer(
+                        inputBufferIndexOrStatus,
+                        0,
+                        0,
+                        0L,
+                        MediaCodec.BUFFER_FLAG_END_OF_STREAM
+                    )
+                    break
+                }
                 decoder.queueInputBuffer(
-                    inputBufferIndex,
+                    inputBufferIndexOrStatus,
                     0,
-                    0,
-                    0L,
-                    MediaCodec.BUFFER_FLAG_END_OF_STREAM
+                    chunkSize,
+                    extractor.sampleTime,
+                    0
                 )
-                break
+                extractor.advance()
             }
-            decoder.queueInputBuffer(inputBufferIndex, 0, chunkSize, extractor.sampleTime, 0)
-            extractor.advance()
+        }
+
+        launch { // 解码输出
+            val inputSurface = InputSurface(encoder.createInputSurface()).apply {
+                makeCurrent()
+            }
+            val bufferInfo = MediaCodec.BufferInfo()
+            val isRender = true // 控制是否渲染
+            while(true) {
+                val outputBufferIndexOrStatus = decoder.dequeueOutputBuffer(bufferInfo, 2500)
+
+                when (outputBufferIndexOrStatus) {
+                    MediaCodec.INFO_TRY_AGAIN_LATER -> {
+                        continue
+                    }
+                    MediaCodec.INFO_OUTPUT_FORMAT_CHANGED -> {
+                        continue
+                    }
+                    else -> {
+                        // 截取视频
+                        durationUs?.let {
+                            if (bufferInfo.presentationTimeUs >= it) {
+                                bufferInfo.flags = MediaCodec.BUFFER_FLAG_END_OF_STREAM
+                            }
+                        }
+                        if (bufferInfo.flags == MediaCodec.BUFFER_FLAG_END_OF_STREAM) {
+                            decoder.releaseOutputBuffer(outputBufferIndexOrStatus, false)
+                            break
+                        }
+                        decoder.releaseOutputBuffer(outputBufferIndexOrStatus, isRender)
+                        if (isRender) {
+                            outputSurface.awaitNewImage()
+                            outputSurface.drawImage(false)
+                            inputSurface.setPresentationTime(bufferInfo.presentationTimeUs * 1000)
+                            inputSurface.swapBuffers()
+                        }
+                    }
+                }
+            }
+            decodeDone.set(true)
         }
     }
 
-    ioScope.launch {
+    ioScope.launch {// 编码
         encoder.start()
         val bufferInfo = MediaCodec.BufferInfo()
-        val outputBufferIndex = encoder.dequeueOutputBuffer(bufferInfo, 2500)
-        val outputBuffer = encoder.getOutputBuffer(outputBufferIndex)
+
+        while (decodeDone.get().not()) {
+            val outputBufferIndexOrStatus = encoder.dequeueOutputBuffer(bufferInfo, 2500)
+
+            when (outputBufferIndexOrStatus) {
+                MediaCodec.INFO_TRY_AGAIN_LATER -> {
+                    continue
+                }
+                MediaCodec.INFO_OUTPUT_FORMAT_CHANGED -> {
+
+                }
+                else -> {
+                    encoder.getOutputBuffer(outputBufferIndexOrStatus)?.let {outputBuffer ->
+                        writeSampleData(trackIndex, outputBuffer, bufferInfo)
+                        encoder.releaseOutputBuffer(outputBufferIndexOrStatus, false)
+                    }
+                    if (bufferInfo.flags == MediaCodec.BUFFER_FLAG_END_OF_STREAM) {
+                        break
+                    }
+                }
+            }
+        }
+
+        encoder.signalEndOfInputStream()
     }
 }
 
@@ -288,8 +355,8 @@ private fun Context.compressVideo(
     retriever.setDataSource(this, source)
     val width = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH)!!.toInt()
     val height = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT)!!.toInt()
-    val rotation = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_ROTATION)!!.toInt()
-    val duration = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)!!.toLong()
+//    val rotation = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_ROTATION)!!.toInt()
+//    val duration = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)!!.toLong()
 
     val ratio = width.toFloat() / height.toFloat()
 
@@ -301,8 +368,6 @@ private fun Context.compressVideo(
     } else { // 长比宽大 以长为准
         Pair((sizeLimit * ratio).toInt(), sizeLimit)
     }
-    val fr = 30 // 30 帧
-    val br = w * h * fr // 30 帧
 
     val cachePath = "${UUID.randomUUID()}.mp4"
     File(externalCacheDir, cachePath).outputStream().use {
@@ -312,14 +377,19 @@ private fun Context.compressVideo(
         val videoExtractor = MediaExtractor().apply {
             setDataSource(this@compressVideo, source, mapOf())
         }
-        // 重新定义视频轨的格式，压缩就是使用低配置再录制这轨
+        val trackId = videoExtractor.getTrackFirstIndex(MediaTrackType.Video)
+        val inputFormat = videoExtractor.getTrackFormat(trackId)
+
+        val fr = 30 // 30 帧
+        val br = w * h * fr // 30 帧
         val videoFormat = MediaFormat.createVideoFormat(MediaFormat.MIMETYPE_VIDEO_AVC, w, h).apply {
             setInteger(MediaFormat.KEY_COLOR_FORMAT, MediaCodecInfo.CodecCapabilities.COLOR_FormatSurface)
             setInteger(MediaFormat.KEY_BIT_RATE, br)
             setInteger(MediaFormat.KEY_FRAME_RATE, fr)
-//            setInteger(MediaFormat.KEY_I_FRAME_INTERVAL, 1) // 间隔单位秒
+//        setInteger(MediaFormat.KEY_MAX_INPUT_SIZE, 0)
+            setInteger(MediaFormat.KEY_I_FRAME_INTERVAL, 10) // 间隔单位秒
         }
-//        val videoTrack = mediaMuxer.addTrackFormat(videoExtractor, MediaTrackType.Video, videoFormat)
+        val videoTrack = mediaMuxer.addTrack(videoFormat)
 
         // 声轨
         val audioExtractor = MediaExtractor().apply {
@@ -328,7 +398,7 @@ private fun Context.compressVideo(
         val audioTrack = mediaMuxer.addTrackFrom(audioExtractor, MediaTrackType.Audio)
         mediaMuxer.start() // 必须在轨道啥都配置好才能开始。
 
-//        mediaMuxer.copySample(videoExtractor, videoTrack)
+        mediaMuxer.codeVideo(videoExtractor, videoTrack, videoFormat, inputFormat)
         mediaMuxer.copySample(audioExtractor, audioTrack)
 
         mediaMuxer.stop()
