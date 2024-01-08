@@ -8,6 +8,9 @@ buildscript {
         // 构造脚本的设计缺少统一配置的地方。
         set("navVersion", "2.7.5")
         set("media3Version", "1.2.0")
+        set("cameraxVersion", "1.2.2")
+        set("coilVersion", "2.5.0")
+        set("ktorVersion", "2.3.7")
     }
     dependencies {
         val navVersion: String by rootProject.extra

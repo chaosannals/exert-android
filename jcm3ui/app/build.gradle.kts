@@ -1,5 +1,8 @@
 val navVersion: String by rootProject.extra
 val media3Version: String by rootProject.extra
+val cameraxVersion: String by rootProject.extra
+val coilVersion: String by rootProject.extra
+val ktorVersion: String by rootProject.extra
 
 plugins {
     id("com.android.application")
@@ -92,12 +95,10 @@ dependencies {
 
     implementation("androidx.navigation:navigation-compose:$navVersion")
 
-    val media3Version="1.2.0"
     implementation("androidx.media3:media3-exoplayer:$media3Version")
     implementation("androidx.media3:media3-exoplayer-dash:$media3Version")
     implementation("androidx.media3:media3-ui:$media3Version")
 
-    val cameraxVersion = "1.2.2"
     implementation("androidx.camera:camera-core:${cameraxVersion}")
     implementation("androidx.camera:camera-camera2:${cameraxVersion}")
     implementation("androidx.camera:camera-lifecycle:${cameraxVersion}")
@@ -106,7 +107,6 @@ dependencies {
     implementation("androidx.camera:camera-view:${cameraxVersion}")
     implementation("androidx.camera:camera-extensions:${cameraxVersion}")
 
-    val coilVersion = "2.5.0"
     implementation("io.coil-kt:coil-compose:$coilVersion")
     implementation("io.coil-kt:coil-gif:$coilVersion")
     implementation("io.coil-kt:coil-svg:$coilVersion")
@@ -125,7 +125,6 @@ dependencies {
 
 //    implementation("nl.bravobit:android-ffmpeg:1.1.7")  // 没仓库
 
-    val ktorVersion = "2.3.7"
     // ktor clien
     implementation("io.ktor:ktor-client-core:$ktorVersion")
 //    implementation("io.ktor:ktor-client-okhttp:$ktorVersion") // 服务器传输后直接断开会抛出异常。
