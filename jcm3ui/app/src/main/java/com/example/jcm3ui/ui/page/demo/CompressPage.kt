@@ -36,6 +36,7 @@ import com.hw.videoprocessor.util.InputSurface
 import com.hw.videoprocessor.util.OutputSurface
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
@@ -230,17 +231,23 @@ private fun MediaMuxer.codeVideo(
     trackIndex: Int,
     videoFormat: MediaFormat,
     inputFormat: MediaFormat,
+    w: Int,
+    h: Int,
+    r: Int,
     durationUs: Long? = null
 ) {
     val encoder = MediaCodec.createEncoderByType(MediaFormat.MIMETYPE_VIDEO_AVC).apply {
-        // TODO 这里报无效参数异常
+        // 从 安卓 12 开始 宽高低于 320x240 会报无效参数异常
         configure(videoFormat, null, null, MediaCodec.CONFIGURE_FLAG_ENCODE)
+    }
+    val inputSurface = InputSurface(encoder.createInputSurface()).apply {
+        makeCurrent()
     }
 
     val decodeDone = AtomicBoolean(false)
 
     ioScope.launch {// 解码
-        val outputSurface = OutputSurface()
+        val outputSurface = OutputSurface(w, h, r)
         val decoder = MediaCodec.createDecoderByType(inputFormat.getString(MediaFormat.KEY_MIME)!!).apply {
             configure(inputFormat, outputSurface.surface, null, 0)
         }
@@ -253,6 +260,7 @@ private fun MediaMuxer.codeVideo(
                     break
                 }
                 val inputBuffer = decoder.getInputBuffer(inputBufferIndexOrStatus)
+                // TODO readSampleData 报状态异常
                 val chunkSize = extractor.readSampleData(inputBuffer!!, 0)
                 if (chunkSize < 0) {
                     decoder.queueInputBuffer(
@@ -276,9 +284,6 @@ private fun MediaMuxer.codeVideo(
         }
 
         launch { // 解码输出
-            val inputSurface = InputSurface(encoder.createInputSurface()).apply {
-                makeCurrent()
-            }
             val bufferInfo = MediaCodec.BufferInfo()
             val isRender = true // 控制是否渲染
             while(true) {
@@ -286,9 +291,11 @@ private fun MediaMuxer.codeVideo(
 
                 when (outputBufferIndexOrStatus) {
                     MediaCodec.INFO_TRY_AGAIN_LATER -> {
+                        delay(1)
                         continue
                     }
                     MediaCodec.INFO_OUTPUT_FORMAT_CHANGED -> {
+                        delay(1)
                         continue
                     }
                     else -> {
@@ -325,10 +332,12 @@ private fun MediaMuxer.codeVideo(
 
             when (outputBufferIndexOrStatus) {
                 MediaCodec.INFO_TRY_AGAIN_LATER -> {
+                    delay(1)
                     continue
                 }
                 MediaCodec.INFO_OUTPUT_FORMAT_CHANGED -> {
-
+                    delay(1)
+                    continue
                 }
                 else -> {
                     encoder.getOutputBuffer(outputBufferIndexOrStatus)?.let {outputBuffer ->
@@ -355,7 +364,7 @@ private fun Context.compressVideo(
     retriever.setDataSource(this, source)
     val width = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH)!!.toInt()
     val height = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT)!!.toInt()
-//    val rotation = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_ROTATION)!!.toInt()
+    val rotation = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_ROTATION)!!.toInt()
 //    val duration = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)!!.toLong()
 
     val ratio = width.toFloat() / height.toFloat()
@@ -379,6 +388,7 @@ private fun Context.compressVideo(
         }
         val trackId = videoExtractor.getTrackFirstIndex(MediaTrackType.Video)
         val inputFormat = videoExtractor.getTrackFormat(trackId)
+        videoExtractor.selectTrack(trackId)
 
         val fr = 30 // 30 帧
         val br = w * h * fr // 30 帧
@@ -398,7 +408,7 @@ private fun Context.compressVideo(
         val audioTrack = mediaMuxer.addTrackFrom(audioExtractor, MediaTrackType.Audio)
         mediaMuxer.start() // 必须在轨道啥都配置好才能开始。
 
-        mediaMuxer.codeVideo(videoExtractor, videoTrack, videoFormat, inputFormat)
+        mediaMuxer.codeVideo(videoExtractor, videoTrack, videoFormat, inputFormat, w, h, rotation)
         mediaMuxer.copySample(audioExtractor, audioTrack)
 
         mediaMuxer.stop()
@@ -723,7 +733,7 @@ fun CompressPage() {
             it?.let {
                 Toast.makeText(context, "start", Toast.LENGTH_SHORT).show()
                 ioScope.launch {
-                    context.compressVideo(it, 400)
+                    context.compressVideo(it, 800)
                     withContext(Dispatchers.Main) {
                         Toast.makeText(context, "end", Toast.LENGTH_SHORT).show()
                     }
