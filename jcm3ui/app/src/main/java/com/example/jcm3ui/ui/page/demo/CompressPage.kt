@@ -16,6 +16,7 @@ import android.media.MediaMuxer
 import android.net.Uri
 import android.os.Build
 import android.provider.MediaStore
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -34,16 +35,17 @@ import coil.compose.AsyncImage
 import com.hw.videoprocessor.VideoProcessor
 import com.hw.videoprocessor.util.InputSurface
 import com.hw.videoprocessor.util.OutputSurface
-import io.ktor.utils.io.bits.copyTo
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import okhttp3.internal.wait
 import java.io.File
 import java.nio.ByteBuffer
 import java.util.UUID
 import java.util.concurrent.atomic.AtomicBoolean
+import java.util.concurrent.atomic.AtomicInteger
 
 private const val MIME_TYPE = "video/avc"
 
@@ -234,6 +236,8 @@ private fun MediaMuxer.codeVideo(
     inputFormat: MediaFormat,
     durationUs: Long? = null
 ) {
+    var videoTrack = trackIndex
+
     val encoder = MediaCodec.createEncoderByType(MediaFormat.MIMETYPE_VIDEO_AVC).apply {
         // 从 安卓 12 开始 宽高低于 320x240 会报无效参数异常
         configure(videoFormat, null, null, MediaCodec.CONFIGURE_FLAG_ENCODE)
@@ -241,6 +245,7 @@ private fun MediaMuxer.codeVideo(
     val inputSurface = InputSurface(encoder.createInputSurface()).apply {
         makeCurrent()
     }
+    encoder.start()
 
     // 必须和 inputSurface 在同个协程初始化，不然无参构造函数会抛出异常。
     // 传递宽高参数，可以不用和 inputSurface 同个协程，但是未验证其可用性，几个参考代码都用的无参。
@@ -249,24 +254,67 @@ private fun MediaMuxer.codeVideo(
         configure(inputFormat, outputSurface.surface, null, 0)
     }
 
-    val decodeDone = AtomicBoolean(false)
-
     decoder.start()
 
-    ioScope.launch {// 2. 解码输出
-        val bufferInfo = MediaCodec.BufferInfo()
-        val isRender = true // 控制是否渲染
-        while (true) {
+    val bufferInfo = MediaCodec.BufferInfo()
+    val decodeInputDone = AtomicBoolean(false)
+    val decodeOutputDone = AtomicBoolean(false)
+    val encodeDone = AtomicBoolean(false)
+    val encodeBufferInfo = MediaCodec.BufferInfo()
+    val encodeTryAgainCount = AtomicInteger(100)
+
+    // 在一个大循环里面做
+    // 1.解码输入
+    // 2.解码输出
+    // 3.编码
+    // 使得代码混乱是被逼无奈，
+    // 多个变量初始化和之后的使用都必须在同一个协程。
+    // 导致必须放在一个大循环里面。
+    while (decodeInputDone.get().not() || decodeOutputDone.get().not() || encodeDone.get().not()) {
+        // 1. 解码输入
+        if (decodeInputDone.get().not()) {
+            val inputBufferIndexOrStatus = decoder.dequeueInputBuffer(2500)
+            if (inputBufferIndexOrStatus < 0) {
+                continue
+            }
+            val inputBuffer = decoder.getInputBuffer(inputBufferIndexOrStatus)
+            // extractor 构建的协程必须和 readSampleData 的同一个协程，不然报未初始化状态异常
+            val chunkSize = extractor.readSampleData(inputBuffer!!, 0)
+            if (chunkSize < 0) {
+                decoder.queueInputBuffer(
+                    inputBufferIndexOrStatus,
+                    0,
+                    0,
+                    0L,
+                    MediaCodec.BUFFER_FLAG_END_OF_STREAM
+                )
+                decodeInputDone.set(true)
+                Log.d("compress video", "decode input end: ${bufferInfo.presentationTimeUs}")
+                continue
+            }
+
+            decoder.queueInputBuffer(
+                inputBufferIndexOrStatus,
+                0,
+                chunkSize,
+                extractor.sampleTime,
+                0
+            )
+            extractor.advance()
+            Log.d("compress video", "decode input: ${chunkSize}")
+        }
+
+        // 2. 解码输出
+        if (decodeOutputDone.get().not()) {
             val outputBufferIndexOrStatus = decoder.dequeueOutputBuffer(bufferInfo, 2500)
 
             when (outputBufferIndexOrStatus) {
                 MediaCodec.INFO_TRY_AGAIN_LATER -> {
-                    delay(1)
                     continue
                 }
 
                 MediaCodec.INFO_OUTPUT_FORMAT_CHANGED -> {
-                    delay(1)
+                    Log.d("compress video", "decode output format changed: ${decoder.outputFormat}")
                     continue
                 }
 
@@ -279,87 +327,69 @@ private fun MediaMuxer.codeVideo(
                     }
                     if (bufferInfo.flags == MediaCodec.BUFFER_FLAG_END_OF_STREAM) {
                         decoder.releaseOutputBuffer(outputBufferIndexOrStatus, false)
-                        break
+                        decodeOutputDone.set(true)
+                        Log.d("compress video", "decode output end: ${bufferInfo.presentationTimeUs}")
+                        continue
                     }
-                    decoder.releaseOutputBuffer(outputBufferIndexOrStatus, isRender)
-                    if (isRender) {
-//                        try {
-                        // TODO awaitNewImage 异常
-                            outputSurface.awaitNewImage()
-                            outputSurface.drawImage(false)
-                            inputSurface.setPresentationTime(bufferInfo.presentationTimeUs * 1000)
-                            inputSurface.swapBuffers()
-//                        } catch (t: Throwable) {}
+                    //
+                    try {
+                        decoder.releaseOutputBuffer(outputBufferIndexOrStatus, true)
+                        // outputSurface 的初始化协程必须和 awaitNewImage 在同一个协程
+                        outputSurface.awaitNewImage()
+                        outputSurface.drawImage(false)
+                        inputSurface.setPresentationTime(bufferInfo.presentationTimeUs * 1000)
+                        inputSurface.swapBuffers()
+                        Log.d("compress video", "decode output: ${bufferInfo.presentationTimeUs}")
+                    } catch (t: Throwable) {
+//                        decoder.releaseOutputBuffer(outputBufferIndexOrStatus, false)
                     }
                 }
             }
         }
 
-        inputSurface.release()
-        outputSurface.release()
-        decodeDone.set(true)
-    }
-
-    ioScope.launch {// 3. 编码
-        encoder.start()
-        val bufferInfo = MediaCodec.BufferInfo()
-
-        while (decodeDone.get().not()) {
-            val outputBufferIndexOrStatus = encoder.dequeueOutputBuffer(bufferInfo, 2500)
+        // 3. 编码
+        if (encodeDone.get().not()) {
+            val outputBufferIndexOrStatus = encoder.dequeueOutputBuffer(encodeBufferInfo, 2500)
 
             when (outputBufferIndexOrStatus) {
                 MediaCodec.INFO_TRY_AGAIN_LATER -> {
-                    delay(1)
+                    if (encodeTryAgainCount.getAndDecrement() < 0) {
+                        encodeDone.set(true)
+                        encoder.signalEndOfInputStream()
+                    }
                     continue
                 }
                 MediaCodec.INFO_OUTPUT_FORMAT_CHANGED -> {
-                    delay(1)
+                    // TODO 接收到这条信息的时候停止，拿到新的格式（encoder.outputFormat），再重新执行一次。
+                    Log.d("compress video", "encode output format changed: ${encoder.outputFormat}")
+                    Log.d("compress video", "encode output format old: ${videoFormat}")
+//                    stop()
+//                    videoTrack = addTrack(encoder.outputFormat)
+//                    start()
                     continue
                 }
                 else -> {
                     encoder.getOutputBuffer(outputBufferIndexOrStatus)?.let {outputBuffer ->
-                        writeSampleData(trackIndex, outputBuffer, bufferInfo)
-                        encoder.releaseOutputBuffer(outputBufferIndexOrStatus, false)
+                        writeSampleData(videoTrack, outputBuffer, encodeBufferInfo)
                     }
-                    if (bufferInfo.flags == MediaCodec.BUFFER_FLAG_END_OF_STREAM) {
+                    encoder.releaseOutputBuffer(outputBufferIndexOrStatus, false)
+                    Log.d("compress video", "encode flag: ${encodeBufferInfo.flags}")
+                    if (encodeBufferInfo.flags == MediaCodec.BUFFER_FLAG_END_OF_STREAM) {
+                        encodeDone.set(true)
+                        encoder.signalEndOfInputStream()
                         break
                     }
                 }
             }
         }
-
-        encoder.signalEndOfInputStream()
     }
 
-    // 1. 解码输入
-    while (true) {
-        val inputBufferIndexOrStatus = decoder.dequeueInputBuffer(2500)
-        if (inputBufferIndexOrStatus < 0) {
-            break
-        }
-        val inputBuffer = decoder.getInputBuffer(inputBufferIndexOrStatus)
-        // extractor 构建的协程必须和 readSampleData 的同一个，不然报未初始化状态异常
-        val chunkSize = extractor.readSampleData(inputBuffer!!, 0)
-        if (chunkSize < 0) {
-            decoder.queueInputBuffer(
-                inputBufferIndexOrStatus,
-                0,
-                0,
-                0L,
-                MediaCodec.BUFFER_FLAG_END_OF_STREAM
-            )
-            break
-        }
-
-        decoder.queueInputBuffer(
-            inputBufferIndexOrStatus,
-            0,
-            chunkSize,
-            extractor.sampleTime,
-            0
-        )
-        extractor.advance()
-    }
+    decoder.stop()
+    decoder.release()
+    encoder.stop()
+    encoder.release()
+    inputSurface.release()
+    outputSurface.release()
 }
 
 // 压缩视频
@@ -404,7 +434,7 @@ private fun Context.compressVideo(
             setInteger(MediaFormat.KEY_BIT_RATE, br)
             setInteger(MediaFormat.KEY_FRAME_RATE, fr)
 //        setInteger(MediaFormat.KEY_MAX_INPUT_SIZE, 0)
-            setInteger(MediaFormat.KEY_I_FRAME_INTERVAL, 10) // 间隔单位秒
+            setInteger(MediaFormat.KEY_I_FRAME_INTERVAL, 1) // 间隔单位秒
         }
         val videoTrack = mediaMuxer.addTrack(videoFormat)
 
@@ -418,10 +448,9 @@ private fun Context.compressVideo(
         mediaMuxer.codeVideo(videoExtractor, videoTrack, videoFormat, inputFormat)
         mediaMuxer.copySample(audioExtractor, audioTrack)
 
-        mediaMuxer.stop()
-        mediaMuxer.release()
         audioExtractor.release()
         videoExtractor.release()
+        mediaMuxer.release()
     }
 }
 
@@ -557,6 +586,7 @@ private fun Context.getPhotoSize(uri: Uri): Pair<Int, Int> {
 }
 
 private val ioScope = CoroutineScope(Dispatchers.IO)
+private val mainScope = CoroutineScope(Dispatchers.Main)
 
 @Preview
 @Composable
