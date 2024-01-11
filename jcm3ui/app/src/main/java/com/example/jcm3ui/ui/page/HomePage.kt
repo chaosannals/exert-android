@@ -96,6 +96,7 @@ fun HomePage() {
         HomeButton(title = "Intent", path = "demo/intent")
         HomeButton(title = "录音", path = "demo/audio-record")
         HomeButton(title = "图合并视频", path = "demo/image-to-mp4")
+        HomeButton(title = "视频压缩", path = "demo/compress-video")
 
         HomeButton(title = "布局（LazyVerticalGird）", path = "layout/lazy-vertical-grid")
         HomeButton(title = "布局（LazyVerticalStaggeredGrid）", path = "layout/lazy-vertical-staggered-grid")

@@ -9,6 +9,7 @@ import com.example.jcm3ui.ui.page.demo.CachePage
 import com.example.jcm3ui.ui.page.demo.CameraShotPage
 import com.example.jcm3ui.ui.page.demo.CameraViewPage
 import com.example.jcm3ui.ui.page.demo.CompressPage
+import com.example.jcm3ui.ui.page.demo.CompressVideoPage
 import com.example.jcm3ui.ui.page.demo.FilePickPage
 import com.example.jcm3ui.ui.page.demo.FileViewPage
 import com.example.jcm3ui.ui.page.demo.HttpPage
@@ -63,6 +64,9 @@ fun NavGraphBuilder.buildDemoGraph() {
         }
         composable("demo/image-to-mp4") {
             ImageToMp4Page()
+        }
+        composable("demo/compress-video") {
+            CompressVideoPage()
         }
     }
 }

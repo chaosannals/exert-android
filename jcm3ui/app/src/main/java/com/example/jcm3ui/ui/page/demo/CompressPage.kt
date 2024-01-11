@@ -37,10 +37,8 @@ import com.hw.videoprocessor.util.InputSurface
 import com.hw.videoprocessor.util.OutputSurface
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import okhttp3.internal.wait
 import java.io.File
 import java.nio.ByteBuffer
 import java.util.UUID
@@ -49,7 +47,7 @@ import java.util.concurrent.atomic.AtomicInteger
 
 private const val MIME_TYPE = "video/avc"
 
-enum class MediaTrackType(
+private enum class CompressMediaTrackType(
     val mimeStart: String,
 ) {
     Audio("audio/"),
@@ -57,7 +55,7 @@ enum class MediaTrackType(
 }
 
 // 获取 视频轨 和 音频轨 的索引
-private fun MediaExtractor.getTrackFirstIndex(type: MediaTrackType): Int {
+private fun MediaExtractor.getTrackFirstIndex(type: CompressMediaTrackType): Int {
     for (i in 0 until  trackCount) {
         val format = getTrackFormat(i)
         val mime = format.getString(MediaFormat.KEY_MIME)
@@ -128,7 +126,7 @@ private fun MediaCodecInfo.getColorFormat(mimeType: String= MIME_TYPE): Int {
     return result
 }
 
-private fun MediaMuxer.addTrackFrom(extractor: MediaExtractor, type: MediaTrackType): Int {
+private fun MediaMuxer.addTrackFrom(extractor: MediaExtractor, type: CompressMediaTrackType): Int {
     val trackId = extractor.getTrackFirstIndex(type)
     if (trackId < 0) {
         return -1
@@ -171,13 +169,13 @@ private fun Context.copyVideoAndAudio(source: Uri) {
         val videoExtractor = MediaExtractor().apply {
             setDataSource(this@copyVideoAndAudio, source, mapOf())
         }
-        val videoTrack = mediaMuxer.addTrackFrom(videoExtractor, MediaTrackType.Video)
+        val videoTrack = mediaMuxer.addTrackFrom(videoExtractor, CompressMediaTrackType.Video)
 
         // 声轨
         val audioExtractor = MediaExtractor().apply {
             setDataSource(this@copyVideoAndAudio, source, mapOf())
         }
-        val audioTrack = mediaMuxer.addTrackFrom(audioExtractor, MediaTrackType.Audio)
+        val audioTrack = mediaMuxer.addTrackFrom(audioExtractor, CompressMediaTrackType.Audio)
         mediaMuxer.start() // 必须在轨道啥都配置好才能开始。
 
         mediaMuxer.copySample(videoExtractor, videoTrack)
@@ -190,7 +188,7 @@ private fun Context.copyVideoAndAudio(source: Uri) {
     }
 }
 
-private fun MediaMuxer.addTrackFormat(extractor: MediaExtractor, type: MediaTrackType, format: MediaFormat): Int {
+private fun MediaMuxer.addTrackFormat(extractor: MediaExtractor, type: CompressMediaTrackType, format: MediaFormat): Int {
     val trackId = extractor.getTrackFirstIndex(type)
     if (trackId < 0) {
         return -1
@@ -423,7 +421,7 @@ private fun Context.compressVideo(
         val videoExtractor = MediaExtractor().apply {
             setDataSource(this@compressVideo, source, mapOf())
         }
-        val trackId = videoExtractor.getTrackFirstIndex(MediaTrackType.Video)
+        val trackId = videoExtractor.getTrackFirstIndex(CompressMediaTrackType.Video)
         val inputFormat = videoExtractor.getTrackFormat(trackId)
         videoExtractor.selectTrack(trackId)
 
@@ -442,7 +440,7 @@ private fun Context.compressVideo(
         val audioExtractor = MediaExtractor().apply {
             setDataSource(this@compressVideo, source, mapOf())
         }
-        val audioTrack = mediaMuxer.addTrackFrom(audioExtractor, MediaTrackType.Audio)
+        val audioTrack = mediaMuxer.addTrackFrom(audioExtractor, CompressMediaTrackType.Audio)
         mediaMuxer.start() // 必须在轨道啥都配置好才能开始。
 
         mediaMuxer.codeVideo(videoExtractor, videoTrack, videoFormat, inputFormat)
