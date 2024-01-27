@@ -52,6 +52,8 @@ android {
 }
 
 dependencies {
+    implementation(kotlin("reflect"))
+
     implementation("androidx.core:core-ktx:1.12.0")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.2")
     implementation("androidx.activity:activity-compose:1.7.2")
@@ -62,6 +64,12 @@ dependencies {
     implementation("androidx.compose.material3:material3")
 
     implementation("androidx.navigation:navigation-compose:$navVersion")
+
+    // 懒加载表
+    implementation("io.github.oleksandrbalan:lazytable:1.7.0")
+
+    // 调试数据生成库
+    implementation("io.github.serpro69:kotlin-faker:1.15.0")
 
     testImplementation("junit:junit:4.13.2")
 

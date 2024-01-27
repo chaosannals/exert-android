@@ -9,7 +9,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.jcm3wv.ui.NavTarget
 import com.example.jcm3wv.ui.nav
-import com.example.jcm3wv.ui.tryTo
+
+
+
 
 @Preview
 @Composable
@@ -18,12 +20,14 @@ fun HomePage() {
         modifier = Modifier
             .fillMaxSize()
     ) {
-        Button(
-            onClick = {
-                NavTarget.DemoWebView.nav()
+        NavTarget.entries.forEach {
+            Button(
+                onClick = {
+                    it.nav()
+                }
+            ) {
+                Text(it.path)
             }
-        ) {
-            Text("WebView")
         }
     }
 }

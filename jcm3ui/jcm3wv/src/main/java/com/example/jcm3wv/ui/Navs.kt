@@ -8,6 +8,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navigation
 import com.example.jcm3wv.ui.page.HomePage
+import com.example.jcm3wv.ui.page.demo.LazyTablePage
 import com.example.jcm3wv.ui.page.demo.WebViewPage
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -20,6 +21,7 @@ enum class NavTarget(
     Back("[back]"),
     Home("home"),
     DemoWebView("demo/web-view"),
+    DemoLazyTable("demo/lazy-table")
 }
 
 fun NavTarget.tryTo():Boolean {
@@ -66,6 +68,9 @@ fun NavGraphBuilder.buildDemoGraph() {
     navigation(NavTarget.DemoWebView.path, "demo") {
         composable(NavTarget.DemoWebView.path) {
             WebViewPage()
+        }
+        composable(NavTarget.DemoLazyTable.path) {
+            LazyTablePage()
         }
     }
 }
