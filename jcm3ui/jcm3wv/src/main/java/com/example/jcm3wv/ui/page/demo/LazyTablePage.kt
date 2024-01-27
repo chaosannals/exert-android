@@ -16,12 +16,16 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.zIndex
 import eu.wewox.lazytable.LazyTable
 import eu.wewox.lazytable.LazyTableItem
 import eu.wewox.lazytable.lazyTableDimensions
 import eu.wewox.lazytable.lazyTablePinConfiguration
+import eu.wewox.lazytable.rememberLazyTableState
 import io.github.serpro69.kfaker.faker
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -29,6 +33,7 @@ import kotlinx.coroutines.launch
 import kotlin.random.Random
 import kotlin.reflect.KVisibility
 import kotlin.reflect.full.memberProperties
+import kotlin.reflect.full.primaryConstructor
 
 data class LazyTableDemoItem(
     val name: String,
@@ -46,10 +51,15 @@ fun LazyTablePage() {
     }
     val columns by remember {
         derivedStateOf {
+            val names = LazyTableDemoItem::class.primaryConstructor!!.parameters.map {
+                it.name
+            }
             LazyTableDemoItem::class.memberProperties.filter {
                 it.visibility == KVisibility.PUBLIC
             }.map {
                 it
+            }.sortedBy {
+                names.indexOf(it.name)
             }
         }
     }
@@ -64,49 +74,34 @@ fun LazyTablePage() {
     }
 
     LaunchedEffect(Unit) {
-        for (j in 0 .. 100) {
-            rows.add(
-                LazyTableDemoItem(
-                    name = fake.name.name(),
-                    age = Random.nextInt(2, 100),
-                    address = fake.address.fullAddress(),
-                    email = fake.internet.email(),
-                )
-            )
+        launch(Dispatchers.IO) {
+            for (j in 0 .. 100) {
+                rows.addAll((0 .. 100).toList().map {
+                    LazyTableDemoItem(
+                        name = fake.name.name(),
+                        age = Random.nextInt(2, 100),
+                        address = fake.address.fullAddress(),
+                        email = fake.internet.email(),
+                    )
+                })
+                delay(10000)
+            }
         }
-//        rows.addAll(arrayOf(0 .. 100).map {
-//            LazyTableDemoItem(
-//                name = fake.name.name(),
-//                age = Random.nextInt(2, 100),
-//                address = fake.address.fullAddress(),
-//                email = fake.internet.email(),
-//            )
-//        })
-//        launch(Dispatchers.IO) {
-//            for (j in 0 .. 100) {
-//                delay(4000)
-//                rows.addAll(arrayOf(0 .. 100).map {
-//                    LazyTableDemoItem(
-//                        name = fake.name.name(),
-//                        age = Random.nextInt(2, 100),
-//                        address = fake.address.fullAddress(),
-//                        email = fake.internet.email(),
-//                    )
-//                })
-//            }
-//        }
     }
 
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
         LazyTable(
+            state = rememberLazyTableState(),
             dimensions = lazyTableDimensions(
                 columnSize = {
                     when (it) {
-                        0 -> 40.dp
-                        1 -> 300.dp
+                        0 -> 60.dp
+                        1 -> 120.dp
                         2 -> 40.dp
+                        3 -> 500.dp
+                        4 -> 500.dp
                         else -> 200.dp
                     }
                 },
@@ -134,6 +129,7 @@ fun LazyTablePage() {
             ) {
                 Box(
                     modifier = Modifier
+                        .zIndex(100f)
                         .fillMaxSize()
                         .background(Color.White)
                 ) {
@@ -154,6 +150,14 @@ fun LazyTablePage() {
                 Box(
                     modifier = Modifier
                         .background(Color.White)
+                        .drawBehind {
+                            drawLine(
+                                color = Color.Gray,
+                                start = Offset(0f, size.height),
+                                end= Offset(size.width, size.height),
+                                strokeWidth = 1f,
+                            )
+                        }
                 ) {
                     Text(
                         text = columns[it].name,
@@ -174,16 +178,24 @@ fun LazyTablePage() {
                 Box(
                     modifier = Modifier
                         .background(Color.White)
+                        .drawBehind {
+                            drawLine(
+                                color = Color.Gray,
+                                start = Offset(size.width, 0f),
+                                end= Offset(size.width, size.height),
+                                strokeWidth = 1f,
+                            )
+                        }
                 ) {
                     Text(
-                        text = "#${it + 1}",
+                        text = "${it + 1}",
                     )
                 }
             }
 
             // 内容
             items(
-                count = columns.size * rows.size,
+                count = rows.size * columns.size,
                 layoutInfo = {
                     LazyTableItem(
                         column = it % columns.size + 1,
