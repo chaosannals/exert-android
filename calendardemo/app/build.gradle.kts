@@ -60,6 +60,8 @@ dependencies {
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
     implementation(libs.androidx.navigation)
+//    implementation(fileTree("libs"))
+//    implementation(fileTree("dir" to "libs", "include" to listOf("*.aar")))
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
