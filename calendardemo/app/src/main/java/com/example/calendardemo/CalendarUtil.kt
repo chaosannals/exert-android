@@ -8,6 +8,7 @@ import android.graphics.Color
 import android.icu.util.Calendar
 import android.net.Uri
 import android.provider.CalendarContract
+import androidx.compose.material3.Text
 import java.util.Date
 import java.util.TimeZone
 
@@ -26,6 +27,22 @@ data class CalendarEvent(
     val description: String?,
     val id: Long?=null,
 )
+
+data class CalendarContentUrls(
+    val calendars: String,
+    val events: String,
+    val reminders: String,
+    val instances: String,
+)
+
+fun listCalendarContentUrls(): CalendarContentUrls {
+    return CalendarContentUrls(
+        calendars = CalendarContract.Calendars.CONTENT_URI.toString(),
+        events = CalendarContract.Events.CONTENT_URI.toString(),
+        reminders = CalendarContract.Reminders.CONTENT_URI.toString(),
+        instances = CalendarContract.Instances.CONTENT_URI.toString(),
+    )
+}
 
 fun Context.addCalendarAccount(
     name: String,

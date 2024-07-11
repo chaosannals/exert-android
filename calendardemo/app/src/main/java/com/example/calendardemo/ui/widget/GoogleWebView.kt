@@ -227,10 +227,10 @@ fun GoogleWebView(
  * class that can be overriden if further custom behaviour is required.
  */
 
-public open class AccompanistWebViewClient : WebViewClient() {
-    public open lateinit var state: WebViewState
+open class AccompanistWebViewClient : WebViewClient() {
+    open lateinit var state: WebViewState
         internal set
-    public open lateinit var navigator: WebViewNavigator
+    open lateinit var navigator: WebViewNavigator
         internal set
 
     override fun onPageStarted(view: WebView, url: String?, favicon: Bitmap?) {
@@ -278,7 +278,7 @@ public open class AccompanistWebViewClient : WebViewClient() {
  */
 
 open class AccompanistWebChromeClient : WebChromeClient() {
-    public open lateinit var state: WebViewState
+    open lateinit var state: WebViewState
         internal set
 
     override fun onReceivedTitle(view: WebView, title: String?) {
@@ -371,38 +371,38 @@ sealed class LoadingState {
  * using the rememberWebViewState(uri) function.
  */
 @Stable
-public class WebViewState(webContent: WebContent) {
-    public var lastLoadedUrl: String? by mutableStateOf(null)
+class WebViewState(webContent: WebContent) {
+    var lastLoadedUrl: String? by mutableStateOf(null)
         internal set
 
     /**
      *  The content being loaded by the WebView
      */
-    public var content: WebContent by mutableStateOf(webContent)
+    var content: WebContent by mutableStateOf(webContent)
 
     /**
      * Whether the WebView is currently [LoadingState.Loading] data in its main frame (along with
      * progress) or the data loading has [LoadingState.Finished]. See [LoadingState]
      */
-    public var loadingState: LoadingState by mutableStateOf(LoadingState.Initializing)
+    var loadingState: LoadingState by mutableStateOf(LoadingState.Initializing)
         internal set
 
     /**
      * Whether the webview is currently loading data in its main frame
      */
-    public val isLoading: Boolean
+    val isLoading: Boolean
         get() = loadingState !is LoadingState.Finished
 
     /**
      * The title received from the loaded content of the current page
      */
-    public var pageTitle: String? by mutableStateOf(null)
+    var pageTitle: String? by mutableStateOf(null)
         internal set
 
     /**
      * the favicon received from the loaded content of the current page
      */
-    public var pageIcon: Bitmap? by mutableStateOf(null)
+    var pageIcon: Bitmap? by mutableStateOf(null)
         internal set
 
     /**
@@ -410,14 +410,14 @@ public class WebViewState(webContent: WebContent) {
      * Errors could be from any resource (iframe, image, etc.), not just for the main page.
      * For more fine grained control use the OnError callback of the WebView.
      */
-    public val errorsForCurrentRequest: SnapshotStateList<WebViewError> = mutableStateListOf()
+    val errorsForCurrentRequest: SnapshotStateList<WebViewError> = mutableStateListOf()
 
     /**
      * The saved view state from when the view was destroyed last. To restore state,
      * use the navigator and only call loadUrl if the bundle is null.
      * See WebViewSaveStateSample.
      */
-    public var viewState: Bundle? = null
+    var viewState: Bundle? = null
         internal set
 
     // We need access to this in the state saver. An internal DisposableEffect or AndroidView
@@ -596,7 +596,7 @@ class WebViewNavigator(private val coroutineScope: CoroutineScope) {
  * override.
  */
 @Composable
-public fun rememberWebViewNavigator(
+fun rememberWebViewNavigator(
     coroutineScope: CoroutineScope = rememberCoroutineScope()
 ): WebViewNavigator = remember(coroutineScope) { WebViewNavigator(coroutineScope) }
 
@@ -604,7 +604,7 @@ public fun rememberWebViewNavigator(
  * A wrapper class to hold errors from the WebView.
  */
 @Immutable
-public data class WebViewError(
+data class WebViewError(
     /**
      * The request the error came from.
      */
@@ -623,7 +623,7 @@ public data class WebViewError(
  *                              Note that these headers are used for all subsequent requests of the WebView.
  */
 @Composable
-public fun rememberWebViewState(
+fun rememberWebViewState(
     url: String,
     additionalHttpHeaders: Map<String, String> = emptyMap()
 ): WebViewState =

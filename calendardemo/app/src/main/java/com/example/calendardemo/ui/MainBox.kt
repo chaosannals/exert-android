@@ -1,6 +1,7 @@
 package com.example.calendardemo.ui
 
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
@@ -12,6 +13,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
 
 import com.example.calendardemo.ui.theme.CalendardemoTheme
+import com.example.calendardemo.ui.widget.BottomBar
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -30,7 +32,7 @@ fun CoroutineScope.navigate(path: String) {
 fun MainBox() {
     CalendardemoTheme {
         Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-            Box(
+            Column(
                 modifier = Modifier
                     .padding(innerPadding)
                     .fillMaxSize()
@@ -46,10 +48,13 @@ fun MainBox() {
                 NavHost(
                     startDestination = "/",
                     navController = controller,
+                    modifier = Modifier.weight(1f)
                 ) {
                     rootGraph()
                     calendarGraph()
+                    webGraph()
                 }
+                BottomBar()
             }
         }
     }
