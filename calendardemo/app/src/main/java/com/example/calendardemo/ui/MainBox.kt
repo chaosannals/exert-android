@@ -14,6 +14,7 @@ import androidx.navigation.compose.rememberNavController
 
 import com.example.calendardemo.ui.theme.CalendardemoTheme
 import com.example.calendardemo.ui.widget.BottomBar
+import com.example.calendardemo.ui.widget.rememberSaveableWebViewState
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -39,6 +40,10 @@ fun MainBox() {
             ) {
                 val controller = rememberNavController()
 
+                // 这个 saveable 有保存，但是没有让 webview 状态恢复。
+                // 因为 WebView restoreState 方法大概率失败。
+                val webViewState = rememberSaveableWebViewState()
+
                 LaunchedEffect(controller) {
                     navigateEvents.collect {
                         controller.navigate(it)
@@ -52,7 +57,7 @@ fun MainBox() {
                 ) {
                     rootGraph()
                     calendarGraph()
-                    webGraph()
+                    webGraph(webViewState)
                 }
                 BottomBar()
             }

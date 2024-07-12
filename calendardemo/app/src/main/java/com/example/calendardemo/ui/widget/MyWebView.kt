@@ -3,6 +3,8 @@ package com.example.calendardemo.ui.widget
 
 import android.content.Context
 import android.graphics.Bitmap
+import android.os.Bundle
+import android.view.ViewGroup
 import android.webkit.WebChromeClient
 import android.webkit.WebResourceError
 import android.webkit.WebResourceRequest
@@ -12,14 +14,12 @@ import android.widget.FrameLayout.LayoutParams
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.viewinterop.AndroidView
 
 data class MyWebViewState(
+    val webView: WebView?=null,
+    val viewState: Bundle?=null,
     val canGoBack: Boolean = false,
 )
 
@@ -32,6 +32,14 @@ class MyWebViewClient(
 
     override fun onPageFinished(view: WebView, url: String?) {
         super.onPageFinished(view, url)
+    }
+
+    override fun shouldOverrideUrlLoading(view: WebView?, request: WebResourceRequest?): Boolean {
+        if (request?.url?.scheme == "bilibili") {
+            return true
+        }
+
+        return super.shouldOverrideUrlLoading(view, request)
     }
 
     override fun doUpdateVisitedHistory(view: WebView, url: String?, isReload: Boolean) {
@@ -67,14 +75,12 @@ open class MyWebChromeClient : WebChromeClient() {
 fun MyWebView(
     state: MyWebViewState,
     modifier: Modifier=Modifier,
-    factory: (Context) -> WebView = { WebView(it) },
+    factory: (Context) -> MyWebViewState = {
+        MyWebViewState(WebView(it))
+    },
 ) {
-    var rawWebView: WebView? by remember {
-        mutableStateOf(null)
-    }
-
     BackHandler(state.canGoBack) {
-        rawWebView?.run {
+        state.webView?.run {
             if (canGoBack()) {
                 goBack()
             }
@@ -85,12 +91,21 @@ fun MyWebView(
         AndroidView(
             modifier=modifier,
             factory = {
-                factory(it).apply {
-                    layoutParams = LayoutParams(
-                        if (constraints.hasFixedWidth) LayoutParams.MATCH_PARENT else LayoutParams.WRAP_CONTENT,
-                        if (constraints.hasFixedHeight) LayoutParams.MATCH_PARENT else LayoutParams.WRAP_CONTENT,
-                    )
-                }.also { rawWebView = it }
+                factory(it).run {
+                    webView!!.apply {
+                        if (parent != null) {
+                            val p = parent as ViewGroup
+                            val n = WebView(it)
+                            n.id = id
+                            p.removeView(this)
+                            p.addView(n)
+                        }
+                        layoutParams = LayoutParams(
+                            if (constraints.hasFixedWidth) LayoutParams.MATCH_PARENT else LayoutParams.WRAP_CONTENT,
+                            if (constraints.hasFixedHeight) LayoutParams.MATCH_PARENT else LayoutParams.WRAP_CONTENT,
+                        )
+                    }
+                }
             },
             onRelease = {
                 //

@@ -7,6 +7,7 @@ import android.database.Cursor
 import android.graphics.Color
 import android.icu.util.Calendar
 import android.net.Uri
+import android.os.Build
 import android.provider.CalendarContract
 import androidx.compose.material3.Text
 import java.util.Date
@@ -68,7 +69,7 @@ fun Context.addCalendarAccount(
         .appendQueryParameter(CalendarContract.Calendars.ACCOUNT_NAME, accountName)
         .appendQueryParameter(CalendarContract.Calendars.ACCOUNT_TYPE, accountType)
         .build()
-    return contentResolver.insert(uri, values)?.let {
+    val result = contentResolver.insert(uri, values)?.let {
         CalendarAccount(
             id = ContentUris.parseId(it),
             name = name,
@@ -77,6 +78,10 @@ fun Context.addCalendarAccount(
             displayName = displayName
         )
     }
+//    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+//        contentResolver.refresh()
+//    }
+    return result
 }
 
 fun Context.deleteCalendarAccount(id: Long): Int {
@@ -109,7 +114,8 @@ fun Context.getDefaultCalendarAccount(): CalendarAccount? {
 }
 
 fun Context.listCalendarAccount(): List<CalendarAccount> {
-    val cursor = contentResolver.query(CalendarContract.Calendars.CONTENT_URI, null, null, null, null)
+    val cursor =
+        contentResolver.query(CalendarContract.Calendars.CONTENT_URI, null, null, null, null)
     return cursor?.use {
         mutableListOf<CalendarAccount>().apply {
             while (it.moveToNext()) {
@@ -131,7 +137,12 @@ fun Context.addCalendarEvent(param: CalendarEvent): Uri? {
                 put(CalendarContract.Events.HAS_ALARM, 1) // 闹钟
                 put(CalendarContract.Events.EVENT_TIMEZONE, "Asia/Shanghai")
             }
-            contentResolver.insert(CalendarContract.Events.CONTENT_URI, event)
+            val result = contentResolver.insert(CalendarContract.Events.CONTENT_URI, event)
+            // 没必要，加了就可以被即时发现。
+//            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+//                contentResolver.refresh(CalendarContract.Events.CONTENT_URI, null, null)
+//            }
+            result
         }
     }
 }
@@ -146,6 +157,10 @@ fun Context.addCalendarReminder(event: Uri, previousMinutes: Int=10): Uri? {
 }
 
 fun Context.listCalendarEvent(): List<CalendarEvent> {
+    // 无效，任然会读取出 非本次APP添加在本次APP被删除的事件。
+//    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+//        contentResolver.refresh(CalendarContract.Events.CONTENT_URI, null, null)
+//    }
     return contentResolver.query(CalendarContract.Events.CONTENT_URI, null, null, null,null)?.use {
         mutableListOf<CalendarEvent>().apply {
             if (it.count > 0) {
@@ -167,8 +182,13 @@ fun Context.listCalendarEvent(): List<CalendarEvent> {
     } ?: listOf()
 }
 
-// 删除不是即时的，要等一段时间后才会起效。
+// 删除本次APP启动添加的事件即时，其他的都不是即时的，要等一段时间后才会起效。
 fun Context.deleteCalendarEvent(id: Long): Int {
     val uri = ContentUris.withAppendedId(CalendarContract.Events.CONTENT_URI, id)
-    return contentResolver.delete(uri, null, null)
+    val result = contentResolver.delete(uri, null, null)
+    // 无效，无法让非本次APP启动期间添加时间即时。
+//    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+//        contentResolver.refresh(uri, null, null)
+//    }
+    return result
 }

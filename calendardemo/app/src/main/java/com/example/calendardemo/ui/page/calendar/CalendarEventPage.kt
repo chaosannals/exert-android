@@ -71,6 +71,7 @@ fun CalendarEventPage() {
                 addCalendarEvent(CalendarEvent(startAt.date!!, endAt.date!!, "test", "测试"))?.let {
                     addCalendarReminder(it)
                 }
+                events = listCalendarEvent()
             }
         }) {
             Text("添加事件")

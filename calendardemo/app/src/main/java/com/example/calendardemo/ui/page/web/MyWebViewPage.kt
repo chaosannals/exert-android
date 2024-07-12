@@ -1,5 +1,6 @@
 package com.example.calendardemo.ui.page.web
 
+import android.annotation.SuppressLint
 import android.webkit.WebView
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -18,36 +19,43 @@ import com.example.calendardemo.ui.widget.MyWebViewClient
 import com.example.calendardemo.ui.widget.MyWebViewState
 import kotlinx.coroutines.flow.MutableStateFlow
 
-val myWebView = MutableStateFlow<WebView?>(null)
 val myWebViewState = MutableStateFlow(MyWebViewState())
 
+
+// 在 history.go(-1) 无效的时候，location.reload 就会恢复可用。
+// 折中方案：实测 location.reload();history.go(-1); 如果可以返回就不会刷新，如果出问题了，会刷新，下次可返回。
+@SuppressLint("SetJavaScriptEnabled")
 @Composable
 fun MyWebViewPage() {
-    val webView by myWebView.collectAsState()
     val state by myWebViewState.collectAsState()
 
     Column {
         Row {
             Button(onClick = {
-                webView?.settings?.userAgentString = "UA TTTT"
+                state.webView?.settings?.userAgentString = "UA TTTT"
             }) {
                 Text(text = "UA change")
             }
-            Text(text = webView?.settings?.userAgentString ?: "None")
+            Text(text = state.webView?.settings?.userAgentString ?: "None")
         }
         MyWebView(
             state=state,
             modifier = Modifier.fillMaxSize(),
             factory = {
-                webView ?: WebView(it).apply {
-                    webViewClient = MyWebViewClient {
-                        myWebViewState.value = state.copy(canGoBack = it)
-                    }
-                    webChromeClient = MyWebChromeClient()
+                state.copy(webView =
+                    state.webView ?: WebView(it).apply {
+                        settings.run {
+                            javaScriptEnabled = true
+                            javaScriptCanOpenWindowsAutomatically = true
+                        }
+                        webViewClient = MyWebViewClient {
+                            myWebViewState.value = state.copy(canGoBack = it)
+                        }
+                        webChromeClient = MyWebChromeClient()
 
-                    myWebView.value = this
-                    loadUrl("https://m.bilibili.com")
-                }
+                        loadUrl("https://m.bilibili.com")
+                    }
+                ).also { myWebViewState.value = it }
             }
         )
     }

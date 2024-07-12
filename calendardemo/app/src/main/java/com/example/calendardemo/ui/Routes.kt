@@ -7,8 +7,10 @@ import com.example.calendardemo.ui.page.HomePage
 import com.example.calendardemo.ui.page.calendar.CalendarAccountPage
 import com.example.calendardemo.ui.page.calendar.CalendarEventPage
 import com.example.calendardemo.ui.page.web.GoogleWebViewPage
+import com.example.calendardemo.ui.page.web.GoogleWebViewSavePage
 import com.example.calendardemo.ui.page.web.MyWebViewPage
 import com.example.calendardemo.ui.widget.GoogleWebView
+import com.example.calendardemo.ui.widget.WebViewState
 
 fun NavGraphBuilder.rootGraph() {
     composable("/") {
@@ -27,10 +29,13 @@ fun NavGraphBuilder.calendarGraph() {
     }
 }
 
-fun NavGraphBuilder.webGraph() {
+fun NavGraphBuilder.webGraph(state: WebViewState) {
     navigation("/web/google", "/web") {
         composable("/web/google") {
             GoogleWebViewPage()
+        }
+        composable("/web/google/save") {
+            GoogleWebViewSavePage(state)
         }
         composable("/web/my") {
             MyWebViewPage()
