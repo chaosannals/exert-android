@@ -198,18 +198,22 @@ keytool -list -rfc --keystore /c/path/to/key.jks | openssl x509 -inform pem -pub
 # openssl 通过 msys2 使用。
 keytool -exportcert -alias key0 -keystore /c/path/to/key.jks | openssl dgst -md5 
 
-# 默认的 Android Studio 生成的调试证书放在用户目录下，密码是 Android
+# 默认的 Android Studio 生成的调试证书放在用户目录下，密码是 Android 或 android
 keytool -exportcert -alias androiddebugkey -keystore ~/.android/debug.keystore |  openssl dgst -md5 
 
 # 调试证书在用户目录  .android 下 debug.keystore 通过下面命令查看 SHA1
 # 密码: android
 keytool -list -v -keystore debug.keystore -storepass android -keypass android
 
+# 生成证书
 # 需要 Java JDK
 # [alias] 为别名
 # [test] 为文件名
 keytool -genkey -alias [alias] -keyalg RSA -keysize 2048 -validity 36500 -keystore [test].keystore
 
+# 如果不存在 debug.keystore 生成，注意要尽量用原版的信息。很多默认命令依赖这些信息。
+# 密码最好是 android ，别名密码也最好是 android 。
+keytool -genkey -alias androiddebugkey -keyalg RSA -keysize 2048 -validity 36500 -keystore debug.keystore
 
 # jks 转 keystore
 # 输入以下命令后会依次要求输入
@@ -218,6 +222,11 @@ keytool -genkey -alias [alias] -keyalg RSA -keysize 2048 -validity 36500 -keysto
 # 3. 源（jks）密钥，因为是转换所以同上
 # 4. keyAlias 的密钥 keyPassword
 keytool -importkeystore -srckeystore ./release.jks -srcstoretype JKS -deststoretype PKCS12 -destkeystore ./release.keystore
+```
+
+```bash
+# 手动签名
+apksigner.bat sign --ks ~/.android/debug.keystore --ks-pass pass:android path/to/your.apk
 ```
 
 ## 百度地图
