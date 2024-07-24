@@ -24,4 +24,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "calendardemo"
 include(":app")
- 
+include(":multinav")
