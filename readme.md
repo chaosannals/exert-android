@@ -14,6 +14,10 @@
 <external-path name="external_root" path="."/>
 ```
 
+## 工具
+
+[QuickType](https://app.quicktype.io/) 可以JSON 转 KotlinX 结构
+
 ## 图标生成
 
 [AndroidAssetStudio](https://github.com/romannurik/AndroidAssetStudio)
